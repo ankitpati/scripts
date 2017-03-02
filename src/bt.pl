@@ -28,7 +28,7 @@ if (grep /^--make-test$/, @ARGV) {
     system qw(cover -ignore_re .*\.t$);
 }
 else {
-    s|^(.*)/(.*)\.pm$|$1/t/$2\.t| foreach @ARGV;
+    s|^(.*/)?(.*)\.pm$|($1 // '') . "t/$2\.t"|e foreach @ARGV;
 
     system qw(find . -type d -name cover_db -exec rm -rf {} +);
     system 'prove', '-v',
