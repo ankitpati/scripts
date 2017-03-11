@@ -12,19 +12,25 @@ foreach my $user (@ARGV) {
         '>', \my $log;
     open my $log_fd, '<', \$log;
 
-    my ($insertions, $deletions);
+    my ($commits, $insertions, $deletions);
 
     while (<$log_fd>) {
-        next if /^[a-z0-9]+ /i;
+        ++$commits, next if /^[a-z0-9]+ /i;
 
         my ($ins) = /(\d+) insertion/;
         my ($del) = /(\d+) deletion/;
 
-        $insertions += $ins || 0, $deletions  += $del || 0;
+        $insertions += $ins || 0, $deletions += $del || 0;
     }
 
     close $log_fd;
 
-    $insertions ||= 0, $deletions ||= 0;
-    print "$user\n\tInsertions : $insertions\n\tDeletions  : $deletions\n\n";
+    $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
+    print <<"EOT";
+$user
+    Commits    : $commits
+    Insertions : $insertions
+    Deletions  : $deletions
+
+EOT
 }
