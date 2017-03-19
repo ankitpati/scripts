@@ -7,6 +7,7 @@ use warnings;
 
 use Cwd;
 use File::Basename;
+use File::Path;
 use File::Spec::Functions 'abs2rel';
 
 die "Usage:\n\tbn <filename>... [--force]\n"
@@ -23,6 +24,8 @@ foreach (@ARGV) {
     s|^(.*/)?(.*)\.pm$|($1 // '') . "t/$2\.t"|e;
     print("$_ exists. Use --force to overwrite.\n"), next if -e $_ && !$force;
 
+    eval { mkpath dirname $_ };
+    warn("Could not create required directories\n"), next if $@;
     open my $test_file, '>', $_ or warn("Could not create $_\n"), next;
 
     my $inc_path = abs2rel "/home/$username/acme/conf/", dirname $_;
