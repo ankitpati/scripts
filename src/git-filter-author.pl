@@ -13,7 +13,8 @@ chomp $branch;
 my $root_commit = `git rev-list --max-parents=0 HEAD`;
 chomp $root_commit;
 
-my @hyphenated_users = map s/ /-/gr, @ARGV;
+my @hyphenated_users = @ARGV;
+s/ /-/g foreach @hyphenated_users;
 $" = '-';
 
 my $new_branch = "commits-by-@hyphenated_users";
