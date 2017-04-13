@@ -29,9 +29,19 @@ system qw(git clean -fd);
 
 system qw(git cherry-pick), $root_commit;
 
+my $shell = `which git-sh` || $ENV{SHELL} || 'sh';
+
 foreach my $user (@ARGV) {
     run [qw(git log), $branch, "--author=$user", '--format=%H'],
         '>', \my $commit_list;
 
-    system qw(git cherry-pick), $_ foreach reverse split /\s/, $commit_list;
+    foreach (reverse grep !/^$root_commit$/, split /\s/, $commit_list) {
+        if ((system qw(git cherry-pick), $_) >> 8) {
+            print STDERR <<'EOT';
+git-filter-author: Shelling out for you to inspect and correct the situation.
+git-filter-author: After solving the cherry-pick, exit the shell to continue.
+EOT
+            system $shell;
+        }
+    }
 }
