@@ -3,16 +3,17 @@
 use strict;
 use warnings;
 
+sub uniq { my %hash = map { $_ => 1 } @_; keys %hash }
 use IPC::Run 'run';
 
 die "Usage:\n\tgit-count <username>...\n" unless @ARGV;
 
 foreach my $user (@ARGV) {
-    run [qw(git log), "--author=$user", qw(--oneline --shortstat)],
+    run [qw(git log --no-merges), "--author=$user", qw(--oneline --shortstat)],
         '>', \my $log;
     open my $log_fd, '<', \$log;
 
-    my ($commits, $insertions, $deletions);
+    my ($files, $commits, $insertions, $deletions);
 
     while (<$log_fd>) {
         ++$commits, next if /^[a-z0-9]+ /i;
@@ -26,8 +27,15 @@ foreach my $user (@ARGV) {
     close $log_fd;
 
     $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
+
+    run [qw(git log --no-merges), "--author=$user",
+         qw(--name-only --pretty=format:)], '>', \$log;
+
+    $files = grep !/^$/m, uniq split "\n", $log;
+
     print <<"EOT";
 $user
+    Files      : $files
     Commits    : $commits
     Insertions : $insertions
     Deletions  : $deletions
