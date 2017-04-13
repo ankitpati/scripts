@@ -5,7 +5,7 @@ use warnings;
 
 use File::Basename;
 
-die "Usage:\n\tjc <jenkins-command> [params]...\n" unless @ARGV;
+@ARGV or die "Usage:\n\tjc <jenkins-command> [params]...\n";
 
 exec 'java', '-jar', dirname (__FILE__).'/jenkins-cli.jar', '-noKeyAuth', @ARGV,
         '--username', 'your-username-here', '--password', 'your-password-here';

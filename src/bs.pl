@@ -7,7 +7,7 @@ use warnings;
 
 use Cwd;
 
-die "Usage:\n\tbs <string pattern> [filname glob]...\n" unless @ARGV;
+@ARGV or die "Usage:\n\tbs <string pattern> [filname glob]...\n";
 
 my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
 die "Unsupported working directory!\n" unless $username;

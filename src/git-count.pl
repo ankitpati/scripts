@@ -6,7 +6,7 @@ use warnings;
 sub uniq { my %hash = map { $_ => 1 } @_; keys %hash }
 use IPC::Run 'run';
 
-die "Usage:\n\tgit-count <username>...\n" unless @ARGV;
+@ARGV or die "Usage:\n\tgit-count <username>...\n";
 
 foreach my $user (@ARGV) {
     run [qw(git log --no-merges), "--author=$user", qw(--oneline --shortstat)],

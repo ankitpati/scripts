@@ -5,7 +5,7 @@ use warnings;
 
 use IPC::Run 'run';
 
-die "Usage:\n\tgit-filter-author <username>...\n" unless @ARGV;
+@ARGV or die "Usage:\n\tgit-filter-author <username>...\n";
 
 my $branch = `git rev-parse --abbrev-ref HEAD`;
 chomp $branch;
