@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-sub uniq { my %hash = map { $_ => 1 } @_; keys %hash }
+sub uniq { keys %{{ map { $_ => 1 } @_ }} }
 use IPC::Run 'run';
 
 @ARGV or die "Usage:\n\tgit-count <username>...\n";
