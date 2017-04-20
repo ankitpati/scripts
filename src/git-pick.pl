@@ -26,9 +26,13 @@ die "No commits to cherry-pick.\n" unless $commits;
 my $shell = `which git-sh` || $ENV{SHELL} || `where cmd.exe` || 'sh';
 
 foreach (reverse @commit_list[0 .. $commits-1]) {
-    if ((system qw(git cherry-pick), $_) >> 8) {
-        print STDERR <<'EOT';
+    my @command = ( qw(git cherry-pick), $_ );
+    if ((system @command) >> 8) {
+        print STDERR <<"EOT";
+
+FAILURE : `@command`
 git-pick: Shelling out for you to inspect and correct the situation.
+git-pick: You may have to reexecute the failed command in the shell.
 git-pick: After solving the cherry-pick, exit the shell to continue.
 EOT
         system $shell;

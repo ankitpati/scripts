@@ -36,9 +36,13 @@ foreach my $user (@ARGV) {
         '>', \my $commit_list;
 
     foreach (reverse grep !/^$root_commit$/, split /\s/, $commit_list) {
-        if ((system qw(git cherry-pick), $_) >> 8) {
-            print STDERR <<'EOT';
+        my @command = ( qw(git cherry-pick), $_ );
+        if ((system @command) >> 8) {
+            print STDERR <<"EOT";
+
+FAILED COMMAND   : `@command`
 git-filter-author: Shelling out for you to inspect and correct the situation.
+git-filter-author: You may have to reexecute the failed command in the shell.
 git-filter-author: After solving the cherry-pick, exit the shell to continue.
 EOT
             system $shell;
