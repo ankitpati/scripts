@@ -21,7 +21,7 @@ $username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 foreach (@ARGV) {
-    s|^(.*/)?(.*)\.pm$|($1 // '') . "t/$2\.t"|e;
+    s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t|;
     print("$_ exists. Use --force to overwrite.\n"), next if -e $_ && !$force;
 
     eval { mkpath dirname $_ };
