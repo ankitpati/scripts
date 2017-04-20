@@ -31,7 +31,7 @@ foreach my $user (@ARGV) {
     run [qw(git log --no-merges), "--author=$user",
          qw(--name-only --pretty=format:)], '>', \$log;
 
-    $files = grep !/^$/m, uniq split "\n", $log;
+    $files = grep !/^$/, uniq split "\n", $log;
 
     print <<"EOT";
 $user
