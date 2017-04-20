@@ -23,7 +23,7 @@ $commits = @commit_list < $commits ? @commit_list : $commits;
 
 die "No commits to cherry-pick.\n" unless $commits;
 
-my $shell = `which git-sh` || $ENV{SHELL} || 'sh';
+my $shell = `which git-sh` || $ENV{SHELL} || `where cmd.exe` || 'sh';
 
 foreach (reverse @commit_list[0 .. $commits-1]) {
     if ((system qw(git cherry-pick), $_) >> 8) {
