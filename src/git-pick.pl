@@ -8,20 +8,19 @@ use IPC::Run 'run';
 die "Usage:\n\tgit-pick <branch> [commits]\n" if !@ARGV || @ARGV > 2;
 
 my $branch = shift;
-die "$branch: no such branch.\n"
-    unless grep m|^. (?:remotes/)?$branch$|, split /\n/, `git branch -a`;
+grep m|^. (?:remotes/)?$branch$|, split /\n/, `git branch -a`
+    or die "$branch: no such branch.\n";
 
 my $commits = shift || 0; # 0 will cherry-pick all commits from target branch
-die "$commits is not a positive integer.\n" unless $commits =~ /^\d+$/;
+$commits =~ /^\d+$/ or die "$commits is not a positive integer.\n";
 
 run [qw(git log), $branch, '--format=%H'], '>', \my $commit_list;
 
 my @commit_list = split /\s/, $commit_list;
 
 $commits ||= @commit_list;
-$commits = @commit_list < $commits ? @commit_list : $commits;
-
-die "No commits to cherry-pick.\n" unless $commits;
+$commits = @commit_list < $commits ? @commit_list : $commits
+    or die "No commits to cherry-pick.\n";
 
 my $shell = `which git-sh` || $ENV{SHELL} || `where cmd.exe` || 'sh';
 

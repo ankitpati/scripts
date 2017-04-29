@@ -10,7 +10,7 @@ use Cwd;
 die "Usage:\n\tbb [string pattern]\n" if @ARGV > 1;
 
 my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-die "Unsupported working directory!\n" unless $username;
+$username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 chdir "/home/$username";

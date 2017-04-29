@@ -15,7 +15,7 @@ my $noselect = 1 if grep /^--no-select$/, @ARGV;
 @ARGV = grep !/^--no-select$/, @ARGV;
 
 my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-die "Unsupported working directory!\n" unless $username;
+$username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 $ENV{HARNESS_PERL_SWITCHES} = '-MDevel::Cover';

@@ -17,7 +17,7 @@ my $force = 1 if grep /^--force$/, @ARGV;
 @ARGV = grep !/^--force$/, @ARGV;
 
 my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-die "Unsupported working directory!\n" unless $username;
+$username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 foreach (@ARGV) {
