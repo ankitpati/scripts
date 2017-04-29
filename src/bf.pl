@@ -18,5 +18,5 @@ push @name, ('-name', $_, '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
 chdir "/home/$username";
-system qw(find . -not ( -path */cover_db -prune ) ( -type f -or -type d )),
-       @name;
+system qw(find . -not ( -path */cover_db -prune -or -path */.git -prune )
+                 ( -type f -or -type d )), @name;
