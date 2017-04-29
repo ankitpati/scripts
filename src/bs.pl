@@ -16,7 +16,7 @@ $username =~ s|/||;
 my $search = shift;
 
 my @name;
-push @name, ('-name', $_, '-o') foreach @ARGV;
+push @name, (m|/| ? '-path' : '-name', $_, '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
 chdir "/home/$username";

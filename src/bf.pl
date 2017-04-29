@@ -14,7 +14,7 @@ $username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 my @name;
-push @name, ('-name', $_, '-o') foreach @ARGV;
+push @name, (m|/| ? '-path' : '-name', $_, '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
 chdir "/home/$username";
