@@ -19,7 +19,6 @@ die "Unsupported working directory!\n" unless $username;
 $username =~ s|/||;
 
 $ENV{HARNESS_PERL_SWITCHES} = '-MDevel::Cover';
-$ENV{PERL_TEST_HARNESS_DUMP_TAP} = '/home/report/';
 
 if (grep /^--make-test$/, @ARGV) {
     chdir "/home/$username";
