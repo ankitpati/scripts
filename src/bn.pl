@@ -29,7 +29,7 @@ foreach (@ARGV) {
     open my $test_file, '>', $_ or warn("Could not create $_\n"), next;
 
     my $inc_path = abs2rel "/home/$username/acme/conf/", dirname $_;
-    s|^t/||, s|/t/|/|, s|\.t$||, s|^.*?/Acme/||, s|/|::|g;
+    s@^.*?/Acme/|^t/|\.t$@@g, s@/t/|/@::@g;
 
     print $test_file <<"EOF";
 # Tests for Acme::$_.
