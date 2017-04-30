@@ -30,15 +30,15 @@ if (grep /^--make-test$/, @ARGV) {
 s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t| foreach @ARGV;
 
 system qw(find . -type d -name cover_db -exec rm -rf {} +);
-system 'prove', '-v',
-                '-I/opt/rhk-hinter/lib/perl5',
-                '-I/opt/perl/lib/site_perl/5.12.1',
-                '-I/opt/perl/lib/site_perl/5.12.1/noarch',
-                '-I/opt/perl/lib/5.12.1',
-                '-I/opt/perl/lib/noarch',
-                "-I/home/$username/lib/perl5",
-                "-I/home/$username/lib/perl5/noarch-linux",
-                @ARGV;
+system qw(prove -v),
+               '-I/opt/rhk-hinter/lib/perl5',
+               '-I/opt/perl/lib/site_perl/5.12.1',
+               '-I/opt/perl/lib/site_perl/5.12.1/noarch',
+               '-I/opt/perl/lib/5.12.1',
+               '-I/opt/perl/lib/noarch',
+               "-I/home/$username/lib/perl5",
+               "-I/home/$username/lib/perl5/noarch-linux",
+               @ARGV;
 
 s|^t/||, s|/t/|/|, s|\.t$|\.pm| foreach @ARGV;
 system 'cover', ( $noselect ? qw(-ignore_re .*\.t$)
