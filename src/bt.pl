@@ -24,23 +24,22 @@ if (grep /^--make-test$/, @ARGV) {
     chdir "/home/$username";
     system qw(find . -type d -name cover_db -exec rm -rf {} +);
     system qw(make test);
-    system qw(cover -ignore_re .*\.t$);
+    exec   qw(cover -ignore_re .*\.t$);
 }
-else {
-    s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t| foreach @ARGV;
 
-    system qw(find . -type d -name cover_db -exec rm -rf {} +);
-    system 'prove', '-v',
-                    '-I/opt/rhk-hinter/lib/perl5',
-                    '-I/opt/perl/lib/site_perl/5.12.1',
-                    '-I/opt/perl/lib/site_perl/5.12.1/noarch',
-                    '-I/opt/perl/lib/5.12.1',
-                    '-I/opt/perl/lib/noarch',
-                    "-I/home/$username/lib/perl5",
-                    "-I/home/$username/lib/perl5/noarch-linux",
-                    @ARGV;
+s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t| foreach @ARGV;
 
-    s|^t/||, s|/t/|/|, s|\.t$|\.pm| foreach @ARGV;
-    system 'cover', ( $noselect ? qw(-ignore_re .*\.t$)
-                : ('-select_re', '^'.( join '|', map(quotemeta, @ARGV) ).'$') );
-}
+system qw(find . -type d -name cover_db -exec rm -rf {} +);
+system 'prove', '-v',
+                '-I/opt/rhk-hinter/lib/perl5',
+                '-I/opt/perl/lib/site_perl/5.12.1',
+                '-I/opt/perl/lib/site_perl/5.12.1/noarch',
+                '-I/opt/perl/lib/5.12.1',
+                '-I/opt/perl/lib/noarch',
+                "-I/home/$username/lib/perl5",
+                "-I/home/$username/lib/perl5/noarch-linux",
+                @ARGV;
+
+s|^t/||, s|/t/|/|, s|\.t$|\.pm| foreach @ARGV;
+system 'cover', ( $noselect ? qw(-ignore_re .*\.t$)
+            : ('-select_re', '^'.( join '|', map(quotemeta, @ARGV) ).'$') );
