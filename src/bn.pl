@@ -16,22 +16,28 @@ die "Usage:\n\tbn <filename>... [--force]\n"
 my $force = 1 if grep /^--force$/, @ARGV;
 @ARGV = grep !/^--force$/, @ARGV;
 
-my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
+my $cwd = cwd;
+
+my ($username) = $cwd =~ qr{^/home/(.*?/|.*)};
 $username or die "Unsupported working directory!\n";
 $username =~ s|/||;
 
 foreach (@ARGV) {
-    s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t|;
+    s|^(?:.*/Acme/)?(.*)\.pm$|t/lib/TestsFor/Acme/$1/legacy.pm|;
     print("$_ exists. Use --force to overwrite.\n"), next if -e $_ && !$force;
+
+    my $old_test = /\.t$/;
+    chdir ($old_test ? $cwd : "/home/$username");
 
     eval { mkpath dirname $_ };
     warn("Could not create required directories\n"), next if $@;
     open my $test_file, '>', $_ or warn("Could not create $_\n"), next;
 
     my $inc_path = abs2rel "/home/$username/acme/conf/", dirname $_;
-    s@^.*?/Acme/|^t/|\.t$@@g, s@/t/|/@::@g;
+    s@^.*?/Acme/|^t/|\.t$|(?:/legacy)?\.pm$@@g, s@/t/|/@::@g;
 
-    print $test_file <<"EOF";
+    if ($old_test) {
+        print $test_file <<"EOF";
 # Tests for Acme::$_.
 # ----------------${\('-' x length)}-
 
@@ -53,6 +59,33 @@ BEGIN {
     use_ok(\$pkg);
 }
 EOF
+    }
+    else {
+        print $test_file <<"EOF";
+package TestsFor::Acme::${_}::legacy;
+
+use strict;
+use warnings;
+
+use File::Basename qw(dirname);
+BEGIN { require( dirname(__FILE__) .
+        '/$inc_path/include.pm' ); }
+
+use Test::Class::Moose;
+use Test::Exception;
+use Test::MockModule;
+use Test::MockObject;
+
+use Acme::$_;
+
+my \$pkg;
+sub test_startup {
+    \$pkg = 'Acme::$_';
+}
+
+1;
+EOF
+    }
 
     close $test_file;
 }
