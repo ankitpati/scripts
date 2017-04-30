@@ -20,7 +20,7 @@ $username =~ s|/||;
 
 $ENV{HARNESS_PERL_SWITCHES} = '-MDevel::Cover';
 
-if (grep /^--make-test$/, @ARGV) {
+if ($ARGV[0] eq '--make-test') {
     chdir "/home/$username";
     system qw(find . -type d -name cover_db -exec rm -rf {} +);
     system qw(make test);
