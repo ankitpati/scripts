@@ -17,4 +17,4 @@ chdir "/home/$username";
 
 exec qw(egrep -Hn --), shift, 'BAD_TESTS.txt' if @ARGV;
 
-exec qw(vim BAD_TESTS.txt);
+exec qw(vim -O WORKING_MOOSE_TESTS.txt BAD_TESTS.txt);
