@@ -72,7 +72,6 @@ BEGIN { require( dirname(__FILE__) .
         '/$inc_path/include.pm' ); }
 
 use Test::Class::Moose;
-use Test::Exception;
 use Test::MockModule;
 use Test::MockObject;
 
