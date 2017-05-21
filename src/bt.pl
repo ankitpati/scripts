@@ -24,7 +24,8 @@ chdir $base;
 
 system qw(find . -type d -name cover_db -exec rm -rf {} +);
 
-$ENV{HARNESS_PERL_SWITCHES} = '-MDevel::Cover';
+$ENV{HARNESS_PERL_SWITCHES} =
+    '-MDevel::Cover=-coverage,statement,branch,condition,subroutine,time';
 
 if ($maketest) {
     system qw(make test);
