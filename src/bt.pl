@@ -76,8 +76,10 @@ my @prove = (qw(
 
 system @prove, @t_files if @t_files;
 
-system @prove, qw(t/test_classes.t ::), uniq(@no_t_files, @moose_tests)
-    if @no_t_files || @moose_tests;
+if (@no_t_files || @moose_tests) {
+    system @prove, qw(t/test_classes.t ::), $_
+        foreach uniq(@no_t_files, @moose_tests);
+}
 
 s|/t/|/|, s|^$base/||, s|\.t$|\.pm| foreach @ARGV;
 system 'cover', ( $noselect ? qw(-ignore_re ^t/|.*\.t$)
