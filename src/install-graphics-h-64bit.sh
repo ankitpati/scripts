@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd ~ && \
+sudo apt -y install git geany geany-plugins libsdl2-2.0-0 libsdl2-dev && \
+wget 'https://ankitpati.in/downloads/sdl-bgi_2.0.8-1_amd64.deb' && \
+sudo dpkg -i sdl-bgi_2.0.8-1_amd64.deb && \
+git clone https://github.com/ankitpati/geany-config.git && \
+rm -rf .config/geany && \
+mv geany-config .config/geany && \
+rm sdl-bgi_2.0.8-1_amd64.deb && \
+echo 'Done!'
