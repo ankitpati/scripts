@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+print "Email to validate?\n";
+
+my $email_regex = qr/^(?:[a-zA-Z0-9]\w*[-+\.])*?[a-zA-Z0-9]\w*?@(?:[a-zA-Z0-9]\w*?[-\.])+[a-zA-Z0-9]\w+$/;
+#  ^ just to ensure the single-line version remains up-to-date and compilable
+
+$email_regex = qr/^
+    (?:[a-zA-Z0-9]\w*[-+\.])*?  # other parts, delimited by plus, minus, dot
+    [a-zA-Z0-9]\w*?             # part immediately preceding @
+
+    @                           # only one @ allowed
+
+    (?:[a-zA-Z0-9]\w*?[-\.])+   # host.domain. (notice the last dot)
+    [a-zA-Z0-9]\w+              # TLD (cannot contain only 1 char)
+$/x;
+
+my $email = <>;
+
+print ($email =~ $email_regex ? "Valid" : "Invalid", "\n");
