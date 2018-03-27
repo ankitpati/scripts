@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
+use Crypt::Random qw(makerandom_octet);
+
+sub get_hash {
+    my $password = shift;
+
+    my $settings = '$2a$08$';
+        # 2a: algorithm, bcrypt with NUL appended to key
+        # 08: cost, 2**8 operations
+
+    my $salt = en_base64 makerandom_octet Length => 16;
+
+    return bcrypt $password, $settings.$salt;
+}
+
+sub verify_password {
+    my ($password, $hash) = @_;
+    return bcrypt ($password, $hash) eq $hash;
+}
+
+die "Usage:\n\tperl-bcrypt <password> [hash to verify]\n"
+    if !@ARGV || @ARGV > 2;
+
+if (@ARGV == 1) {
+    print (get_hash (shift), "\n");
+    exit;
+}
+
+print (verify_password (shift, shift) ? "Valid\n" : "Invalid\n");
