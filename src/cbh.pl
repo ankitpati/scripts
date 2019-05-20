@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 sub uniq { my %h; undef @h{@_}; keys %h }
+sub minus { grep { my $i = $_; !grep { $i eq $_ } @{$_[1]} } @{$_[0]} }
 
 # UTF8 for File Handles and Command Line Arguments
 use open qw(:std :utf8);
@@ -69,6 +70,7 @@ my @discards = (
     qr/^tree /,
     qr/^view /,
     qr/^vimdiff /,
+    qr/^wall /,
     qr/^wc /,
     qr/^which /,
 
@@ -92,14 +94,14 @@ my @discards = (
 
 my @prefixes = (
 # Keep package manager “info” and “install” commands in ARRAYrefs, as shown.
-#   ['pkg-mgr info '  , 'pkg-mgr install '  ],
+#   ['pkg-mgr info '  , 'pkg-mgr install '  , 'pkg-mgr uninstall'   ],
 
-    ['brew info '     , 'brew install '     ],
-    ['brew cask info ', 'brew cask install '],
-    ['apt show '      , 'apt install '      ],
-    ['dnf info '      , 'dnf install '      ],
-    ['yum info '      , 'yum install '      ],
-    ['snap info '     , 'snap install '     ],
+    ['brew info '     , 'brew install '     , 'brew uninstall '     ],
+    ['brew cask info ', 'brew cask install ', 'brew cask uninstall '],
+    ['apt show '      , 'apt install '      , 'apt remove '         ],
+    ['dnf info '      , 'dnf install '      , 'dnf remove '         ],
+    ['yum info '      , 'yum install '      , 'yum remove '         ],
+    ['snap info '     , 'snap install '     , 'snap remove '        ],
 
     'cpan install ',
     'cpanm ',
@@ -137,20 +139,35 @@ foreach my $histfile (@ARGV) {
 
     close $fin;
 
+    # Deduplicate the package names. Done here for performance only.
     @$_ = uniq @$_ foreach values %prefix_history;
 
-    # Merge list for `brew info` and `brew install`, prioritising `install`.
-    foreach my $info_install (grep ref, @prefixes) {
-        my ($info, $install) = @prefix_history{@$info_install};
-        @$info = grep { my $i = $_; !grep { $i eq $_ } @$install } @$info;
-    }
+    # Merge list for `brew info`, `brew install`, and `brew uninstall`.
+    foreach my $pkg_cmds (grep ref, @prefixes) {
+        my ($info, $install, $uninstall) = @prefix_history{@$pkg_cmds};
 
-    @$_ = sort @$_ foreach values %prefix_history;
+        $info      //= [];
+        $install   //= [];
+        $uninstall //= [];
+
+        # Add the `uninstall`s to the `info` array.
+        push @$info, @$uninstall;
+
+        # Remove the `uninstall`s from the `install` array.
+        @$install = minus $install, $uninstall;
+
+        # Remove the `install`s from the `info` array.
+        @$info = minus $info, $install;
+
+        # Remove all uninstall commands from history.
+        delete $prefix_history{$pkg_cmds->[2]};
+    }
 
     while (my ($prefix, $list) = each %prefix_history) {
         push @normal_history, "$prefix$_" foreach @$list;
     }
 
+    # Deduplicate everything.
     @normal_history = sort (&uniq (@normal_history));
 
     open my $fout, '>', $histfile
