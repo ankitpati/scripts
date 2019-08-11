@@ -1,0 +1,81 @@
+#!/usr/bin/env perl
+# Chrome Password CSV Parser
+
+use strict;
+use warnings;
+
+# UTF8 for File Handles and Command Line Arguments
+use open qw(:std :utf8);
+use Unicode::UTF8 qw(decode_utf8);
+
+use Text::CSV;
+
+use Boron::Utils::Domain qw(hostname);
+
+use constant {
+    VERBS        => [qw( read write )],
+    DEFAULT_VERB => 0,
+    DEFAULT_FILE => 'Chrome Passwords.csv',
+};
+
+my $me = (split m|/|, $0)[-1];
+
+@ARGV <= 2 or die "Usage:\n\t$me [verb] [password-file]...\n";
+
+@ARGV = map { decode_utf8 $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+my ($verb, $passfile) = @ARGV;
+
+$verb     //= @{&VERBS}[DEFAULT_VERB];
+$passfile //= DEFAULT_FILE;
+
+if (!grep (/^\Q$verb\E$/i, @{&VERBS}) && -f $verb) {
+    $passfile = $verb;
+    $verb = @{&VERBS}[DEFAULT_VERB];
+}
+
+grep /^\Q$verb\E$/i, @{&VERBS}
+    or die "$me: Permitted verbs are [ @{&VERBS} ].\n";
+
+$verb = lc $verb;
+
+open my $fcsv, $verb eq 'read' ? '<' : '>>', $passfile
+    or die "Could not open $passfile for $verb!\n";
+
+my $csv = Text::CSV->new ({ binary => 1 });
+
+if ($verb eq 'read') {
+    local $" = "\t";
+
+    while (my $row = $csv->getline ($fcsv)) {
+        print "@$row\n";
+    }
+}
+else {
+    print "URL <tab> Username <tab> Password\n";
+    while (<STDIN>) {
+        chomp;
+
+        my @row = split /\s+/;
+        unless (@row == 3) {
+            warn "Line $.: need exactly 3 items per line!\n";
+            next;
+        }
+
+        my $hostname = hostname $row[0];
+        unless ($hostname) {
+            warn "Line $.: invalid URL!\n";
+            next;
+        }
+
+        $row[0] = "http://$row[0]" if $row[0] !~ m{^(?:ht|f)tps?://};
+
+        unshift @row, $hostname;
+        $csv->print ($fcsv, \@row);
+        print $fcsv "\n";
+    }
+}
+
+close $fcsv;
+
+__END__
