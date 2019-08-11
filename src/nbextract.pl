@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+# UTF8 for Source Code, and Command-Line Arguments
+use utf8;
+use Encode qw(decode);
+@ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+use IO::Uncompress::Unzip qw(unzip $UnzipError);
+use JSON qw(decode_json);
+use POSIX qw(strftime);
+
+use constant {
+    NOTES_METADATA => 'var/notes_meta_data.json',
+    STRIP_FILE_EXT => qr/\.(?:gz|gzip|z|zip)$/i,
+    TITLE_TO_FILENAME => qr/\W+/,
+};
+
+my $me = (split m|/|, $0)[-1];
+@ARGV == 1 or die "Usage:\n\t$me <notepad-free-backup.zip>\n";
+
+sub main {
+    my ($backup) = @_;
+
+    -f $backup and -r $backup or die "“$backup” is not a readable file!\n";
+
+    my $directory = $backup;
+    $directory =~ s/${\(STRIP_FILE_EXT)}//;
+    mkdir $directory or die "Could not create folder “$directory”: $!\n";
+
+    unzip $backup => \my $metadata_json, name => NOTES_METADATA
+        or die "Could not open backup file “$backup”: $UnzipError\n";
+
+    foreach my $metadata (@{ (decode_json $metadata_json)->{notes} }) {
+        my $ctime = $metadata->{creationDate};
+        my $notefile = $metadata->{file};
+        my $title = $metadata->{title};
+
+        # Important transformations...
+        $title =~ s/&/ n /g;
+
+        # Discard weird characters at start or end, translate others to `_`
+        $title =~ s/^${\(TITLE_TO_FILENAME)}|${\(TITLE_TO_FILENAME)}$//g;
+        $title =~ s/${\(TITLE_TO_FILENAME)}/_/g;
+
+        my ($ts, $ms) = $ctime =~ /(\d+)(\d{3})/;
+        $ts //= 0; # UNIX Timestamp
+        $ms //= 0; # Milliseconds
+
+        $ctime = strftime "%F_%H-%M-%S.${ms}_%Z", localtime $ts;
+
+        my $outfile = "$directory/$ctime $title.txt";
+
+        if (unzip $backup => \my $note, name => $notefile) {
+            # $note = encode 'UTF-8', '🐯'; # `$note` is actually in bytes.
+
+            $note = "$note\n"; # No terminating newline, only LF used in notes.
+
+            if (open my $fout, '>', $outfile) {
+                binmode $fout;
+                print $fout $note;
+                close $fout;
+            }
+            else {
+                warn "Could not open file “$outfile” to write note: $!\n";
+            }
+        }
+        else {
+            warn "Could not open “$notefile” from “$backup”: $UnzipError\n";
+        }
+    }
+}
+
+main @ARGV unless caller;
