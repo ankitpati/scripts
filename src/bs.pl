@@ -7,11 +7,15 @@ use warnings;
 
 use Cwd;
 
-@ARGV or die "Usage:\n\tbs <string pattern> [filname glob]...\n";
+my $me = (split m|/|, $0)[-1];
 
-my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-$username or die "Unsupported working directory!\n";
-$username =~ s|/||;
+@ARGV or die "Usage:\n\t$me <string pattern> [filname glob]...\n";
+
+my $gitroot;
+$gitroot = eval { `git rev-parse --show-toplevel` };
+chomp $gitroot;
+die "$me: Unsupported working directory or `git` not on \$PATH!\n"
+    if $@ or not $gitroot;
 
 my $search = shift;
 
@@ -19,6 +23,11 @@ my @name;
 push @name, (m|/| ? '-path' : '-name', "*$_*", '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
-chdir "/home/$username";
-system qw(find . -not ( -path */cover_db -prune -or -path */.git -prune )
-                 -type f), @name, qw(-exec egrep -HnI --), $search, qw({} +);
+chdir $gitroot;
+exec qw(find . -not (
+                      -path */cover_db  -prune -or
+                      -path */.git      -prune -or
+                      -path */tmp       -prune -or
+                      -path */web/run   -prune
+                    )
+               -type f), @name, qw(-exec egrep -HnI --), $search, qw({} +);

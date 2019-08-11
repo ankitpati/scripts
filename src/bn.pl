@@ -11,29 +11,32 @@ use File::Path;
 use File::Spec::Functions 'abs2rel';
 
 die "Usage:\n\tbn <filename>... [--force]\n"
-    if !@ARGV || (grep (/^--force$/, @ARGV) && @ARGV <  2);
+    if not @ARGV or (grep (/^--force$/, @ARGV) and @ARGV < 2);
 
-my $force = 1 if grep /^--force$/, @ARGV;
+my $force = grep /^--force$/, @ARGV;
 @ARGV = grep !/^--force$/, @ARGV;
 
 my $cwd = cwd;
 
-my ($username) = $cwd =~ qr{^/home/(.*?/|.*)};
-$username or die "Unsupported working directory!\n";
-$username =~ s|/||;
+my $gitroot;
+$gitroot = eval { `git rev-parse --show-toplevel` };
+chomp $gitroot;
+die "$me: Unsupported working directory or `git` not on \$PATH!\n"
+    if $@ or not $gitroot;
 
 foreach (@ARGV) {
     s|^(?:.*/Acme/)?(.*)\.pm$|t/lib/TestsFor/Acme/$1/legacy.pm|;
-    print("$_ exists. Use --force to overwrite.\n"), next if -e $_ && !$force;
+    print("$_ exists. Use --force to overwrite.\n"), next
+        if -e $_ and not $force;
 
     my $old_test = /\.t$/;
-    chdir ($old_test ? $cwd : "/home/$username");
+    chdir ($old_test ? $cwd : $gitroot);
 
     eval { mkpath dirname $_ };
     warn("Could not create required directories\n"), next if $@;
     open my $test_file, '>', $_ or warn("Could not create $_\n"), next;
 
-    my $inc_path = abs2rel "/home/$username/acme/conf/", dirname $_;
+    my $inc_path = abs2rel "$gitroot/acme/conf/", dirname $_;
     s@^.*?/Acme/|^t/|\.t$|(?:/legacy)?\.pm$@@g, s@/t/|/@::@g;
 
     if ($old_test) {

@@ -10,12 +10,16 @@ use File::Basename;
 use File::Path;
 use File::Spec::Functions 'rel2abs';
 
-my $filename = shift;
-die "Usage:\n\tbm <filename>\n" if shift || !$filename;
+my $me = ${\(split m|/|, $0)[-1]};
 
-my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-$username or die "Unsupported working directory!\n";
-$username =~ s|/||;
+my $filename = shift;
+die "Usage:\n\t$me <filename>\n" if shift or not $filename;
+
+my $gitroot;
+$gitroot = eval { `git rev-parse --show-toplevel` };
+chomp $gitroot;
+die "$me: Unsupported working directory or `git` not on \$PATH!\n"
+    if $@ or not $gitroot;
 
 my $filepath = rel2abs $filename;
 -e $filepath or die "$filename does not exist.\n";
@@ -23,7 +27,7 @@ my $filepath = rel2abs $filename;
 my $test_file;
 
 if ($filename =~ m|^(?:.*/Acme/)?(.*)\.pm$|) {
-    my $test_dir = "/home/$username/t/lib/TestFor/Acme/$1/";
+    my $test_dir = "$gitroot/t/lib/TestFor/Acme/$1/";
 
     $test_file = -e "$test_dir/base.pm"   ? 'base.pm'   :
                  -e "$test_dir/legacy.pm" ? 'legacy.pm' : '';
