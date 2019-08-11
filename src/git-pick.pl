@@ -3,20 +3,33 @@
 use strict;
 use warnings;
 
-use IPC::Run 'run';
+use IPC::Run qw(run);
 
-die "Usage:\n\tgit-pick <branch> [commits]\n" if !@ARGV || @ARGV > 2;
+my $NAME = (split m|/|, $0)[-1];
 
-my $branch = shift;
+my ($branch, $commits) = @ARGV;
+
+die <<"EOU" if @ARGV != 2 || $commits !~ /^\d+$/;
+Usage:
+    $NAME <branch> <commits>
+
+    branch (string)
+        Git branch to pick the commits from
+
+    commits (integer)
+        +ve: Commits to `chery-pick` from `branch`
+        0  : `cherry-pick` all commits from `branch`
+EOU
+
 grep m|^. (?:remotes/)?$branch$|, split /\n/, `git branch -a`
     or die "$branch: no such branch.\n";
 
-my $commits = shift || 0; # 0 will cherry-pick all commits from target branch
-$commits =~ /^\d+$/ or die "$commits is not a positive integer.\n";
-
 run [qw(git log), $branch, '--format=%H'], '>', \my $commit_list;
 
-my @commit_list = split /\s/, $commit_list;
+my @commit_list;
+foreach my $commit (split /\n/, $commit_list) {
+    push @commit_list, $commit if $commit =~ /^[0-9a-f]+$/;
+}
 
 $commits ||= @commit_list;
 $commits = @commit_list < $commits ? @commit_list : $commits
