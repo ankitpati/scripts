@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+my_interface='ens192'
+my_port='443'
+kvm_ip_address='192.168.122.76'
+kvm_port='22'
+
+# Order of the statements below matters. A lot.
+
+# Rewrite redirected packets to have destination
+# "$kvm_ip_address", and destination port "$kvm_port".
+iptables -t filter \
+         -I FORWARD \
+         -d "$kvm_ip_address" \
+         -p tcp \
+         -m state \
+         --state NEW \
+         -m tcp \
+         --dport "$kvm_port" \
+         -j ACCEPT
+
+# All incoming connections to "$my_ip_address:$my_port"
+# be sent to "$kvm_ip_address:$kvm_port".
+iptables -t nat \
+         -A PREROUTING \
+         -i "$my_interface" \
+         -p tcp \
+         --dport "$my_port" \
+         -j DNAT \
+         --to "$kvm_ip_address:$kvm_port"
