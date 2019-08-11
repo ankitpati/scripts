@@ -1,0 +1,111 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Net::Patricia;
+use Net::Netmask qw(cidrs2cidrs);
+
+use Parallel::ForkManager;
+use IPC::Shareable;
+
+use constant {
+    ARIES_THREADS => 8,
+    IPC_OPTIONS   => {
+        create    => 1,
+        exclusive => 1,
+        mode      => 0600,
+        destroy   => 0,
+        size      => 3_000_000, # bytes
+    },
+};
+
+my $me = (split m|/|, $0)[-1];
+my $usage = "Usage:\n\t$me [-l] <neutral_filepath> <hitandrun_filepath> ".
+                                                  "<output_filepath>\n";
+
+my $is_list = grep /^-l$/, @ARGV;
+@ARGV = grep !/^-l$/, @ARGV;
+
+@ARGV == 3 or die $usage;
+
+my ($neutral_file_path, $hit_and_run_file_path, $output_file_path) = @ARGV;
+
+open my $neutral_file, '<', $neutral_file_path
+    or die "Could not open neutral file!\n";
+my @neutral_array = <$neutral_file>;
+close $neutral_file;
+chomp foreach @neutral_array;
+
+open my $hit_and_run_file, '<', $hit_and_run_file_path
+    or die "Could not open hit and run file!\n";
+my @hit_and_run_array = <$hit_and_run_file>;
+close $hit_and_run_file;
+chomp foreach @hit_and_run_array;
+
+my $neutral_pt = Net::Patricia->new;
+$neutral_pt->add_string ($_) foreach @neutral_array;
+
+my $hit_and_run_pt = Net::Patricia->new;
+foreach (@hit_and_run_array) {
+    $hit_and_run_pt->add_string ($_) unless $neutral_pt->match_string ($_);
+}
+
+# *sigh* Manual memory management in Perl. Necessary because we're dealing
+# with a lot of data. Oh well. At least it's possible in Perl. Unlike a
+# certain enterprise programming language.
+undef $neutral_pt;
+undef @hit_and_run_array;
+
+my (%parents, @children);
+foreach my $child_neutral (@neutral_array) {
+    my $parent_hit_and_run = $hit_and_run_pt->match_string ($child_neutral)
+        or next;
+
+    undef $parents{$parent_hit_and_run}; # This needs deduplication...
+    push @children, Net::Netmask->new2 ($child_neutral); # but this does not.
+}
+
+undef $hit_and_run_pt;
+undef @neutral_array;
+
+my @parents = cidrs2cidrs map { Net::Netmask->new2 ($_) } keys %parents;
+@children = cidrs2cidrs @children;
+
+undef %parents;
+
+my %aries; # Deduplication needed, so we use hash keys.
+my $glue = $$;
+1 until tie %aries, 'IPC::Shareable', $glue++, IPC_OPTIONS;
+
+my $pm = Parallel::ForkManager->new (ARIES_THREADS);
+
+foreach my $parent (@parents) {
+    next if $pm->start;
+
+    my @diff = $parent->cidrs2inverse (@children) or goto END_CHILD;
+
+    (tied %aries)->shlock;
+    $aries{"$_"} = 1 foreach @diff;
+    (tied %aries)->shunlock;
+
+END_CHILD:
+    $pm->finish;
+}
+
+$pm->wait_all_children;
+
+(tied %aries)->shlock;
+
+open my $fout, '>', $output_file_path or die "Could not open output file!\n";
+if ($is_list) {
+    print $fout join ("\n", keys %aries), "\n";
+}
+else {
+    print $fout join ("\n", map { $_->enumerate } keys %aries), "\n";
+}
+close $fout;
+
+(tied %aries)->shunlock;
+
+IPC::Shareable->clean_up;

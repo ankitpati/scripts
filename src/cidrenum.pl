@@ -1,0 +1,16 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Net::Netmask;
+
+my $me = (split m|/|, $0)[-1];
+my $usage = "Usage:\n\t$me <CIDR>...\n";
+
+@ARGV or die $usage;
+
+my @ips = map { (eval { Net::Netmask->new2 ($_) } or die $usage)->enumerate }
+            @ARGV;
+
+print "$_\n" foreach @ips;
