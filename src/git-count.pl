@@ -3,14 +3,17 @@
 use strict;
 use warnings;
 
-sub uniq { keys %{{ map { $_ => 1 } @_ }} }
-use IPC::Run 'run';
+use List::AllUtils qw(uniq);
+use IPC::Run qw(run);
 
 @ARGV or die "Usage:\n\tgit-count <username>...\n";
 
 foreach my $user (@ARGV) {
-    run [qw(git log --no-merges), "--author=$user", qw(--oneline --shortstat)],
-        '>', \my $log;
+    my $log;
+
+    run [qw(git log --no-merges --oneline --shortstat), "--author=$user"],
+        '>', \$log;
+
     open my $log_fd, '<', \$log;
 
     my ($files, $commits, $insertions, $deletions);
@@ -28,8 +31,8 @@ foreach my $user (@ARGV) {
 
     $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
 
-    run [qw(git log --no-merges), "--author=$user",
-         qw(--name-only --pretty=format:)], '>', \$log;
+    run [qw(git -c log.showSignature=false log --no-merges --name-only
+            --pretty=), "--author=$user"], '>', \$log;
 
     $files = grep !/^$/, uniq split "\n", $log;
 
