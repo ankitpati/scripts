@@ -1,0 +1,67 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+# UTF8 for File Handles and Command Line Arguments
+use open qw(:std :utf8);
+use Unicode::UTF8 qw(decode_utf8);
+@ARGV = map { decode_utf8 $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+use SQL::Translator;
+
+my $NAME = (split m|/|, $0)[-1];
+
+# A perfectionist died in the hard-coding of this list, but I really cannot
+# think of a better way that is both accurate and/or does not take ages to
+# complete on every run of the code. It would probably be fine if this was
+# a library, but the performance hit of `ExtUtils::Installed` is simply
+# unnacceptable for a script.
+my %translators = (
+    from => [sort qw(
+        Access DB2 DBI Excel JSON MySQL Oracle PostgreSQL SQLServer SQLite
+        Storable Sybase XML YAML xSV
+    )],
+
+    to => [sort qw(
+        ClassDBI DB2 DiaUml Diagram Dumper GraphViz HTML JSON Latex MySQL
+        Oracle POD PostgreSQL SQLServer SQLite Storable Sybase TTSchema XML
+        YAML
+    )],
+);
+
+@ARGV == 3 or die <<"EOU";
+Usage:
+    $NAME <from-DBMS> <to-DBMS> <sql-filename>
+EOU
+
+my ($from, $to, $file) = @ARGV;
+
+{
+    my $msg = '';
+    local $" = "\n    ";
+
+    $msg .= 'Invalid <from-DBMS> argument. '.
+                "Must be one of:\n    @{$translators{from}}\n\n"
+                    unless grep /^\Q$from\E$/, @{$translators{from}};
+
+    $msg .= 'Invalid <to-DBMS> argument. '.
+                "Must be one of:\n    @{$translators{to}}\n\n"
+                    unless grep /^\Q$to\E$/, @{$translators{to}};
+
+    die $msg if $msg;
+}
+
+my $translator = SQL::Translator->new (
+    no_comments       => 1,
+    quote_identifiers => 1,
+    show_warnings     => 1,
+    validate          => 1,
+
+    from              => $from,
+    to                => $to,
+);
+
+my $output = $translator->translate ($file) or die $translator->error;
+
+print $output;
