@@ -12,6 +12,8 @@ int main(int argc, char **argv, char **envp)
     size_t read_bytes;
     char input[BUFSIZ], outfile[255], time_as_str[20];
 
+    (void) argc;
+
     sprintf(time_as_str, "%zu", time(NULL));
 
     strcpy(outfile, OUTFILE_PREFIX);
