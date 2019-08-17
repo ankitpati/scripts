@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use open qw(:std :utf8);
-use Unicode::UTF8 qw(encode_utf8);
+use Encode qw(encode);
 
 use JSON qw(decode_json);
 
@@ -15,7 +15,7 @@ EOM
 
 local ( $, , $\ , $/ ) = ( ',' , "\n" , undef );
 
-my $reclist = decode_json encode_utf8 <STDIN>;
+my $reclist = decode_json encode 'UTF-8', <STDIN>;
 
 foreach my $rec (@$reclist) {
     print map { $rec->{$_} // '' } @ARGV;

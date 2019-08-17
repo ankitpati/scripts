@@ -5,8 +5,8 @@ use warnings;
 
 # UTF8 for File Handles and Command Line Arguments
 use open qw(:std :utf8);
-use Unicode::UTF8 qw(decode_utf8);
-@ARGV = map { decode_utf8 $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+use Encode qw(decode);
+@ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
 use SQL::Translator;
 

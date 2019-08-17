@@ -6,7 +6,7 @@ use warnings;
 
 # UTF8 for File Handles and Command Line Arguments
 use open qw(:std :utf8);
-use Unicode::UTF8 qw(decode_utf8);
+use Encode qw(decode);
 
 use Text::CSV;
 
@@ -22,7 +22,7 @@ my $me = (split m|/|, $0)[-1];
 
 @ARGV <= 2 or die "Usage:\n\t$me [verb] [password-file]...\n";
 
-@ARGV = map { decode_utf8 $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+@ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
 my ($verb, $passfile) = @ARGV;
 
