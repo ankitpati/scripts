@@ -11,7 +11,7 @@ test '--' != "$arg" && echo "$usage" && exit 2
 user_group="$1"
 shift # remove username:groupname
 
-while test -n "$1" -a '--' != "$1"
+while test '--' != "$1"
 do
     chown "$user_group" -hR "$1" || exit 3 # die immediately upon failure
     shift # remove paths we have dealt with
