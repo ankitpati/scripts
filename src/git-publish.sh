@@ -8,7 +8,7 @@ test -z "$(git rev-parse --show-toplevel)" && \
 
 for branch in "$@"
 do
-    git push sgh "$branch"
-    git push sgl "$branch"
-    git push sbb "$branch"
+    git push sgh "$branch" &
+    git push sgl "$branch" &
+    git push sbb "$branch" &
 done
