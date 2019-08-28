@@ -16,24 +16,22 @@ my %apc = (
                       -o %e %f -lSDL_bgi -lSDL2)], [qw(strip %e)]],
 
         go    => [qw(go build %f)],
-        swift => [qw(swiftc %f)],
         java  => [qw(javac -Xlint:all %f)],
-
-        pl    => [[qw(perl -cw %f)], [qw(chmod +x %f)]],
-        php   => [qw(php -l %f)],
-        py    => [[qw(python3 -m py_compile %f)], [qw(chmod +x %f)]],
-        tcl   => [qw(chmod +x %f)],
-        sh    => [[qw(bash -n %f)], [qw(chmod +x %f)]],
         m     => [qw(chmod +x %f)],
-
+        php   => [qw(php -l %f)],
+        pl    => [[qw(perl -cw %f)], [qw(chmod +x %f)]],
+        py    => [[qw(python3 -m py_compile %f)], [qw(chmod +x %f)]],
+        sh    => [[qw(bash -n %f)], [qw(chmod +x %f)]],
+        swift => [qw(swiftc %f)],
+        tcl   => [qw(chmod +x %f)],
         vhdl  => [[qw(ghdl -a %f)], [qw(ghdl -e %f)]],
     },
 
     compile => {
+        c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
         cpp  => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
         go   => [qw(go build %f)],
         java => 'javac -Xlint:all -d . *.java', # Needs shell-escaping.
-        c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
         xml  => [qw(xmllint --noout --dtdvalid %e.dtd %f)],
     },
 
@@ -42,8 +40,8 @@ my %apc = (
     },
 
     tidy => {
-        html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
         css  => [qw(csstidy %f %f)],
+        html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
     },
 );
 
