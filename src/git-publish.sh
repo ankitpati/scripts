@@ -12,3 +12,5 @@ do
     git push sgl "$branch" &
     git push sbb "$branch" &
 done
+
+wait # guard against premature prompt
