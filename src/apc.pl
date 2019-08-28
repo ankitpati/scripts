@@ -36,12 +36,26 @@ my %apc = (
     },
 
     lint => {
+        html => [qw(xmllint --noout %f)],
         xml => [qw(xmllint --noout --schema %e.xsd %f)],
     },
 
     tidy => {
+        c    => [[qw(indent -kr %f)],
+                 [qw(astyle --style=kr --indent=spaces=4 -p %f)],
+                 [qw(rm %f.orig %f~)]],
+
+        cpp  => [[qw(indent -kr %f)],
+                 [qw(astyle --style=kr --indent=spaces=4 -p %f)],
+                 [qw(rm %f.orig %f~)]],
+
         css  => [qw(csstidy %f %f)],
+        go   => [qw(go fmt %f)],
         html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
+        java => [[qw(astyle --style=java --indent=spaces=4 -p %f)],
+                 [qw(rm %f.orig)]],
+        pl   => [qw(perltidy -utf8 -w -b -bext=/ -wn -otr -pt=2 -sbt=2 -bt=1
+                    -bbt=0 -tso -nsfs -skp -sfp -trp)],
     },
 );
 
