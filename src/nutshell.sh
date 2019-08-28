@@ -19,4 +19,10 @@ done
 shift # remove '--'
 
 username="${user_group/%:*/}" # no sed because it may not be installed
+userhome="$(getent passwd "$username" | cut -d':' -f6)"
+
+export | grep -Ev "^declare -x (HISTCONTROL|HISTSIZE|HOME|HOSTNAME|LANG|\
+LD_LIBRARY_PATH|LESSOPEN|LOGNAME|LS_COLORS|MAIL|OLDPWD|PATH|PWD|SHELL|SHLVL|\
+TERM|USER)\b" >> "$userhome/.bashrc"
+
 exec su - "$username" -- "$@"
