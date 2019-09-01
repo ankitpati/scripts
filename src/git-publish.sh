@@ -3,7 +3,6 @@
 myname="$(basename "$0")"
 
 args=("$@")
-
 for i in "${!args[@]}"
 do
     if [[ "${args[$i]}" == -* ]]
@@ -20,11 +19,13 @@ test "${#args[@]}" -eq 0 \
 test -z "$(git rev-parse --show-toplevel)" && \
     echo "$myname: present directory must be in a Git repository" && exit 2
 
+remotes=('sgh' 'sgl' 'sbb')
 for branch in "${args[@]}"
 do
-    git push "${pushparams[@]}" sgh "$branch" &
-    git push "${pushparams[@]}" sgl "$branch" &
-    git push "${pushparams[@]}" sbb "$branch" &
+    for remote in "${remotes[@]}"
+    do
+        git push "${pushparams[@]}" "$remote" "$branch" &
+    done
 done
 
 wait # guard against premature prompt
