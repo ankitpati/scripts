@@ -20,11 +20,11 @@ map=(
     [bb]="https://$username@bitbucket.org/$username"
     [az]="https://git-codecommit.$aws_region.amazonaws.com/v1/repos"
     [nb]="https://$username@notabug.org/$username"
-    [sgh]="ssh://git@github.com/$username"
-    [sgl]="ssh://git@gitlab.com/$username"
-    [sbb]="ssh://git@bitbucket.org/$username"
+    [sgh]="ssh://github.com/$username"
+    [sgl]="ssh://gitlab.com/$username"
+    [sbb]="ssh://bitbucket.org/$username"
     [saz]="ssh://git-codecommit.$aws_region.amazonaws.com/v1/repos"
-    [snb]="ssh://git@notabug.org/$username"
+    [snb]="ssh://notabug.org/$username"
 );
 
 for remote in "${!map[@]}"
