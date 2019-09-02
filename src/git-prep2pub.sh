@@ -2,25 +2,33 @@
 
 myname="$(basename "$0")"
 
-test "$#" -ne 2 && echo "Usage: $myname <username> <repository>" && exit 1
+test "$#" -ne 2 -a "$#" -ne 3 \
+    && echo "Usage: $myname <username> <repository> [aws-region]" \
+    && exit 1
+
 test -z "$(git rev-parse --show-toplevel)" && \
     echo "$myname: present directory must be in a Git repository" && exit 2
 
 username="$1"
 repository="$2"
+aws_region="${3:-ap-south-1}"
 
-for remote in origin gh gl bb az nb sgh sgl sbb saz snb
+declare -A map
+map=(
+    [gh]="https://$username@github.com/$username"
+    [gl]="https://$username@gitlab.com/$username"
+    [bb]="https://$username@bitbucket.org/$username"
+    [az]="https://git-codecommit.$aws_region.amazonaws.com/v1/repos"
+    [nb]="https://$username@notabug.org/$username"
+    [sgh]="ssh://git@github.com/$username"
+    [sgl]="ssh://git@gitlab.com/$username"
+    [sbb]="ssh://git@bitbucket.org/$username"
+    [saz]="ssh://git-codecommit.$aws_region.amazonaws.com/v1/repos"
+    [snb]="ssh://git@notabug.org/$username"
+);
+
+for remote in "${!map[@]}"
 do
     git remote remove "$remote"
+    git remote add "$remote" "${map[$remote]}/$repository.git"
 done
-
-git remote add gh "https://$username@github.com/$username/$repository.git"
-git remote add gl "https://$username@gitlab.com/$username/$repository.git"
-git remote add bb "https://$username@bitbucket.org/$username/$repository.git"
-git remote add az "https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/$repository.git"
-git remote add nb "https://$username@notabug.org/$username/$repository.git"
-git remote add sgh "ssh://git@github.com/$username/$repository.git"
-git remote add sgl "ssh://git@gitlab.com/$username/$repository.git"
-git remote add sbb "ssh://git@bitbucket.org/$username/$repository.git"
-git remote add saz "ssh://git-codecommit.ap-south-1.amazonaws.com/v1/repos/$repository.git"
-git remote add snb "ssh://git@notabug.org/$username/$repository.git"
