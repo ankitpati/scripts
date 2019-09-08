@@ -9,11 +9,11 @@ my $me = (split m|/|, $0)[-1];
 # See https://gitlab.com/ankitpati/geany-config
 my %apc = (
     build => {
-        c     => [[qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -O3
-                      -o %e %f -lm -lSDL_bgi -lSDL2)], [qw(strip %e)]],
+        c     => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -g
+                     -o %e %f -lm -lSDL_bgi -lSDL2)],
 
-        cpp   => [[qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -O3
-                      -o %e %f -lSDL_bgi -lSDL2)], [qw(strip %e)]],
+        cpp   => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -g
+                     -o %e %f -lSDL_bgi -lSDL2)],
 
         go    => [qw(go build %f)],
         java  => [qw(javac -Xlint:all %f)],
