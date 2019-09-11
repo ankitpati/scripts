@@ -10,7 +10,7 @@ my $me = (split m|/|, $0)[-1];
 my %apc = (
     build => {
         c     => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -g
-                     -o %e %f -lm -lSDL_bgi -lSDL2)],
+                     -o %e %f -lm)],
 
         cpp   => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -g
                      -o %e %f -lSDL_bgi -lSDL2)],
