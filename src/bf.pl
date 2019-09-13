@@ -22,7 +22,7 @@ push @name, (m|/| ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
 push @path, '-path', "*/$_", qw(-prune -or) foreach @ignore_directories;
-pop (@path), unshift (@path, q[-not (]), push (@path, ')') if @path;
+pop (@path), unshift (@path, qw[-not (]), push (@path, ')') if @path;
 
 push @type, '-type', $_, qw(-or) foreach @find_types;
 pop (@type), unshift (@type, '('), push (@type, ')') if @type;
