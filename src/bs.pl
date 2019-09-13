@@ -12,7 +12,7 @@ my @ignore_directories = qw(.git __pycache__ cover_db);
 my @find_types = qw(f);
 # End of User-Serviceable Parts
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 @ARGV or die "Usage:\n\t$me <string pattern> [filname glob]...\n";
 
@@ -26,7 +26,7 @@ chdir $gitroot;
 my $search = shift;
 my (@name, @path, @type);
 
-push @name, (m|/| ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
+push @name, (m{/} ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
 push @path, '-path', "*/$_", qw(-prune -or) foreach @ignore_directories;
