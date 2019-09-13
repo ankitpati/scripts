@@ -7,6 +7,11 @@ use warnings;
 
 use Cwd;
 
+# User-Serviceable Parts
+my @ignore_directories = qw(.git __pycache__ cover_db);
+my @find_types = qw(f);
+# End of User-Serviceable Parts
+
 my $me = (split m|/|, $0)[-1];
 
 @ARGV or die "Usage:\n\t$me <string pattern> [filname glob]...\n";
@@ -16,18 +21,18 @@ $gitroot = eval { `git rev-parse --show-toplevel` };
 chomp $gitroot;
 die "$me: Unsupported working directory or `git` not on \$PATH!\n"
     if $@ or not $gitroot;
+chdir $gitroot;
 
 my $search = shift;
+my (@name, @path, @type);
 
-my @name;
-push @name, (m|/| ? '-path' : '-name', "*$_*", '-o') foreach @ARGV;
+push @name, (m|/| ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
-chdir $gitroot;
-exec qw(find . -not (
-                      -path */cover_db  -prune -or
-                      -path */.git      -prune -or
-                      -path */tmp       -prune -or
-                      -path */web/run   -prune
-                    )
-               -type f), @name, qw(-exec egrep -HnI --), $search, qw({} +);
+push @path, '-path', "*/$_", qw(-prune -or) foreach @ignore_directories;
+pop (@path), unshift (@path, q[-not (]), push (@path, ')') if @path;
+
+push @type, '-type', $_, qw(-or) foreach @find_types;
+pop (@type), unshift (@type, '('), push (@type, ')') if @type;
+
+exec qw(find .), @path, @type, @name, qw(-exec egrep -HnI --), $search, qw({} +);
