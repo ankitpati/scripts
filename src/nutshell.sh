@@ -26,7 +26,7 @@ LD_LIBRARY_PATH|LESSOPEN|LOGNAME|LS_COLORS|MAIL|OLDPWD|PATH|PWD|SHELL|SHLVL|\
 TERM|USER)\b" >> "$userhome/.bashrc"
 
 # `sudo`, if available, is always the better option: it does not call a shell
-test -n "$(command -v sudo)" && exec sudo -u "$username" "$@"
+test -n "$(command -v sudo)" && exec sudo -u "$username" -- "$@"
 
 # `su` is a fallback; calls the login shell of the specified user
 exec su - "$username" -- "$@"
