@@ -21,7 +21,7 @@ shift # remove '--'
 username="${user_group/%:*/}" # no sed because it may not be installed
 
 mapfile -t env2exp < <(compgen -e | grep -Ev "^(HISTCONTROL|HISTSIZE|HOME|\
-HOSTNAME|LANG|LD_LIBRARY_PATH|LESSOPEN|LOGNAME|LS_COLORS|MAIL|OLDPWD|PATH|PWD|\
+HOSTNAME|LANG|LD_LIBRARY_PATH|LESSOPEN|LOGNAME|LS_COLORS|MAIL|OLDPWD|PATH|\
 SHELL|SHLVL|TERM|USER)\$")
 
 for env_key in "${env2exp[@]}"
