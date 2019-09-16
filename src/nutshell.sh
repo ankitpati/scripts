@@ -19,7 +19,6 @@ done
 shift # remove '--'
 
 username="${user_group/%:*/}" # no sed because it may not be installed
-userhome="$(getent passwd "$username" | cut -d':' -f6)"
 
 mapfile -t env2exp < <(compgen -e | grep -Ev "^(HISTCONTROL|HISTSIZE|HOME|\
 HOSTNAME|LANG|LD_LIBRARY_PATH|LESSOPEN|LOGNAME|LS_COLORS|MAIL|OLDPWD|PATH|PWD|\
@@ -28,13 +27,20 @@ SHELL|SHLVL|TERM|USER)\$")
 for env_key in "${env2exp[@]}"
 do
     env4sudo=("${env4sudo[@]}" "$env_key=${!env_key}")
-    env4bashrc="$env4bashrc$(printf 'export %s=%q\n' "$env_key" "${!env_key}")"
 done
 
 # `sudo`, if available, is always the better option: it does not call a shell
 test -n "$(command -v sudo)" && \
     exec sudo -u "$username" "${env4sudo[@]}" -- "$@"
 
-# `su` is a fallback; calls the login shell of the specified user
+# the following runs iff `sudo` is not available
+for env_key in "${env2exp[@]}"
+do
+    env4bashrc="$env4bashrc$(printf 'export %s=%q\n' "$env_key" "${!env_key}")"
+done
+
+userhome="$(getent passwd "$username" | cut -d':' -f6)"
 echo "$env4bashrc" >> "$userhome/.bashrc"
+
+# `su` is a fallback; calls the login shell of the specified user
 exec su - "$username" -- "$@"
