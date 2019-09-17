@@ -10,7 +10,7 @@ use open qw(:std :utf8);
 use Encode qw(decode);
 @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 die "Usage:\n\t$me <client-suffix> [database] [--no-data]\n" unless @ARGV;
 
 my $nodata = grep /^--no-data$/, @ARGV;
@@ -40,7 +40,7 @@ sub mycnf {
                 next;
             }
 
-            my ($key, $val) = split '=';
+            my ($key, $val) = split /=/;
             $key =~ s/^\s+|\s+$//g if $key; # Get rid of leading &
             $val =~ s/^\s+|\s+$//g if $val; # trailing whitespace.
 
