@@ -11,7 +11,11 @@ use Encode qw(decode);
 @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
 my $me = (split m|/|, $0)[-1];
-die "Usage:\n\t$me <client-suffix> [database]\n" unless @ARGV;
+die "Usage:\n\t$me <client-suffix> [database] [--no-data]\n" unless @ARGV;
+
+my $nodata = grep /^--no-data$/, @ARGV;
+@ARGV = grep !/^--no-data$/, @ARGV;
+
 exec 'mysqldump', @ARGV if @ARGV > 2;
 my ($suffix, $db) = @ARGV;
 
@@ -74,5 +78,5 @@ $user //= 'root';
 $password //= '';
 $database = $db if defined $db;
 
-exec 'mysqldump', '--lock-tables=false',
+exec 'mysqldump', '--lock-tables=false', $nodata ? '--no-data' : (),
                   "-h$host", "-P$port", "-u$user", "-p$password", $database;
