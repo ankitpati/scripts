@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-die "Usage:\n\tbt <filename>... [--no-select]\n"
+die "Usage:\n\tpt <filename>... [--no-select]\n"
     if !@ARGV || (grep (/^--no-select$/, @ARGV) && @ARGV <  2);
 
 my $noselect = 1 if grep /^--no-select$/, @ARGV;
