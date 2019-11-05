@@ -8,8 +8,10 @@ from requests import request
 def main():
     """The entry point."""
 
+    my_name = argv[0]
+
     if len(argv) != 3:
-        print("Usage:\n\tgetpdf.py <link> <filename>", file=stderr)
+        print("Usage:\n\t%s <link> <filename>" % (my_name), file=stderr)
         exit(1)
 
     link, filename = argv[1], argv[2]

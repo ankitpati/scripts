@@ -8,8 +8,10 @@ from zxing import BarCodeReader
 def main():
     """The entry point."""
 
+    my_name = argv[0]
+
     if len(argv) != 2:
-        print("Usage:\n\tdecode-qr.py <filename>", file=stderr)
+        print("Usage:\n\t%s <filename>" % (my_name), file=stderr)
         exit(1)
 
     filename = argv[1]
