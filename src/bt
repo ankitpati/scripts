@@ -5,38 +5,58 @@
 use strict;
 use warnings;
 
-sub uniq { keys %{{ map { $_ => 1 } @_ }} }
 use Cwd;
-use File::Spec::Functions 'rel2abs';
+use File::Spec::Functions qw(rel2abs);
 
+sub uniq { my %h; undef @h{@_}; keys %h }
+
+my $me = (split m|/|, $0)[-1];
+
+my $cover = grep /^--cover$/, @ARGV; # ignored if running natively on Linux
 my $noselect = grep /^--no-select$/, @ARGV;
 my $maketest = grep /^--make-test$/, @ARGV;
-@ARGV = grep !/^--(?:no-select|make-test)$/, @ARGV xor $maketest
-    or die "Usage:\n\tbt <filename>... [--no-select] | <--make-test>\n";
+@ARGV = grep !/^--(?:cover|no-select|make-test)$/, @ARGV xor $maketest
+    or die <<"EOU";
+Usage:
+    $me <filename>... [--no-select] [--cover] | <--make-test>
+EOU
 
-my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
-$username or die "Unsupported working directory!\n";
-$username =~ s|/||;
+my $gitroot;
+$gitroot = eval { `git rev-parse --show-toplevel` };
+chomp $gitroot;
+die "$me: Unsupported working directory or `git` not on \$PATH!\n"
+    if $@ or not $gitroot;
 
-my $base = "/home/$username";
+chdir $gitroot;
+
+if ($^O ne 'linux') {
+    local $" = ' ';
+    exec qw(docker/bin/bt-run make), $cover ? 'cover' : 'test-verbose',
+         $maketest ? () : "TESTS=@ARGV";
+}
+
 $_ = rel2abs $_ foreach @ARGV;
-chdir $base;
 
 system qw(find . -type d -name cover_db -exec rm -rf {} +);
 
+$ENV{PERL_UNICODE} = 'SDA';
+$ENV{PERL5LIB} = join ':',
+       "$gitroot/lib/perl5",
+       "$gitroot/t/lib",
+        $ENV{PERL5LIB};
 $ENV{HARNESS_PERL_SWITCHES} =
     '-MDevel::Cover=-coverage,statement,branch,condition,subroutine,time';
 
 if ($maketest) {
     system qw(make test);
-    exec   qw(cover -ignore_re ^t/|.*\.t$);
+    exec   qw(cover -ignore_re ^t/|.*\.t$|/Acme/Test/);
 }
 
 my @moose_tests;
 foreach (@ARGV) {
     $_ =~ m|^.*?/Acme/(.*)\.pm$| or next;
-    my $test_dir = "$base/t/lib/TestsFor/Acme/$1/";
-    push @moose_tests, $_ if -e "$test_dir/base.pm" || -e "$test_dir/legacy.pm";
+    my $test_dir = "$gitroot/t/lib/TestsFor/Acme/$1/";
+    push @moose_tests, $_ if -e "$test_dir/base.pm" or -e "$test_dir/legacy.pm";
 }
 
 s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t| foreach @ARGV;
@@ -63,24 +83,15 @@ foreach (@moose_tests) {
     $_ = "Acme$_";
 }
 
-my @prove = (qw(
-    prove -v
-          -I/opt/rhk-hinter/lib/perl5
-          -I/opt/perl/lib/site_perl/5.12.1
-          -I/opt/perl/lib/site_perl/5.12.1/noarch
-          -I/opt/perl/lib/5.12.1
-          -I/opt/perl/lib/noarch
-    ),   "-I/home/$username/lib/perl5",
-         "-I/home/$username/lib/perl5/noarch-linux"
-);
+my @prove = qw(prove -v);
 
 system @prove, @t_files if @t_files;
 
-if (@no_t_files || @moose_tests) {
+if (@no_t_files or @moose_tests) {
     system @prove, qw(t/test_classes.t ::), $_
-        foreach uniq(@no_t_files, @moose_tests);
+        foreach uniq @no_t_files, @moose_tests;
 }
 
-s|/t/|/|, s|^$base/||, s|\.t$|\.pm| foreach @ARGV;
-system 'cover', ( $noselect ? qw(-ignore_re ^t/|.*\.t$)
+s|/t/|/|, s|^$gitroot/||, s|\.t$|\.pm| foreach @ARGV;
+system 'cover', ( $noselect ? qw(-ignore_re ^t/|.*\.t$|/Acme/Test/)
             : ('-select_re', '^'.( join '|', map(quotemeta, @ARGV) ).'$') );
