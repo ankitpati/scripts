@@ -10,7 +10,9 @@ use File::Basename;
 use File::Path;
 use File::Spec::Functions 'abs2rel';
 
-die "Usage:\n\tbn <filename>... [--force]\n"
+my $me = ${\(split m|/|, $0)[-1]};
+
+die "Usage:\n\t$me <filename>... [--force]\n"
     if not @ARGV or (grep (/^--force$/, @ARGV) and @ARGV < 2);
 
 my $force = grep /^--force$/, @ARGV;
