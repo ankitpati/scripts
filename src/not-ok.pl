@@ -17,6 +17,7 @@ $fout //= \*STDOUT;
 
 while (<$fin>) {
     next if /^ok \d+ [-#] / .. /^}$/
+         or / # TODO\b/
          or /^\s+ok \d+(?: [-#] |$)/
          or /: [\d.]+ wallclock secs \(/
          or /^\s*}$/
