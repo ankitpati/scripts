@@ -10,7 +10,7 @@ use Encode qw(decode);
 
 use Text::CSV;
 
-use Boron::Utils::Domain qw(hostname);
+use GParse::Domain qw(hostname);
 
 use constant {
     VERBS        => [qw( read write )],
