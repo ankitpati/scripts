@@ -1,0 +1,16 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+# UTF8 for Source Code, and File Handles, and Command Line Arguments
+use utf8;
+use open qw(:std :utf8);
+use Unicode::UTF8 qw(decode_utf8);
+@ARGV = map { decode_utf8 $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+use GParse::Domain qw(get_domain_name);
+
+@ARGV or die "Usage:\n\t${\(split m|/|, $0)[-1]} [url]...\n";
+
+print join "\n", map { get_domain_name ($_) // '' } (@ARGV), "\n";
