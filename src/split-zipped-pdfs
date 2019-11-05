@@ -1,0 +1,56 @@
+#!/usr/bin/env python2
+"""
+Download zipped PDFs
+"""
+
+from sys import argv, stderr
+from re import search, IGNORECASE
+from cStringIO import StringIO
+from zipfile import ZipFile, ZIP_DEFLATED
+from requests import get
+
+
+def download_extract_zip(zip_content):
+    """
+    Download a ZIP file and extract its contents in memory
+    yields (filename, file-like object) pairs
+    """
+
+    with ZipFile(StringIO(zip_content)) as zip_file:
+        for fname in zip_file.namelist():
+            if not search('[.]pdf$', fname, IGNORECASE):
+                continue
+
+            with zip_file.open(fname) as pdf:
+                zipstring = StringIO()
+
+                with ZipFile(zipstring, mode='w',
+                             compression=ZIP_DEFLATED) as fout:
+                    fout.writestr(fname + '.pdf', pdf.read())
+
+                yield fname, zipstring
+
+
+def main():
+    """
+    Entry point for command line use.
+    """
+
+    my_name = argv[0]
+
+    if len(argv) != 2:
+        print >> stderr, "Usage:\n\t%s <URL>" % (my_name)
+        exit(1)
+
+    url = argv[1]
+
+    resp = get(url)
+
+    for pdf_in_zip in download_extract_zip(resp.content):
+        body = pdf_in_zip[1].getvalue()
+        with open(pdf_in_zip[0] + '.zip', 'wb') as zip_file:
+            zip_file.write(body)
+
+
+if __name__ == '__main__':
+    main()
