@@ -16,7 +16,7 @@ my $time_re = qr/^
             # hour       # minute     # second
 $/x;
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 die "Usage:\n\t$me <youtube-url> <start-time> <end-time>\n" if @ARGV != 3;
 

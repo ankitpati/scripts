@@ -12,7 +12,7 @@ use Encode qw(decode);
 use Net::IP qw(:PROC); # Really means qw(ip_inttobin ip_bintoip);
 use Math::BigInt;
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 @ARGV or die "Usage:\n\t$me <ip|integer>...\n";
 
 foreach (@ARGV) {

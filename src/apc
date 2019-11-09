@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 # This is a copy of my personal Geany config.
 # See https://gitlab.com/ankitpati/geany-config

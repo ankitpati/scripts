@@ -5,7 +5,7 @@ use warnings;
 
 use IPC::Run qw(run);
 
-my $NAME = (split m|/|, $0)[-1];
+my $NAME = (split m{/}, $0)[-1];
 
 my ($branch, $commits) = @ARGV;
 
@@ -21,7 +21,7 @@ Usage:
         0  : `cherry-pick` all commits from `branch`
 EOU
 
-grep m|^. (?:remotes/)?$branch$|, split /\n/, `git branch -a`
+grep m{^. (?:remotes/)?$branch$}, split /\n/, `git branch -a`
     or die "$branch: no such branch.\n";
 
 run [qw(git log), $branch, '--format=%H'], '>', \my $commit_list;

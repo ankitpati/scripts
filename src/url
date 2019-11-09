@@ -11,7 +11,7 @@ use Encode qw(decode);
 
 use URL::Encode qw(url_encode_utf8 url_decode_utf8);
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 my $decode = grep /^--decode$/, @ARGV;
 my $encode = grep /^--encode$/, @ARGV;

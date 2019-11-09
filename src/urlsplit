@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-@ARGV or die "Usage:\n\t${\(split m|/|, $0)[-1]} [uri]...\n";
+@ARGV or die "Usage:\n\t${\(split m{/}, $0)[-1]} [uri]...\n";
 
 foreach my $uri (@ARGV) {
     my ($scheme, $userinfo, $host, $port, $path, $query, $fragment) = $uri =~

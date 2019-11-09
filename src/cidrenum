@@ -5,7 +5,7 @@ use warnings;
 
 use Net::Netmask;
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 my $usage = "Usage:\n\t$me <CIDR>...\n";
 
 @ARGV or die $usage;

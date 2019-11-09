@@ -23,7 +23,7 @@ sub verify_password {
     return bcrypt ($password, $hash) eq $hash;
 }
 
-die "Usage:\n\t${\(split m|/|, $0)[-1]} <password> [hash to verify]\n"
+die "Usage:\n\t${\(split m{/}, $0)[-1]} <password> [hash to verify]\n"
     if !@ARGV || @ARGV > 2;
 
 if (@ARGV == 1) {

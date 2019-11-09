@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my $NAME = (split m|/|, $0)[-1];
+my $NAME = (split m{/}, $0)[-1];
 
 my ($file_expand, $file_delete) = @ARGV;
 

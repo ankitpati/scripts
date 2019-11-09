@@ -10,7 +10,7 @@ use File::Spec::Functions qw(rel2abs);
 
 sub uniq { my %h; undef @h{@_}; keys %h }
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 my $cover = grep /^--cover$/, @ARGV; # ignored if running natively on Linux
 my $noselect = grep /^--no-select$/, @ARGV;
@@ -54,7 +54,7 @@ if ($maketest) {
 
 my @moose_tests;
 foreach (@ARGV) {
-    $_ =~ m|^.*?/Acme/(.*)\.pm$| or next;
+    $_ =~ m{^.*?/Acme/(.*)\.pm$} or next;
     my $test_dir = "$gitroot/t/lib/TestsFor/Acme/$1/";
     push @moose_tests, $_ if -e "$test_dir/base.pm" or -e "$test_dir/legacy.pm";
 }

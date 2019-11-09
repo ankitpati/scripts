@@ -18,7 +18,7 @@ use constant {
     TITLE_TO_FILENAME => qr/\W+/,
 };
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 @ARGV == 1 or die "Usage:\n\t$me <notepad-free-backup.zip>\n";
 
 sub main {

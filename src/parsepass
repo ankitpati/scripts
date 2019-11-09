@@ -18,7 +18,7 @@ use constant {
     DEFAULT_FILE => 'Chrome Passwords.csv',
 };
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 @ARGV <= 2 or die "Usage:\n\t$me [verb] [password-file]...\n";
 

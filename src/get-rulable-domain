@@ -11,6 +11,6 @@ use Unicode::UTF8 qw(decode_utf8);
 
 use GParse::Domain qw(get_domain_name);
 
-@ARGV or die "Usage:\n\t${\(split m|/|, $0)[-1]} [url]...\n";
+@ARGV or die "Usage:\n\t${\(split m{/}, $0)[-1]} [url]...\n";
 
 print join "\n", map { get_domain_name ($_) // '' } (@ARGV), "\n";

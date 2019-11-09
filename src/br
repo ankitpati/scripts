@@ -7,7 +7,7 @@ use warnings;
 
 use Cwd;
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 @ARGV or die "Usage:\n\t$me <command> [arguments]...\n";
 

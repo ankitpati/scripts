@@ -10,7 +10,7 @@ use File::Basename;
 use File::Path;
 use File::Spec::Functions 'rel2abs';
 
-my $me = ${\(split m|/|, $0)[-1]};
+my $me = ${\(split m{/}, $0)[-1]};
 
 my $filename = shift;
 die "Usage:\n\t$me <filename>\n" if shift or not $filename;
@@ -26,7 +26,7 @@ my $filepath = rel2abs $filename;
 
 my $test_file;
 
-if ($filename =~ m|^(?:.*/Acme/)?(.*)\.pm$|) {
+if ($filename =~ m{^(?:.*/Acme/)?(.*)\.pm$}) {
     my $test_dir = "$gitroot/t/lib/TestFor/Acme/$1/";
 
     $test_file = -e "$test_dir/base.pm"   ? 'base.pm'   :

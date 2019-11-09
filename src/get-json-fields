@@ -10,7 +10,7 @@ use JSON qw(decode_json);
 
 @ARGV or die <<"EOM";
 Usage:
-    ${\(split m|/|, $0)[-1]} <fieldname>... < input.json > output.csv
+    ${\(split m{/}, $0)[-1]} <fieldname>... < input.json > output.csv
 EOM
 
 local ( $, , $\ , $/ ) = ( ',' , "\n" , undef );

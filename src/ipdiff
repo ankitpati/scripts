@@ -20,7 +20,7 @@ use constant {
     },
 };
 
-my $me = (split m|/|, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 my $usage = "Usage:\n\t$me [-l] <neutral_filepath> <hitandrun_filepath> ".
                                                   "<output_filepath>\n";
 
