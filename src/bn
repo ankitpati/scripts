@@ -27,7 +27,7 @@ die "$me: Unsupported working directory or `git` not on \$PATH!\n"
     if $@ or not $gitroot;
 
 foreach (@ARGV) {
-    s|^(?:.*/Acme/)?(.*)\.pm$|t/lib/TestsFor/Acme/$1/legacy.pm|;
+    s{^(?:.*/Acme/)?(.*)\.pm$}{t/lib/TestsFor/Acme/$1/legacy.pm};
     print("$_ exists. Use --force to overwrite.\n"), next
         if -e $_ and not $force;
 
@@ -39,7 +39,7 @@ foreach (@ARGV) {
     open my $test_file, '>', $_ or warn("Could not create $_\n"), next;
 
     my $inc_path = abs2rel "$gitroot/acme/conf/", dirname $_;
-    s@^.*?/Acme/|^t/|\.t$|(?:/legacy)?\.pm$@@g, s@/t/|/@::@g;
+    s{^.*?/Acme/|^t/|\.t$|(?:/legacy)?\.pm$}{}g, s{/t/|/}{::}g;
 
     if ($old_test) {
         print $test_file <<"EOF";

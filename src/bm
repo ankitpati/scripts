@@ -36,12 +36,12 @@ if ($filename =~ m{^(?:.*/Acme/)?(.*)\.pm$}) {
 }
 elsif ($filename =~ /\.t$/) {
     $test_file = $filepath;
-    $filepath =~ s|/t/|/|;
-    $filepath =~ s|\.t$|\.pm|;
+    $filepath =~ s{/t/}{/};
+    $filepath =~ s{\.t$}{\.pm};
 }
 
 $test_file or
-    ($test_file = $filename) =~ s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t|;
+    ($test_file = $filename) =~ s{^(.*/)?(.*)\.pm$}{${\($1 // '')}t/$2.t};
 -e $test_file or die "Tests for $filename are not at the expected location.\n";
 
 exec qw(vim -O), $test_file, $filepath;

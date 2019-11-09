@@ -11,7 +11,7 @@ die "Usage:\n\tbgood [string pattern]\n" if !@ARGV || @ARGV > 1;
 
 my ($username) = cwd =~ qr{^/home/(.*?/|.*)};
 $username or die "Unsupported working directory!\n";
-$username =~ s|/||;
+$username =~ s{/}{};
 
 my $search = shift;
 

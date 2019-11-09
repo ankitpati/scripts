@@ -11,11 +11,11 @@ my $noselect = 1 if grep /^--no-select$/, @ARGV;
 
 $ENV{HARNESS_PERL_SWITCHES} = '-MDevel::Cover';
 
-s|^(.*/)?(.*)\.pm$|${\($1 // '')}t/$2.t| foreach @ARGV;
+s{^(.*/)?(.*)\.pm$}{${\($1 // '')}t/$2.t} foreach @ARGV;
 
 system qw(find . -type d -name cover_db -exec rm -rf {} +);
 system qw(prove -v), @ARGV;
 
-s|^t/||, s|/t/|/|, s|\.t$|\.pm| foreach @ARGV;
+s{^t/}{}, s{/t/}{/}, s{\.t$}{\.pm} foreach @ARGV;
 system 'cover', ( $noselect ? qw(-ignore_re .*\.t$)
             : ('-select_re', '^'.( join '|', map(quotemeta, @ARGV) ).'$') );
