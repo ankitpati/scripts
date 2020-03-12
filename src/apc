@@ -9,7 +9,8 @@ my $me = (split m{/}, $0)[-1];
 # See https://gitlab.com/ankitpati/geany-config
 my %apc = (
     build => {
-        asm   => [[qw(yasm -f elf64 %f)], [qw(ld -o %e %e.o)], [qw(rm %e.o)]],
+        asm   => [[qw(yasm -Worphan-labels -f elf64 %f)], [qw(ld -o %e %e.o)],
+                  [qw(rm %e.o)]],
 
         c     => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -g -o %e
                      %f -lm)],
