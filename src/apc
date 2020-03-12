@@ -5,10 +5,12 @@ use warnings;
 
 my $me = (split m{/}, $0)[-1];
 
-# This is a copy of my personal Geany config.
+# This was a copy of my personal Geany config.
 # See https://gitlab.com/ankitpati/geany-config
 my %apc = (
     build => {
+        asm   => [[qw(yasm -f elf64 %f)], [qw(ld -o %e %e.o)], [qw(rm %e.o)]],
+
         c     => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -g -o %e
                      %f -lm)],
 
