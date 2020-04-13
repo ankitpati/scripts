@@ -4,23 +4,27 @@ use strict;
 use warnings;
 use autodie;
 
-use File::Temp qw(tmpnam);
-use URI;
+use File::Temp;
 use LWP::Simple qw(get);
 use PDF::Create;
+use Parallel::ForkManager;
+use URI;
 
 use constant {
-    # Download URL Format String
-    DL_FMT => 'https://online.pubhtml5.com'.'%s/files/large/%u.jpg',
-
-    # X Scale Factor (between [0.00, 1.00], determined experimentally)
-    XSCALE => 0.83,
+    DL_FMT      => 'https://online.pubhtml5.com'.'%s/files/large/%u.jpg',
+    XSCALE      => 0.84, # between [0.00, 1.00]
+    PHF_THREADS => 128,
 };
+
+sub uniq { my %h; undef @h{@_}; keys %h }
 
 my $me    = (split m{/}, $0)[-1];
 my $usage = "Usage:\n\t$me <https://pubhtml5.com/...> ...\n";
 
 @ARGV or die $usage;
+
+@ARGV = uniq @ARGV;
+@ARGV = sort @ARGV;
 
 my %paths;
 
@@ -34,7 +38,13 @@ foreach my $link (@ARGV) {
     $paths{$link} = $uri->path;
 }
 
+my $pm = Parallel::ForkManager->new (PHF_THREADS);
+warn "[$$] Processing ${\($#ARGV + 1)} PHF Flipbooks...\n";
+
 foreach my $path (map { $paths{$_} } @ARGV) {
+    next if $pm->start;
+    warn "[$$] Processing PHF Flipbook $path\n";
+
     my $pdfname  = $path;
     $pdfname     =~ s{\W}{}g;
     $pdfname    .= '.pdf';
@@ -43,15 +53,11 @@ foreach my $path (map { $paths{$_} } @ARGV) {
     my $root = $pdf->new_page (MediaBox => $pdf->get_page_size ('A2'));
 
     for (my $pgnum = 1; my $jpg = get sprintf DL_FMT, $path, $pgnum; ++$pgnum) {
-        my $img_tmp_filename = tmpnam . '-phf2pdf.jpg';
+        my $tmpjpg = File::Temp->new (SUFFIX => '.jpg');
 
-        open my $img_tmp_fh, '>', $img_tmp_filename;
-        binmode $img_tmp_fh;
+        print $tmpjpg $jpg;
 
-        print $img_tmp_fh $jpg;
-        $img_tmp_fh->close;
-
-        my $image = $pdf->image ($img_tmp_filename);
+        my $image = $pdf->image ("$tmpjpg");
         my $page  = $root->new_page;
         $page->image (
             xpos   => 0,
@@ -59,9 +65,9 @@ foreach my $path (map { $paths{$_} } @ARGV) {
             xscale => XSCALE,
             image  => $image,
         );
-
-        unlink $img_tmp_filename;
     }
 
     $pdf->close;
+    $pm->finish;
 }
+$pm->wait_all_children;
