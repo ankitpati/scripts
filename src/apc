@@ -48,6 +48,10 @@ my %apc = (
                  [qw(astyle --style=kr --indent=spaces=4 -p %f)],
                  [qw(rm %f.orig %f~)]],
 
+        h    => [[qw(indent -kr %f)],
+                 [qw(astyle --style=kr --indent=spaces=4 -p %f)],
+                 [qw(rm %f.orig %f~)]],
+
         cpp  => [[qw(indent -kr %f)],
                  [qw(astyle --style=kr --indent=spaces=4 -p %f)],
                  [qw(rm %f.orig %f~)]],
