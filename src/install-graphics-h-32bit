@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cd ~ && \
 sudo apt -y install git geany geany-plugins libsdl2-2.0-0 libsdl2-dev && \

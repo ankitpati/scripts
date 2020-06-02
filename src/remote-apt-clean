@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ssh remote mkdir '/home/administrator/.cache/var.cache.apt.archives/'
 scp -r '/var/ftp/public_ftp/Ubuntu 16.04/32 bit/var.cache.apt.archives' remote:/home/administrator/.cache/
