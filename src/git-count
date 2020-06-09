@@ -7,7 +7,17 @@ use List::AllUtils qw(uniq);
 use IPC::Run qw(run);
 
 my $me = (split m{/}, $0)[-1];
-my $usage = "Usage:\n\t$me [[--since|-s] <yyyy-mm-dd>] [<username>...]\n";
+my $usage = <<"EOF";
+Usage:
+    $me [<--since|-s> <yyyy-mm-dd>] [<username>...]
+
+Examples:
+    $me ankit                      # contributions by ankit
+    $me ''                         # contributions by All Users
+    $me tiashaa --since 2020-05-01 # by tiashaa, since 01 May 2020
+    $me tiashaa -s 2020-05-01      # `-s`, shorthand for `--since`
+    $me ankit tiashaa              # contributions by multiple users
+EOF
 
 @ARGV or die $usage;
 
