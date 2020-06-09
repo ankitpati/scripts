@@ -27,13 +27,14 @@ if ($since) {
     $since =~ /^\d{4}-\d{2}-\d{2}$/ or die $usage;
     print "Since $since\n\n";
 }
+my @since = $since ? "--since=$since" : ();
 
 push @users, '' unless @users; # All Users, according to `git-log`
 foreach my $user (@users) {
     my $log;
 
-    run [qw(git log --no-merges --oneline --shortstat), "--author=$user", $since ? "--since=$since" : ()],
-        '>', \$log;
+    run [qw(git log --no-merges --oneline --shortstat),
+         "--author=$user", @since], '>', \$log;
 
     open my $log_fd, '<', \$log;
 
@@ -53,7 +54,7 @@ foreach my $user (@users) {
     $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
 
     run [qw(git -c log.showSignature=false log --no-merges --name-only
-            --pretty=), "--author=$user"], '>', \$log;
+            --pretty=), "--author=$user", @since], '>', \$log;
 
     $files = grep !/^$/, uniq split "\n", $log;
 
