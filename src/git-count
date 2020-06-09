@@ -6,12 +6,33 @@ use warnings;
 use List::AllUtils qw(uniq);
 use IPC::Run qw(run);
 
-@ARGV or die "Usage:\n\tgit-count <username>...\n";
+my $me = (split m{/}, $0)[-1];
+my $usage = "Usage:\n\t$me [[--since|-s] <yyyy-mm-dd>] [<username>...]\n";
 
-foreach my $user (@ARGV) {
+@ARGV or die $usage;
+
+my (@users, $since);
+for (my ($i, $argc) = (0, scalar @ARGV); $i < $argc; ++$i) {
+    my $arg = $ARGV[$i];
+
+    push (@users, $arg), next if $arg !~ /^(?:--since|-s)$/;
+
+    ++$i;
+    die $usage if $i == $argc; # `--since` is last argument!
+
+    $since = $ARGV[$i];
+}
+
+if ($since) {
+    $since =~ /^\d{4}-\d{2}-\d{2}$/ or die $usage;
+    print "Since $since\n\n";
+}
+
+push @users, '' unless @users; # All Users, according to `git-log`
+foreach my $user (@users) {
     my $log;
 
-    run [qw(git log --no-merges --oneline --shortstat), "--author=$user"],
+    run [qw(git log --no-merges --oneline --shortstat), "--author=$user", $since ? "--since=$since" : ()],
         '>', \$log;
 
     open my $log_fd, '<', \$log;
@@ -36,6 +57,7 @@ foreach my $user (@ARGV) {
 
     $files = grep !/^$/, uniq split "\n", $log;
 
+    $user = 'All Users' unless $user;
     print <<"EOT";
 $user
     Files      : $files
