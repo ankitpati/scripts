@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+SSHCMD='ssh -fTN -R 2200:localhost:22 rtun-ankit'
+
+test -z "$(ps -Ao command | grep "^$SSHCMD\$")" && exec $SSHCMD
