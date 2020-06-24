@@ -1,0 +1,41 @@
+#!/usr/bin/env perl
+package MCA::UserPass;
+
+use strict;
+use warnings;
+
+use parent 'Exporter';
+our @EXPORT_OK = qw(mca_user_pass);
+
+use feature 'say';
+
+use Digest::SHA qw(sha1_hex);
+
+use constant {
+    XOR_MASK   => 0xF, # set all 1s in 4 least significant bits to 0
+    CHAR_SPACE => ':aAb`BcVCd/eXDfEYg FZhi?jGk|HlmI,nJo@TKpqL.WMrsNt!uvwOx'.
+                  '<yPz>0QR12~3S4;^567U89%$#*()-_=+'."\344\345\354\305\311".
+                  "\346\306\366\362\326\334\341\355\307\361\321\272\277\241",
+};
+
+sub mca_user_pass {
+    my ($username, $password) = @_;
+
+    my $encoded = my $cs_index = '';
+
+    for (my $i = 0; $i < length $username; ++$i) {
+        $cs_index = (index CHAR_SPACE, substr $username, $i, 1) ^ XOR_MASK;
+        $encoded .= substr CHAR_SPACE, $cs_index, 1;
+    }
+
+    return $encoded, sha1_hex $password;
+}
+
+sub main {
+    my $me = (split m{/}, $0)[-1];
+    @ARGV == 2 or die "Usage:\n\t$me <username> <password>\n";
+
+    say foreach mca_user_pass @ARGV;
+}
+
+main unless caller;
