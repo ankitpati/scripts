@@ -31,7 +31,7 @@ sub mca_encode {
 
 sub main {
     my $me = (split m{/}, $0)[-1];
-    @ARGV or die "Usage:\n\t$me <username>...\n";
+    @ARGV or die "Usage:\n\t$me <string>...\n";
 
     say foreach map mca_encode, @ARGV;
 }
