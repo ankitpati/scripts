@@ -34,7 +34,7 @@ my %apc = (
         c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
         cpp  => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
         go   => [qw(go build %f)],
-        java => 'javac -Xlint:all -d . *.java', # Needs shell-escaping.
+        java => 'javac -Xlint:all -d . *.java',
         xml  => [qw(xmllint --noout --dtdvalid %e.dtd %f)],
     },
 
@@ -67,7 +67,7 @@ my %apc = (
         css  => [qw(csstidy %f %f)],
         go   => [qw(go fmt %f)],
         html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
-        js   => '(js-beautify %f && echo) | sponge %f', # Needs shell-escaping
+        js   => '(js-beautify %f && echo) | sponge %f',
         json => 'jsonlint -f %f | sponge %f',
     },
 );
