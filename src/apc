@@ -40,7 +40,8 @@ my %apc = (
 
     lint => {
         html => [qw(xmllint --noout %f)],
-        xml => [qw(xmllint --noout --schema %e.xsd %f)],
+        md   => [qw(markdownlint %f)],
+        xml  => [qw(xmllint --noout --schema %e.xsd %f)],
     },
 
     tidy => {
