@@ -40,6 +40,7 @@ my %apc = (
 
     lint => {
         html => [qw(xmllint --noout %f)],
+        json => [qw(jsonlint %f)],
         md   => [qw(markdownlint %f)],
         xml  => [qw(xmllint --noout --schema %e.xsd %f)],
     },
@@ -67,6 +68,7 @@ my %apc = (
         go   => [qw(go fmt %f)],
         html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
         js   => '(js-beautify %f && echo) | sponge %f', # Needs shell-escaping
+        json => 'jsonlint -f %f | sponge %f',
     },
 );
 
