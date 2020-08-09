@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+mydir="$(dirname "$0")/"
+exec java -jar "$mydir/apktool-cli-all.jar" "$@"
