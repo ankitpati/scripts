@@ -1,0 +1,44 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use IPC::Run qw(run);
+
+my $me = (split m{/}, $0)[-1];
+
+die "Usage:\n\t$me <first-commit-in-range>" if @ARGV != 1;
+
+my $commit = shift;
+
+my $files;
+run [qw(git diff-tree --no-commit-id --name-only -r), $commit], '>', \$files;
+open my $files_fd, '<', \$files;
+while (<$files_fd>) {
+    print("$commit not cherry-picked! File list:\n$files"), exit if /keyword/i;
+}
+close $files_fd;
+
+my $is_cherry_pick = '';
+
+my $msg;
+run [qw(git show -s --format=%B), $commit], '>', \$msg;
+open my $msg_fd, '<', \$msg;
+while (<$msg_fd>) {
+    $is_cherry_pick = 1 if /\bcherry picked from commit\b/;
+}
+close $msg_fd;
+
+exec qw(git cherry-pick), ($is_cherry_pick ? () : qw(-x)), $commit;
+
+__END__
+
+=head1 USAGE
+
+    $ for i in `git log <last-cherry-picked-commit-hash>..origin/master --format=%H | tac`; do echo $i; git-pick-me-not $i || break; echo; done
+
+=head1 TODO
+
+Move the C<for> loop from Bash to Perl
+
+=cut
