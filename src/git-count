@@ -9,7 +9,7 @@ use IPC::Run qw(run);
 my $me = (split m{/}, $0)[-1];
 my $usage = <<"EOF";
 Usage:
-    $me [<--since|-s> <yyyy-mm-dd>] [<username>...]
+    $me [<--since|-s> <yyyy-mm-dd>] [<--perl-regexp|-p>] [<--committer|-c>] [<username>...]
 
 Examples:
     $me ankit                      # contributions by ankit
@@ -17,34 +17,45 @@ Examples:
     $me tiashaa --since 2020-05-01 # by tiashaa, since 01 May 2020
     $me tiashaa -s 2020-05-01      # `-s`, shorthand for `--since`
     $me ankit tiashaa              # contributions by multiple users
+    $me '^ankit.*' -p              # use PCRE regex for matches
+    $me tiashaa -c                 # match against committers, not authors
+    $me ankit -c -p -s 2020-05-01  # specify multiple options
 EOF
 
 @ARGV or die $usage;
 
-my (@users, $since);
+my $usertype = 'author';
+my @regextype = qw(--fixed-strings);
+my (@users, $since, @since);
 for (my ($i, $argc) = (0, scalar @ARGV); $i < $argc; ++$i) {
     my $arg = $ARGV[$i];
 
-    push (@users, $arg), next if $arg !~ /^(?:--since|-s)$/;
-
-    ++$i;
-    die $usage if $i == $argc; # `--since` is last argument!
-
-    $since = $ARGV[$i];
+    if ($arg =~ /^(?:--committer|-c)$/) {
+        $usertype = 'committer';
+    }
+    elsif ($arg =~ /^(?:--perl-regexp|-p)$/) {
+        @regextype = qw(--perl-regexp);
+    }
+    elsif ($arg =~ /^(?:--since|-s)$/) {
+        $since = $ARGV[++$i] || ''; # `--since` is last argument!
+        $since =~ /^\d{4}-\d{2}-\d{2}$/ or die $usage;
+    }
+    else {
+        push @users, $arg;
+    }
 }
 
 if ($since) {
-    $since =~ /^\d{4}-\d{2}-\d{2}$/ or die $usage;
+    @since = "--since=$since";
     print "Since $since\n\n";
 }
-my @since = $since ? "--since=$since" : ();
 
 push @users, '' unless @users; # All Users, according to `git-log`
 foreach my $user (@users) {
     my $log;
 
     run [qw(git log --no-merges --oneline --shortstat),
-         "--author=$user", @since], '>', \$log;
+         "--$usertype=$user", @since, @regextype], '>', \$log;
 
     open my $log_fd, '<', \$log;
 
@@ -64,7 +75,7 @@ foreach my $user (@users) {
     $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
 
     run [qw(git -c log.showSignature=false log --no-merges --name-only
-            --pretty=), "--author=$user", @since], '>', \$log;
+            --pretty=), "--$usertype=$user", @since, @regextype], '>', \$log;
 
     $files = grep !/^$/, uniq split "\n", $log;
 
