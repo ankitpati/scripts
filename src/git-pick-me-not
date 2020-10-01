@@ -7,38 +7,44 @@ use IPC::Run qw(run);
 
 my $me = (split m{/}, $0)[-1];
 
-die "Usage:\n\t$me <first-commit-in-range>" if @ARGV != 1;
+die "Usage:\n\t$me <branch-name> <first-commit-in-range>\n" if @ARGV != 2;
 
-my $commit = shift;
+my ($branch, $lasthash) = @ARGV;
 
-my $files;
-run [qw(git diff-tree --no-commit-id --name-only -r), $commit], '>', \$files;
-open my $files_fd, '<', \$files;
-while (<$files_fd>) {
-    print("$commit not cherry-picked! File list:\n$files"), exit if /keyword/i;
+run [qw(git log), "$lasthash..$branch", qw(--format=%H)], '>', \my $commits
+    or die "$me: Could not get logs!\n";
+
+for my $commit (reverse split /\s+/, $commits) {
+    print "\n$commit\n";
+
+    run [qw(git diff-tree --no-commit-id --name-only -r), $commit], '>',
+        \my $files;
+
+    if ($files =~ /keyword/i) {
+        print "$commit not cherry-picked! File list:\n$files";
+        next;
+    }
+
+    run [qw(git show -s --format=%B), $commit], '>', \my $commit_msg;
+    my $is_cherry_pick = $commit_msg =~ /\bcherry picked from commit\b/;
+
+    my $cp_success = run [qw(git cherry-pick), ($is_cherry_pick ? () : qw(-x)),
+                          $commit], \undef, \my $cp_msg_out, \my $cp_msg_err;
+
+    if ($cp_msg_err =~ /\bcherry-pick is now empty\b/i) {
+        print "$commit is empty!\n";
+        $cp_success = run [qw(git reset)];
+    } else {
+        print "$cp_msg_out$cp_msg_err";
+    }
+
+    last unless $cp_success;
 }
-close $files_fd;
-
-my $is_cherry_pick = '';
-
-my $msg;
-run [qw(git show -s --format=%B), $commit], '>', \$msg;
-open my $msg_fd, '<', \$msg;
-while (<$msg_fd>) {
-    $is_cherry_pick = 1 if /\bcherry picked from commit\b/;
-}
-close $msg_fd;
-
-exec qw(git cherry-pick), ($is_cherry_pick ? () : qw(-x)), $commit;
 
 __END__
 
 =head1 USAGE
 
-    $ for i in `git log <last-cherry-picked-commit-hash>..origin/master --format=%H | tac`; do echo $i; git-pick-me-not $i || break; echo; done
-
-=head1 TODO
-
-Move the C<for> loop from Bash to Perl
+    git-pick-me-not origin/master <last-cherry-picked-commit-hash>
 
 =cut
