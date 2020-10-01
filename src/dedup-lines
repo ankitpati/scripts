@@ -5,7 +5,7 @@ use warnings;
 
 my $NAME = (split m{/}, $0)[-1];
 
-my ($file_expand, $file_delete) = @ARGV;
+my ($file_expand, $file_remove) = @ARGV;
 
 die <<"EOU" if @ARGV != 2;
 Usage:
@@ -23,9 +23,9 @@ open my $fex, '<', $file_expand or die "$NAME: could not read $file_expand.\n";
 undef @h{<$fex>};
 close $fex;
 
-open my $fdl, '<', $file_delete or die "$NAME: could not read $file_delete.\n";
-delete @h{<$fdl>};
-close $fdl;
+open my $frm, '<', $file_remove or die "$NAME: could not read $file_remove.\n";
+delete @h{<$frm>};
+close $frm;
 
 my $deduped = join '', sort keys %h;
 chomp $deduped;
