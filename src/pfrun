@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+me="$(basename "$0")"
+
+test "$#" -ne 1 -o ! -f "$1" && echo "Usage: $me <filename.pbtxt>" && exit 1
+
+config="$1"
+
+adb shell perfetto -c - --txt -o '/data/misc/perfetto-traces/trace' < "$config"
