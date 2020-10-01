@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $NAME = (split m{/}, $0)[-1];
+
+my ($file_expand, $file_remove) = @ARGV;
+
+die <<"EOU" if @ARGV != 2;
+Usage:
+    $NAME <file-to-expand> <file-to-remove>
+
+    file-to-expand (filename)
+    file-to-remove (filename)
+        Remove the contents of file-to-remove from the contents of
+        file-to-expand, and, preserving order, output the result.
+EOU
+
+open my $fex, '<', $file_expand or die "$NAME: could not read $file_expand.\n";
+my @expand_lines = <$fex>;
+close $fex;
+
+open my $frm, '<', $file_remove or die "$NAME: could not read $file_remove.\n";
+my @remove_lines = <$frm>;
+close $frm;
+
+foreach my $line_to_remove (@remove_lines) {
+    @expand_lines = grep !/^\Q$line_to_remove\E$/, @expand_lines;
+}
+
+my $deduped = join '', @expand_lines;
+chomp $deduped;
+print "$deduped\n";
