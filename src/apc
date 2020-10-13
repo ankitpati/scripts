@@ -18,6 +18,9 @@ my %apc = (
         cpp   => [qw(c++ -Wall -Wextra -Wpedantic -Wno-unused-result -g -o %e
                      %f)],
 
+        kt    => [qw(kotlinc -progressive -include-runtime -jvm-target 14
+                     -Xexplicit-api=warning %f -d %e.jar)],
+
         go    => [qw(go build %f)],
         java  => [qw(javac -Xlint:all %f)],
         m     => [qw(chmod +x %f)],
