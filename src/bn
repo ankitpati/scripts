@@ -5,9 +5,9 @@
 use strict;
 use warnings;
 
-use Cwd;
-use File::Basename;
-use File::Path;
+use Cwd 'cwd';
+use File::Basename 'dirname';
+use File::Path 'mkpath';
 use File::Spec::Functions 'abs2rel';
 
 my $me = ${\(split m{/}, $0)[-1]};

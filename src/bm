@@ -5,9 +5,6 @@
 use strict;
 use warnings;
 
-use Cwd;
-use File::Basename;
-use File::Path;
 use File::Spec::Functions 'rel2abs';
 
 my $me = ${\(split m{/}, $0)[-1]};

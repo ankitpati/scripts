@@ -5,8 +5,7 @@
 use strict;
 use warnings;
 
-use Cwd;
-use File::Spec::Functions qw(rel2abs);
+use File::Spec::Functions 'rel2abs';
 
 sub uniq { my %h; undef @h{@_}; keys %h }
 
