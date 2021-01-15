@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Cwd 'cwd';
+use Cwd qw(cwd);
 
 die "Usage:\n\tbb [string pattern]\n" if @ARGV > 1;
 

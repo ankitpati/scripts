@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use IPC::Run 'run';
+use IPC::Run qw(run);
 
 @ARGV or die "Usage:\n\tgit-filter-author <username>...\n";
 

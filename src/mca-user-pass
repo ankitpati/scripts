@@ -4,10 +4,10 @@ package MCA::UserPass;
 use strict;
 use warnings;
 
-use parent 'Exporter';
+use parent qw(Exporter);
 our @EXPORT_OK = qw(mca_user_pass);
 
-use feature 'say';
+use feature qw(say);
 
 use Digest::SHA qw(sha1_hex);
 

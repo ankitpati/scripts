@@ -4,10 +4,10 @@ package MCA::Encode;
 use strict;
 use warnings;
 
-use parent 'Exporter';
+use parent qw(Exporter);
 our @EXPORT_OK = qw(mca_encode);
 
-use feature 'say';
+use feature qw(say);
 
 use constant {
     XOR_MASK   => 0xF, # set all 1s in 4 least significant bits to 0
