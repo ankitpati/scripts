@@ -21,10 +21,10 @@ my (@name, @path, @type);
 push @name, (m{/} ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
 pop (@name), unshift (@name, '('), push (@name, ')') if @name;
 
-push @path, '-path', "*/$_", qw(-prune -or) foreach @ignore_directories;
-pop (@path), unshift (@path, qw[-not (]), push (@path, ')') if @path;
+push @path, '-path', "*/$_", qw(-prune -o) foreach @ignore_directories;
+pop (@path), unshift (@path, qw[! (]), push (@path, ')') if @path;
 
-push @type, '-type', $_, qw(-or) foreach @find_types;
+push @type, '-type', $_, qw(-o) foreach @find_types;
 pop (@type), unshift (@type, '('), push (@type, ')') if @type;
 
 exec qw(find .), @path, @type, @name;
