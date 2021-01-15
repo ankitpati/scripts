@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 myname="$(basename "$0")"
-mydir="$(dirname "$0")/"
 
 test "$#" -ne 1 -o ! -d "$1" && echo "Usage: $myname <directory>" && exit 1
 
