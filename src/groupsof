@@ -2,7 +2,7 @@
 
 myname="$(basename "$0")"
 
-test "$#" -eq 0 && printf "Usage:\n\t$myname <username>...\n" && exit 1
+test "$#" -eq 0 && printf "Usage:\n\t%s <username>...\n" "$myname" && exit 1
 
 error_users=''
 
