@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $test_types;
+
+BEGIN {
+    $test_types = join '|', qw(
+      ACCEPTANCE
+      BUG
+      DATABASE
+      DONT
+      PROCESS
+      SLOW
+      TODO
+      UNIT
+    );
+}
+
+use constant {
+    IS_TEST_SUB_RE => qr/::((?:(?:$test_types)_)?TEST_[^:]+)$/,
+    TEST_RUNNER    => 'system_src/scripts/test_suite.pl',
+};
+
+my $me = (split m{/}, $0)[-1];
+
+@ARGV or die "Usage:\n\t$me <test item>...\n";
+
+my $reporoot;
+$reporoot = eval { `git rev-parse --show-toplevel 2>/dev/null` };
+chomp $reporoot;
+$reporoot ||= $ENV{WORKROOT};
+$reporoot or die "$me: must be in a git checkout, or have \$WORKROOT set.\n";
+
+chdir $reporoot;
+
+foreach (@ARGV) {
+    my $test_sub;
+    if ($_ =~ IS_TEST_SUB_RE) {
+        $test_sub = $1;
+        s/::\Q$test_sub\E$//;
+    }
+
+    s{::}{/}g;
+    $_ = "perl_lib/$_.pm";
+
+    system TEST_RUNNER, ($test_sub ? ('-f', $test_sub) : ('-a')), $_;
+}
