@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# icici-paste
+#
+# Named in honour of the stupid restrictions ICICI places on its web forms.
+
+exec xte "str $(xclip -o)"
