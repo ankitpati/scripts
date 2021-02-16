@@ -12,11 +12,11 @@ my %apc = (
         asm   => [[qw(yasm -Worphan-labels -f elf64 %f)], [qw(ld -o %e %e.o)],
                   [qw(rm %e.o)]],
 
-        c     => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -g -o %e
-                     %f -lm)],
+        c     => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+                     -g -o %e %f -lm)],
 
-        cpp   => [qw(c++ -Wall -Wextra -Wpedantic -Wno-unused-result -g -o %e
-                     %f)],
+        cpp   => [qw(c++ -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+                     -g -o %e %f)],
 
         kt    => [qw(kotlinc -progressive -include-runtime -jvm-target 14
                      -Xexplicit-api=warning %f -d %e.jar)],
@@ -34,8 +34,10 @@ my %apc = (
     },
 
     compile => {
-        c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
-        cpp  => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -c %f)],
+        c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+                    -c %f)],
+        cpp  => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+                    -c %f)],
         go   => [qw(go build %f)],
         java => 'javac -Xlint:all -d . *.java',
         xml  => [qw(xmllint --noout --dtdvalid %e.dtd %f)],
