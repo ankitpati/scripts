@@ -34,9 +34,9 @@ my %apc = (
     },
 
     compile => {
-        c    => [qw(gcc -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+        c    => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
                     -c %f)],
-        cpp  => [qw(c++14 -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
+        cpp  => [qw(c++ -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
                     -c %f)],
         go   => [qw(go build %f)],
         java => 'javac -Xlint:all -d . *.java',
