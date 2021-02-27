@@ -74,6 +74,7 @@ my %apc = (
         html => [qw(tidy -mci --indent-spaces 4 -w 76 -asxhtml %f)],
         js   => '(js-beautify %f && echo) | sponge %f',
         json => 'jsonlint -f %f | sponge %f',
+        xml  => [qw(tidy -mi --indent-spaces 4 -w 76 -xml %f)],
     },
 );
 
