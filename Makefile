@@ -11,5 +11,5 @@ $(OBJECTS): %: %.c
 clean:
 	rm -f $(OBJECTS)
 
-install:
+install: $(OBJECTS)
 	cp $(EXECUTABLES) /usr/local/bin/
