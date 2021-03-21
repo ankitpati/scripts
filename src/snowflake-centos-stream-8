@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Manual Tasks
+#dnf install -y tmux
+#tmux
+#touch .hushlogin
+#dnf upgrade --refresh -y
+#systemctl reboot
+
+dnf install -y epel-release
+dnf config-manager --set-enabled powertools
+dnf install -y 'https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm'
+dnf install -y 'https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm'
+dnf install -y rpmfusion-free-release-tainted
+dnf install -y rpmfusion-nonfree-release-tainted
+dnf upgrade --refresh -y
+dnf install -y bash-completion
+dnf install -y cargo
+dnf install -y git
+dnf install -y man-pages
+dnf install -y perl-App-cpanminus
+dnf install -y readline-devel
+dnf install -y vim-enhanced
+dnf groupinstall -y 'Development Tools'
+
+git clone 'https://gitlab.com/ankitpati/dotfiles.git'
+make -C dotfiles/ install
+rm -rf dotfiles/
+
+git clone 'https://gitlab.com/ankitpati/scripts.git'
+make -C scripts/ install
+rm -rf scripts/
+
+git clone 'https://github.com/vlad2/git-sh.git'
+make -C git-sh/ install
+rm -rf git-sh/
+
+# Long Running Tasks
+# Keep at the end for easy abandoning if needed.
+cargo install git-delta
