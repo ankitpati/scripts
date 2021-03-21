@@ -17,6 +17,7 @@ dnf install -y \
 ;
 dnf upgrade --refresh -y
 dnf install -y \
+    ack \
     bash-completion \
     cargo \
     git \
