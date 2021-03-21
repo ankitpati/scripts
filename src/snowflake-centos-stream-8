@@ -18,6 +18,7 @@ dnf install -y bash-completion
 dnf install -y cargo
 dnf install -y git
 dnf install -y man-pages
+dnf install -y npm
 dnf install -y perl-App-cpanminus
 dnf install -y readline-devel
 dnf install -y vim-enhanced
@@ -35,6 +36,4 @@ git clone 'https://github.com/vlad2/git-sh.git'
 make -C git-sh/ install
 rm -rf git-sh/
 
-# Long Running Tasks
-# Keep at the end for easy abandoning if needed.
-cargo install git-delta
+npm install -g diff-so-fancy
