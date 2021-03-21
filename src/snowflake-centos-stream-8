@@ -9,19 +9,23 @@
 
 dnf install -y epel-release
 dnf config-manager --set-enabled powertools
-dnf install -y 'https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm'
-dnf install -y 'https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm'
-dnf install -y rpmfusion-free-release-tainted
-dnf install -y rpmfusion-nonfree-release-tainted
+dnf install -y \
+    'https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm' \
+    'https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm' \
+    rpmfusion-free-release-tainted \
+    rpmfusion-nonfree-release-tainted \
+;
 dnf upgrade --refresh -y
-dnf install -y bash-completion
-dnf install -y cargo
-dnf install -y git
-dnf install -y man-pages
-dnf install -y npm
-dnf install -y perl-App-cpanminus
-dnf install -y readline-devel
-dnf install -y vim-enhanced
+dnf install -y \
+    bash-completion \
+    cargo \
+    git \
+    man-pages \
+    npm \
+    perl-App-cpanminus \
+    readline-devel \
+    vim-enhanced \
+;
 dnf groupinstall -y 'Development Tools'
 
 git clone 'https://gitlab.com/ankitpati/dotfiles.git'
