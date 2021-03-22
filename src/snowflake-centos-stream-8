@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
 # Manual Tasks
-#dnf install -y tmux
-#tmux
-#touch .hushlogin
-#dnf upgrade --refresh -y
-#systemctl reboot
+#dnf install -y tmux; tmux
+#touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot
 
 dnf install -y epel-release
 dnf config-manager --set-enabled powertools
