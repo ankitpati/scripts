@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use autodie;
+
+use Data::Printer::Config;
+
+my @files = @ARGV ? @ARGV : "$ENV{HOME}/.dataprinter";
+
+foreach my $oldcfg (@files) {
+    my $newcfg = eval { Data::Printer::Config::convert ($oldcfg) };
+
+    if ($@) {
+        warn "$@\n";
+        next;
+    }
+
+    open my $fout, '>', $oldcfg;
+    print $fout $newcfg;
+    close $fout;
+}
