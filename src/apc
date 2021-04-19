@@ -69,6 +69,9 @@ my %apc = (
         pl   => [qw(perltidy -utf8 -w -b -bext=/ -wn -otr -pt=2 -sbt=2 -bt=1
                     -bbt=0 -tso -nsfs -skp -sfp -trp)],
 
+        sql  => [qw(sqlformat -k upper -i lower -r -o %f --indent_width 4
+                    --indent_columns -s --comma_first True %f)],
+
         css  => [qw(csstidy %f %f)],
         go   => [qw(go fmt %f)],
         html => [qw(tidy -mciq --indent-spaces 4 -w 76 -asxhtml %f)],
