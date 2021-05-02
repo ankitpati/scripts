@@ -13,7 +13,7 @@ my %apc = (
                   [qw(rm %e.o)]],
 
         c     => [qw(cc -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
-                     -g -o %e %f -lm)],
+                     -g -o %e %f -lm -pthread)],
 
         cpp   => [qw(c++ -Wall -Wextra -Wpedantic -Wno-unused-result -fanalyzer
                      -g -o %e %f)],
