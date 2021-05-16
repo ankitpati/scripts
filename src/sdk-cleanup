@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use autodie;
+
+use File::Path qw(remove_tree);
+
+use constant SDK_VERSION_RE => qr/^ \d+ (?: \.\d+ )* $/x;
+
+# to be fed into `sort` as `SUBNAME` only
+sub sdkver_cmp {
+    foreach ($a, $b) {
+        die <<"EOM" unless $_ =~ SDK_VERSION_RE;
+Unrecognised SDK version string $_! Expected format @{[ SDK_VERSION_RE ]}
+EOM
+    }
+
+    my (@a) = $a =~ /(\d+)/g;
+    my (@b) = $b =~ /(\d+)/g;
+
+    my $cmpval = 0;
+    $cmpval = ($a[$_] or 0) <=> ($b[$_] or 0) ||
+              (length $a[$_] or 0) <=> (length $b[$_] or 0)
+              and last
+        foreach 0..($#a < $#b ? $#b : $#a);
+
+    return $cmpval;
+}
+
+sub main {
+    my $me = (split m{/}, $0)[-1];
+
+    die "Usage:\n\t$me\n" if @ARGV;
+    die "\$SDKMAN_DIR env var not set!" unless $ENV{SDKMAN_DIR};
+
+    # flush archives and temporary storage
+    system 'bash -lc "sdk flush"'; # required because `sdk` is an alias
+
+    my @paths_to_delete;
+
+    # delete all but the latest AND the current version(s)
+    foreach my $candidate (glob "$ENV{SDKMAN_DIR}/candidates/*") {
+        my @versions = sort sdkver_cmp grep !/current/,
+                           map { m{/([^/]*)$} } glob "$candidate/*";
+
+        my $current = readlink "$candidate/current";
+
+        pop @versions; # sorted in ascending order, preserve latest version
+        @versions = grep !/\Q$current\E/, @versions;
+                             # preserve the version pointed to by `current`
+
+        push @paths_to_delete, map "$candidate/$_/", @versions;
+                                                 # trailing slash to ensure we
+                                                 # don’t accidentally operate
+                                                 # on files, only directories
+    }
+
+    # do not wrap the following in `eval`; let it `die` if things go wrong
+    remove_tree @paths_to_delete, { safe => 1 };
+}
+
+main unless caller;
