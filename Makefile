@@ -1,5 +1,5 @@
 CC     		= cc
-CFLAGS 		= -Wall -Wextra -Wpedantic -O3
+CFLAGS 		= -Wall -Wextra -Wpedantic -O3 -march=native
 OBJECTS		= $(shell find src/ -type f -name '*.c' | sed 's/\.c$$//')
 EXECUTABLES = $(shell find src/ -type f | grep -v '\.')
 
