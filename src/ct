@@ -7,14 +7,14 @@ my $test_types;
 
 BEGIN {
     $test_types = join '|', qw(
-      ACCEPTANCE
-      BUG
-      DATABASE
-      DONT
-      PROCESS
-      SLOW
-      TODO
-      UNIT
+        ACCEPTANCE
+        BUG
+        DATABASE
+        DONT
+        PROCESS
+        SLOW
+        TODO
+        UNIT
     );
 }
 
@@ -45,5 +45,5 @@ foreach (@ARGV) {
     s{::}{/}g;
     $_ = "perl_lib/$_.pm";
 
-    system TEST_RUNNER, ($test_sub ? ('-f', $test_sub) : ('-a')), $_;
+    system TEST_RUNNER, ($test_sub ? ('-f', $test_sub) : qw(-a -c)), $_;
 }
