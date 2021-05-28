@@ -36,6 +36,8 @@ sub main {
     @ARGV == 2 or die "Usage:\n\t$me <username> <password>\n";
 
     say foreach mca_user_pass @ARGV;
+
+    return;
 }
 
 main unless caller;

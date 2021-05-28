@@ -20,21 +20,22 @@ foreach my $skhfile (@ARGV) {
 
     my %mappings;
     while (<$fin>) {
-        my @record = split ' ';
-        push @{ $mappings{join ' ', @record[1, 2]} }, # comments are lost
-             split ',', $record[0];
+        my @known_host = split ' ';
+        push @{ $mappings{join ' ', @known_host[1, 2]} }, # comments are lost
+             split /,/, $known_host[0];
     }
 
     close $skhfile;
 
-    my @records = map { join ( ',', sort (&uniq (@{$mappings{$_}})) ) . " $_" }
-                      sort keys %mappings;
+    my @known_hosts =
+        map { ( join ',', sort &uniq (@{$mappings{$_}}) ) . " $_" }
+            sort keys %mappings;
 
     open my $fout, '>', $skhfile
         or die "Could not open $skhfile for writing!\n";
 
     local $" = "\n";
-    print $fout "@records\n";
+    print $fout "@known_hosts\n";
 
     close $fout;
 }

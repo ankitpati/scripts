@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
 
+use strict;
+use warnings;
+
 exec 'mysql', "--defaults-group-suffix=$ARGV[0]", @ARGV[1 .. $#ARGV] if @ARGV;
 exec 'mysql';

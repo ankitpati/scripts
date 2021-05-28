@@ -5,13 +5,13 @@ use warnings;
 
 use IPC::Run qw(run);
 
-my $NAME = (split m{/}, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 my ($branch, $commits) = @ARGV;
 
 die <<"EOU" if @ARGV != 2 || $commits !~ /^\d+$/;
 Usage:
-    $NAME <branch> <commits>
+    $me <branch> <commits>
 
     branch (string)
         Git branch to pick the commits from

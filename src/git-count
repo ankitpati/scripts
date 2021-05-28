@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use autodie;
 
 use List::AllUtils qw(uniq);
 use IPC::Run qw(run);
@@ -62,22 +63,25 @@ foreach my $user (@users) {
     my ($files, $commits, $insertions, $deletions);
 
     while (<$log_fd>) {
-        ++$commits, next if /^[a-z0-9]+ /i;
+        if (/^[a-z0-9]+ /i) { ++$commits; next; }
 
         my ($ins) = /(\d+) insertion/;
         my ($del) = /(\d+) deletion/;
 
-        $insertions += $ins || 0, $deletions += $del || 0;
+        $insertions += $ins || 0;
+        $deletions  += $del || 0;
     }
 
     close $log_fd;
 
-    $commits ||= 0, $insertions ||= 0, $deletions ||= 0;
+    $commits    ||= 0;
+    $insertions ||= 0;
+    $deletions  ||= 0;
 
     run [qw(git -c log.showSignature=false log --no-merges --name-only
             --pretty=), "--$usertype=$user", @since, @regextype], '>', \$log;
 
-    $files = grep !/^$/, uniq split "\n", $log;
+    $files = grep !/^$/, uniq split /\n/, $log;
 
     $user = 'All Users' unless $user;
     print <<"EOT";

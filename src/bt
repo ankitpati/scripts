@@ -53,7 +53,7 @@ if ($maketest) {
 
 my @moose_tests;
 foreach (@ARGV) {
-    $_ =~ m{^.*?/Acme/(.*)\.pm$} or next;
+    m{^.*?/Acme/(.*)\.pm$} or next;
     my $test_dir = "$gitroot/t/lib/TestsFor/Acme/$1/";
     push @moose_tests, $_ if -e "$test_dir/base.pm" or -e "$test_dir/legacy.pm";
 }
@@ -63,7 +63,7 @@ s{^(.*/)?(.*)\.pm$}{${\($1 // '')}t/$2.t} foreach @ARGV;
 my @no_t_files = grep !-e ($_), @ARGV;
 
 foreach (@no_t_files) {
-    s{\.t$}{}, s{/t/}{/}, s{^.*?/Acme/}{::}, s{/}{::}g;
+    s{\.t$}{}; s{/t/}{/}; s{^.*?/Acme/}{::}; s{/}{::}g;
     $_ = "Acme$_";
 }
 
@@ -78,7 +78,7 @@ my %dedup;
 my @t_files = grep -e ($_) && !exists $dedup{$_}, @ARGV;
 
 foreach (@moose_tests) {
-    s{\.pm$}{}, s{^.*?/Acme/}{::}g, s{/}{::}g;
+    s{\.pm$}{}; s{^.*?/Acme/}{::}g; s{/}{::}g;
     $_ = "Acme$_";
 }
 
@@ -91,6 +91,6 @@ if (@no_t_files or @moose_tests) {
         foreach uniq @no_t_files, @moose_tests;
 }
 
-s{/t/}{/}, s{^$gitroot/}{}, s{\.t$}{\.pm} foreach @ARGV;
+foreach (@ARGV) { s{/t/}{/}; s{^$gitroot/}{}; s{\.t$}{\.pm}; }
 system 'cover', ( $noselect ? qw(-ignore_re ^t/|.*\.t$|/Acme/Test/)
-            : ('-select_re', '^'.( join '|', map(quotemeta, @ARGV) ).'$') );
+            : ('-select_re', '^'.( join '|', map quotemeta, @ARGV ).'$') );

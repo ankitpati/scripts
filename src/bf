@@ -17,12 +17,12 @@ my $me = (split m{/}, $0)[-1];
 my (@name, @path, @type);
 
 push @name, (m{/} ? '-ipath' : '-iname', "*$_*", '-o') foreach @ARGV;
-pop (@name), unshift (@name, '('), push (@name, ')') if @name;
+if (@name) { pop @name; unshift @name, '('; push @name, ')'; }
 
 push @path, '-path', "*/$_", qw(-prune -o) foreach @ignore_directories;
-pop (@path), unshift (@path, qw[! (]), push (@path, ')') if @path;
+if (@path) { pop @path; unshift @path, qw[! (]; push @path, ')'; }
 
 push @type, '-type', $_, qw(-o) foreach @find_types;
-pop (@type), unshift (@type, '('), push (@type, ')') if @type;
+if (@type) { pop @type; unshift @type, '('; push @type, ')'; }
 
 exec qw(find .), @path, @type, @name;

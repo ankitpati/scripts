@@ -51,7 +51,7 @@ my @discards = (
     qr/^grep /,
     qr/^history /,
     qr/^kill(?:all)? /,
-    qr/^l(?:s|l|\.) /,
+    qr/^l[s|l|.] /,
     qr/^locate /,
     qr/^man /,
     qr/^maria /,
@@ -168,7 +168,7 @@ foreach my $histfile (@ARGV) {
     }
 
     # Deduplicate everything.
-    @normal_history = sort (&uniq (@normal_history));
+    @normal_history = sort &uniq (@normal_history);
 
     open my $fout, '>', $histfile
         or die "Could not open $histfile for writing!\n";

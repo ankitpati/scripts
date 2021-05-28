@@ -88,6 +88,7 @@ sub execute {
     my ($f, $e, @cmd) = @_;
     s/%(.)/$1 eq 'f' ? $f : $1 eq 'e' ? $e : $1/ge foreach @cmd;
     die "\n" if system @cmd;
+    return;
 }
 
 @ARGV and @ARGV <= 2 or die "Usage:\n\t$me <filename> [action]\n";

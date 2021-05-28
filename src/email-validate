@@ -20,4 +20,4 @@ $/x;
 
 my $email = <>;
 
-print ($email =~ $email_regex ? "Valid" : "Invalid", "\n");
+print $email =~ $email_regex ? 'Valid' : 'Invalid', "\n";

@@ -41,7 +41,7 @@ my $diff = Time::Piece->strptime ('' . (
 ), '%s')->strftime ('%T');
 
 # Extract URLs for video and audio streams separately.
-my ($video, $audio) = split '\n', `youtube-dl -g "$yt_url"`;
+my ($video, $audio) = split /\n/, `youtube-dl -g "$yt_url"`;
 
 if ($video eq $audio) {
     exec 'ffmpeg',

@@ -5,8 +5,8 @@ use warnings;
 
 use Pod::Confluence;
 
-my $NAME = (split m|/|, $0)[-1];
-@ARGV or die "Usage:\n\t$NAME <file-with-POD>...\n";
+my $me = (split m{/}, $0)[-1];
+@ARGV or die "Usage:\n\t$me <file-with-POD>...\n";
 
 foreach my $filename (@ARGV) {
     my $parser = Pod::Confluence->new;

@@ -10,7 +10,7 @@ use Encode qw(decode);
 
 use SQL::Translator;
 
-my $NAME = (split m{/}, $0)[-1];
+my $me = (split m{/}, $0)[-1];
 
 # A perfectionist died in the hard-coding of this list, but I really cannot
 # think of a better way that is both accurate and/or does not take ages to
@@ -32,7 +32,7 @@ my %translators = (
 
 @ARGV == 3 or die <<"EOU";
 Usage:
-    $NAME <from-DBMS> <to-DBMS> <sql-filename>
+    $me <from-DBMS> <to-DBMS> <sql-filename>
 EOU
 
 my ($from, $to, $file) = @ARGV;

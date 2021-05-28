@@ -71,6 +71,8 @@ sub main {
             warn "Could not open “$notefile” from “$backup”: $UnzipError\n";
         }
     }
+
+    return;
 }
 
 main @ARGV unless caller;

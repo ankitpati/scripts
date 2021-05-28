@@ -31,9 +31,9 @@ my %paths;
 foreach my $link (@ARGV) {
     my $uri = URI->new ($link);
 
-    die $usage unless $uri->scheme eq 'https'        and
-                      $uri->host   eq 'pubhtml5.com' and
-                      $uri->path   ne '';
+    die $usage if $uri->scheme ne 'https'        or
+                  $uri->host   ne 'pubhtml5.com' or
+                  $uri->path   eq '';
 
     $paths{$link} = $uri->path;
 }

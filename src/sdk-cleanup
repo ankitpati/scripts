@@ -33,7 +33,7 @@ sub main {
     my $me = (split m{/}, $0)[-1];
 
     die "Usage:\n\t$me\n" if @ARGV;
-    die "\$SDKMAN_DIR env var not set!" unless $ENV{SDKMAN_DIR};
+    die "\$SDKMAN_DIR env var not set!\n" unless $ENV{SDKMAN_DIR};
 
     # flush archives and temporary storage
     system 'bash -lc "sdk flush"'; # required because `sdk` is an alias
@@ -59,6 +59,8 @@ sub main {
 
     # do not wrap the following in `eval`; let it `die` if things go wrong
     remove_tree @paths_to_delete, { safe => 1 };
+
+    return;
 }
 
 main unless caller;

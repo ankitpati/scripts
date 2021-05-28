@@ -34,6 +34,8 @@ sub main {
     @ARGV or die "Usage:\n\t$me <string>...\n";
 
     say foreach map mca_encode, @ARGV;
+
+    return;
 }
 
 main unless caller;

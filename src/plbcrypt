@@ -27,8 +27,8 @@ die "Usage:\n\t${\(split m{/}, $0)[-1]} <password> [hash to verify]\n"
     if !@ARGV || @ARGV > 2;
 
 if (@ARGV == 1) {
-    print (get_hash (shift), "\n");
+    print get_hash (shift), "\n";
     exit;
 }
 
-print (verify_password (shift, shift) ? "Valid\n" : "Invalid\n");
+print verify_password (shift, shift) ? 'Valid' : 'Invalid', "\n";
