@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-# Copy & Paste Manually, as this includes a reboot.
-#dnf install -y tmux; tmux new-session 'touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot'
+# Run this script twice on a new system, as root. It reboots in the middle, and
+# picks up where it left off when run again after the reboot.
+
+test -z "$(which tmux 2>/dev/null)" && \
+    dnf install -y tmux && \
+    tmux new-session 'touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot'
 
 dnf install -y epel-release
 dnf config-manager --set-enabled powertools
@@ -14,13 +18,17 @@ dnf install -y \
 dnf upgrade --refresh -y
 dnf install -y \
     ack \
+    aria2 \
     bash-completion \
     cargo \
     git \
     man-pages \
+    mlocate \
     npm \
+    p7zip \
     perl-App-cpanminus \
     readline-devel \
+    tree \
     vim-enhanced \
 ;
 dnf groupinstall -y 'Development Tools'
@@ -38,3 +46,4 @@ make -C git-sh/ install
 rm -rf git-sh/
 
 npm install -g diff-so-fancy
+vim +PluginInstall +qa
