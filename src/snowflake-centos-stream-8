@@ -51,3 +51,4 @@ make -C git-sh/ install
 rm -rf git-sh/
 
 npm install -g diff-so-fancy
+updatedb
