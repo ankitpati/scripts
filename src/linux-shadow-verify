@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $me = (split m{/}, $0)[-1];
+
+die "Usage:\n\t$me\n<password>\n<digest>\n" if @ARGV;
+
+chomp(my ($password, $digest) = (scalar <STDIN>, scalar <STDIN>));
+
+my $generated_digest = crypt $password, $digest;
+
+unless (defined $generated_digest and $generated_digest eq $digest) {
+    warn "No Match\n";
+    exit 1;
+}
