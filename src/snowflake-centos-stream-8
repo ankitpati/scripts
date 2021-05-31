@@ -7,6 +7,11 @@ test -z "$(which tmux 2>/dev/null)" && \
     dnf install -y tmux && \
     tmux new-session 'touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot'
 
+me="$(basename "$0")"
+mydir="$(dirname "$0")/"
+
+test -z "$TMUX" && tmux new-session "bash $mydir/$me"
+
 dnf install -y epel-release
 dnf config-manager --set-enabled powertools
 dnf install -y \
