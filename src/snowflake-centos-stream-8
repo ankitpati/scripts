@@ -34,6 +34,7 @@ dnf install -y \
     perl-App-cpanminus \
     readline-devel \
     tree \
+    util-linux-user \
     vim-enhanced \
 ;
 dnf groupinstall -y 'Development Tools'
