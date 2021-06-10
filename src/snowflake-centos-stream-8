@@ -12,6 +12,9 @@ mydir="$(dirname "$0")/"
 
 test -z "$TMUX" && tmux new-session "bash $mydir/$me"
 
+firewall-cmd --permanent --remove-service=cockpit
+firewall-cmd --reload
+
 dnf install -y epel-release
 dnf config-manager --set-enabled powertools
 dnf install -y \
