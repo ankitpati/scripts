@@ -6,7 +6,15 @@ use strict;
 use warnings;
 
 # User-Serviceable Parts
-my @ignore_directories = qw(.git __pycache__ cover_db node_modules);
+my @ignore_directories = qw(
+    .git
+    __pycache__
+    cover_db
+    node_modules
+
+    build
+    tmp
+);
 my @find_types = qw(d f);
 # End of User-Serviceable Parts
 
