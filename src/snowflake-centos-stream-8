@@ -10,7 +10,7 @@ test -z "$(which tmux 2>/dev/null)" && \
 me="$(basename "$0")"
 mydir="$(dirname "$0")/"
 
-test -z "$TMUX" && tmux new-session "bash $mydir/$me"
+test -z "$TMUX" && { tmux new-session "bash $mydir/$me"; exit; }
 
 firewall-cmd --permanent --remove-service=cockpit
 firewall-cmd --reload
