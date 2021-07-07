@@ -24,8 +24,12 @@ use constant {
 };
 
 my $me = (split m{/}, $0)[-1];
+my $usage = "Usage:\n\t$me [-m] <test item>...\n";
 
-@ARGV or die "Usage:\n\t$me <test item>...\n";
+my $debug = grep /^-m$/, @ARGV;
+@ARGV = grep !/^-m$/, @ARGV;
+
+@ARGV or die $usage;
 
 my $reporoot;
 $reporoot = eval { `git rev-parse --show-toplevel 2>/dev/null` };
@@ -45,5 +49,5 @@ foreach (@ARGV) {
     s{::}{/}g;
     $_ = "perl_lib/$_.pm";
 
-    system TEST_RUNNER, ($test_sub ? ('-f', $test_sub) : qw(-a -c)), $_;
+    system TEST_RUNNER, ($test_sub ? ('-f', $test_sub, ($debug ? '-m' : ())) : qw(-a -c)), $_;
 }
