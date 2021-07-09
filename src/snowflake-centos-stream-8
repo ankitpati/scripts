@@ -42,6 +42,10 @@ dnf install -y \
     vim-enhanced \
 ;
 dnf groupinstall -y 'Development Tools'
+dnf remove -y \
+    cloud-init \
+    oracle-cloud-agent \
+;
 
 git clone 'https://gitlab.com/ankitpati/dotfiles.git'
 make -C dotfiles/ install
@@ -58,6 +62,18 @@ rm -rf etc/
 git clone 'https://github.com/vlad2/git-sh.git'
 make -C git-sh/ install
 rm -rf git-sh/
+
+userdel ocarun
+userdel opc
+userdel oracle-cloud-agent
+userdel oracle-cloud-agent-updater
+
+rm \
+    ~/.bash_logout \
+    ~/.cshrc \
+    ~/.tcshrc \
+    /etc/sudoers.d/90-cloud-init-users \
+;
 
 npm install -g diff-so-fancy
 updatedb
