@@ -67,6 +67,7 @@ userdel ocarun
 userdel opc
 userdel oracle-cloud-agent
 userdel oracle-cloud-agent-updater
+groupdel oracle-cloud-agent
 
 rm \
     ~/.bash_logout \
