@@ -35,6 +35,7 @@ dnf install -y \
     npm \
     p7zip \
     perl-App-cpanminus \
+    psmisc \
     readline-devel \
     tree \
     util-linux-user \
