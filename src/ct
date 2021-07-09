@@ -47,7 +47,7 @@ foreach (@ARGV) {
     }
 
     s{::}{/}g;
-    $_ = "perl_lib/$_.pm";
+    $_ = "perl_lib/$_" . (/\.pm$/ ? '' : '.pm');
 
     system TEST_RUNNER, ($test_sub ? ('-f', $test_sub, ($debug ? '-m' : ())) : qw(-a -c)), $_;
 }
