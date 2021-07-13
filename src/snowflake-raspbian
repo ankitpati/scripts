@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+# Run this script twice on a new system, as root. It reboots in the middle, and
+# picks up where it left off when run again after the reboot.
+
+test -z "$(which tmux 2>/dev/null)" && \
+    apt install -y tmux && \
+    tmux new-session 'touch .hushlogin; apt dist-upgrade -y; apt autoremove -y; apt clean; systemctl reboot'
+
+me="$(basename "$0")"
+mydir="$(dirname "$0")/"
+
+test -z "$TMUX" && exec tmux new-session "bash $mydir/$me"
+
+apt install -y ufw
+ufw allow in ssh
+ufw --force enable
+
+apt purge -y
+    realvnc-vnc-server \
+    realvnc-vnc-viewer \
+;
+apt install -y \
+    ack \
+    apt-file \
+    aria2 \
+    bash-completion \
+    cargo \
+    cpanminus \
+    git \
+    libreadline-dev \
+    lm-sensors \
+    manpages \
+    mlocate \
+    npm \
+    p7zip \
+    tigervnc-scraping-server \
+    tigervnc-standalone-server \
+    tree \
+    util-linux \
+    vim-gtk3 \
+;
+
+git clone 'https://gitlab.com/ankitpati/dotfiles.git'
+make -C dotfiles/ install
+rm -rf dotfiles/
+
+git clone 'https://gitlab.com/ankitpati/scripts.git'
+make -C scripts/ install
+rm -rf scripts/
+
+git clone 'https://github.com/vlad2/git-sh.git'
+make -C git-sh/ install
+rm -rf git-sh/
+
+rm \
+    ~/.bash_logout \
+    ~/.cshrc \
+    ~/.tcshrc \
+;
+
+npm install -g diff-so-fancy
+apt-file update
+updatedb
