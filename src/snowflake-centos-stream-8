@@ -16,7 +16,9 @@ firewall-cmd --permanent --remove-service=cockpit
 firewall-cmd --reload
 
 dnf install -y epel-release || dnf install -y 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm'
-dnf config-manager --set-enabled powertools || subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+dnf config-manager --set-enabled powertools || \
+    dnf config-manager --set-enabled ol8_codeready_builder || \
+    subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
 dnf install -y \
     'https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm' \
     'https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm' \
