@@ -32,6 +32,7 @@ apt install -y \
     lm-sensors \
     manpages \
     mlocate \
+    moreutils \
     npm \
     p7zip \
     tigervnc-scraping-server \
