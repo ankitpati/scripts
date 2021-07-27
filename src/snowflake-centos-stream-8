@@ -40,6 +40,7 @@ dnf install -y \
     perl-App-cpanminus \
     psmisc \
     readline-devel \
+    rpmconf \
     tree \
     util-linux-user \
     vim-enhanced \
