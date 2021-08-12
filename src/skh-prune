@@ -3,40 +3,59 @@
 
 use strict;
 use warnings;
+use autodie;
 
-sub uniq { my %h; undef @h{@_}; keys %h }
+use List::Util qw(uniq);
+
+our $VERSION = 2.00;
 
 # UTF8 for File Handles and Command Line Arguments
 use open qw(:std :utf8);
 use Encode qw(decode);
-@ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
 # get filenames as arguments, or fallback to sensible defaults
-@ARGV or @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
+@ARGV or local @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
+
+# precedence order (high to low) in case of multiple public keys for a host
+my @algo_precedence = qw(
+    ssh-ed25519
+    ecdsa-sha2-nistp521
+    ecdsa-sha2-nistp256
+    ssh-rsa
+);
 
 foreach my $skhfile (@ARGV) {
-    open my $fin, '<', $skhfile
-        or die "Could not open $skhfile for reading!\n";
+    open my $fin, '<', $skhfile;
+    my @lines = <$fin>;
+    close $fin;
 
-    my %mappings;
-    while (<$fin>) {
-        my @known_host = split ' ';
-        push @{ $mappings{join ' ', @known_host[1, 2]} }, # comments are lost
-             split /,/, $known_host[0];
+    my %algo_host_key;
+    foreach my $line (@lines) {
+        my ($hosts, $algo, $key) = split /\s+/, $line; # comments are lost
+        $algo_host_key{$algo}{$_} = $key foreach split /,/, $hosts;
     }
 
-    close $skhfile;
+    my %host_algokey;
+    foreach my $algo (@algo_precedence) {
+        while (my ($host, $key) = each %{ $algo_host_key{$algo} }) {
+            $host_algokey{$host} = "$algo $key"
+                unless exists $host_algokey{$host};
+                    # more performant than the `reverse @algos` variant
+        }
+    }
+
+    my %algokey_hosts;
+    while (my ($host, $algokey) = each %host_algokey) {
+        push @{ $algokey_hosts{$algokey} }, $host;
+    }
 
     my @known_hosts =
-        map { ( join ',', sort &uniq (@{$mappings{$_}}) ) . " $_" }
-            sort keys %mappings;
+        map { ( join ',', sort &uniq (@{$algokey_hosts{$_}}) ) . " $_" }
+            sort keys %algokey_hosts;
 
-    open my $fout, '>', $skhfile
-        or die "Could not open $skhfile for writing!\n";
-
-    local $" = "\n";
-    print $fout "@known_hosts\n";
-
+    open my $fout, '>', $skhfile;
+    print $fout (join ("\n", @known_hosts), "\n");
     close $fout;
 }
 
