@@ -18,7 +18,8 @@ local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 @ARGV or local @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
 
 # precedence order (high to low) in case of multiple public keys for a host
-my @algo_precedence = qw(
+my $precedence = 0;
+my %algo_precedence = map { $_ => $precedence++ } qw(
     ssh-ed25519
     ecdsa-sha2-nistp521
     ecdsa-sha2-nistp256
@@ -30,24 +31,26 @@ foreach my $skhfile (@ARGV) {
     my @lines = <$fin>;
     close $fin;
 
-    my %algo_host_key;
+    my %host_algo_key;
     foreach my $line (@lines) {
         my ($hosts, $algo, $key) = split /\s+/, $line; # comments are lost
-        $algo_host_key{$algo}{$_} = $key foreach split /,/, $hosts;
-    }
 
-    my %host_algokey;
-    foreach my $algo (@algo_precedence) {
-        while (my ($host, $key) = each %{ $algo_host_key{$algo} }) {
-            $host_algokey{$host} = "$algo $key"
-                unless exists $host_algokey{$host};
-                    # more performant than the `reverse @algos` variant
+        foreach my $host (split /,/, $hosts) {
+            # unlisted algos get a random non-conflicting precedence
+            $algo_precedence{$algo} = $precedence++
+                unless exists $algo_precedence{$algo};
+
+            $host_algo_key{$host} = [$algo, $key]
+                if not exists $host_algo_key{$host} or
+                    $algo_precedence{ $algo } <
+                    $algo_precedence{ $host_algo_key{$host}[0] };
         }
     }
 
     my %algokey_hosts;
-    while (my ($host, $algokey) = each %host_algokey) {
-        push @{ $algokey_hosts{$algokey} }, $host;
+    while (my ($host, $algo_key) = each %host_algo_key) {
+        local $" = ' ';
+        push @{ $algokey_hosts{"@$algo_key"} }, $host;
     }
 
     my @known_hosts =
