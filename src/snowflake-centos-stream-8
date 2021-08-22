@@ -42,6 +42,7 @@ dnf install -y \
     psmisc \
     readline-devel \
     rpmconf \
+    telnet \
     tree \
     util-linux-user \
     vim-enhanced \
