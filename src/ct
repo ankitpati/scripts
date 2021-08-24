@@ -19,8 +19,9 @@ BEGIN {
 }
 
 use constant {
-    IS_TEST_SUB_RE => qr/::((?:(?:$test_types)_)?TEST_[^:]+)$/,
-    TEST_RUNNER    => 'system_src/scripts/test_suite.pl',
+    IS_TEST_SUB_RE  => qr/::((?:(?:$test_types)_)?TEST_[^:]+)$/,
+    IS_TEST_FILE_RE => qr{/TEST/([^/]+)$},
+    TEST_RUNNER     => 'system_src/scripts/test_suite.pl',
 };
 
 my $me = (split m{/}, $0)[-1];
@@ -48,6 +49,12 @@ foreach (@ARGV) {
 
     s{::}{/}g;
     $_ = "perl_lib/$_" . (/\.pm$/ ? '' : '.pm');
+
+    unless ($_ =~ IS_TEST_FILE_RE) {
+        my @testfile = split /\//;
+        splice @testfile, -1, 0, 'TEST';
+        $_ = join '/', @testfile;
+    }
 
     system TEST_RUNNER, ($test_sub ? ('-f', $test_sub, ($debug ? '-m' : ())) : qw(-a -c)), $_;
 }
