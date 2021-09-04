@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+
+use Modern::Perl qw(2020);
+
+# UTF8 for Source Code, and File Handles
+use utf8;
+use open qw(:std :utf8);
+use Encode qw(decode);
+
+use Cpanel::JSON::XS qw(decode_json);
+use LWP::Simple qw(get);
+
+use GParse::Domain qw(get_domain_name);
+
+my $me = (split m{/}, $0)[-1];
+
+@ARGV or die "Usage:\n\t$me <url>...\n";
+
+# UTF8 for Command Line Arguments
+local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+my $endpoint = 'https://hstspreload.org/api/v2/status?domain=';
+
+foreach my $url (@ARGV) {
+    my $domain_name = get_domain_name $url;
+
+    if ($domain_name) {
+        my $response = decode_json get "$endpoint$domain_name";
+        say "$domain_name is " . $response->{status} . '.';
+    }
+    else {
+        say "$url doesn’t represent a valid registrable domain name!";
+    }
+}
