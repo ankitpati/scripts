@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-use Modern::Perl qw(2020);
+use Modern::Perl 2020;
 
 # UTF8 for Source Code, and File Handles
 use utf8;
@@ -8,13 +8,13 @@ use open qw(:std :utf8);
 use Encode qw(decode);
 
 use Cpanel::JSON::XS qw(decode_json);
-use LWP::Simple qw(get);
+use HTTP::Request  ();
+use LWP::UserAgent ();
+use URI            ();
 
 use GParse::Domain qw(get_domain_name);
 
-use constant HSTS_DOMAIN => 'hstspreload.org';
-use constant HSTS_STATUS_ENDPOINT => 'https://' . HSTS_DOMAIN .
-                                     '/api/v2/status?domain=';
+our $VERSION = 2.00;
 
 my $me = (split m{/}, $0)[-1];
 
@@ -23,20 +23,41 @@ my $me = (split m{/}, $0)[-1];
 # UTF8 for Command Line Arguments
 local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
+my $uri = URI->new;
+$uri->scheme ('https');
+$uri->host   ('hstspreload.org');
+$uri->path   ('/api/v2/status');
+
+my $ua = LWP::UserAgent->new (
+    agent                 => '',
+    keep_alive            => 1,           # keep at most 1 connection alive
+    max_redirect          => 0,
+    parse_head            => '',
+    protocols_allowed     => ['https'],
+    requests_redirectable => [],
+    ssl_opts              => { verify_hostname => 1 },
+    timeout               => 5,                          # seconds
+);
+
 foreach my $url (@ARGV) {
     my $domain_name = get_domain_name $url;
 
-    if ($domain_name) {
-        my $response_json = get "${\(HSTS_STATUS_ENDPOINT)}$domain_name";
-        unless ($response_json) {
-            say "$domain_name didn’t get a response from ${\(HSTS_DOMAIN)}.";
-            next;
-        }
-
-        my $response = decode_json $response_json;
-        say "$domain_name is " . $response->{status} . '.';
-    }
-    else {
+    unless ($domain_name) {
         say "$url doesn’t represent a valid registrable domain name!";
+        next;
     }
+
+    $uri->query_form (domain => $domain_name);
+
+    my $request = HTTP::Request->new (GET => $uri);
+
+    my $response = $ua->request ($request);
+
+    if ($response->is_error) {
+        say "$domain_name - " . $response->status_line;
+        next;
+    }
+
+    my $status = decode_json $response->content;
+    say "$domain_name is " . $status->{status} . '.';
 }
