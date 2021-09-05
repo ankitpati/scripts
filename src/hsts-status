@@ -28,6 +28,8 @@ $uri->scheme ('https');
 $uri->host   ('hstspreload.org');
 $uri->path   ('/api/v2/status');
 
+my $request = HTTP::Request->new (GET => $uri); # `$uri` copied into `$request`
+
 my $ua = LWP::UserAgent->new (
     agent                 => '',
     keep_alive            => 1,           # keep at most 1 connection alive
@@ -48,8 +50,7 @@ foreach my $url (@ARGV) {
     }
 
     $uri->query_form (domain => $domain_name);
-
-    my $request = HTTP::Request->new (GET => $uri);
+    $request->uri ($uri); # necessary because `HTTP::Request->new` copies `$uri`
 
     my $response = $ua->request ($request);
 
