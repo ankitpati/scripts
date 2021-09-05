@@ -12,6 +12,10 @@ use LWP::Simple qw(get);
 
 use GParse::Domain qw(get_domain_name);
 
+use constant HSTS_DOMAIN => 'hstspreload.org';
+use constant HSTS_STATUS_ENDPOINT => 'https://' . HSTS_DOMAIN .
+                                     '/api/v2/status?domain=';
+
 my $me = (split m{/}, $0)[-1];
 
 @ARGV or die "Usage:\n\t$me <url>...\n";
@@ -19,13 +23,17 @@ my $me = (split m{/}, $0)[-1];
 # UTF8 for Command Line Arguments
 local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
-my $endpoint = 'https://hstspreload.org/api/v2/status?domain=';
-
 foreach my $url (@ARGV) {
     my $domain_name = get_domain_name $url;
 
     if ($domain_name) {
-        my $response = decode_json get "$endpoint$domain_name";
+        my $response_json = get "${\(HSTS_STATUS_ENDPOINT)}$domain_name";
+        unless ($response_json) {
+            say "$domain_name didn’t get a response from ${\(HSTS_DOMAIN)}.";
+            next;
+        }
+
+        my $response = decode_json $response_json;
         say "$domain_name is " . $response->{status} . '.';
     }
     else {
