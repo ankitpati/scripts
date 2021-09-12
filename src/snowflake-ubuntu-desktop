@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# Run this script twice on a new system, as root. It reboots in the middle, and
+# picks up where it left off when run again after the reboot.
+
+test -z "$(which tmux 2>/dev/null)" && \
+    apt install -y tmux && \
+    tmux new-session 'touch .hushlogin; apt dist-upgrade -y; apt autoremove -y; apt clean; systemctl reboot'
+
+me="$(basename "$0")"
+mydir="$(dirname "$0")/"
+
+test -z "$TMUX" && exec tmux new-session "bash $mydir/$me"
+
+ufw allow in ssh
+ufw --force enable
+
+apt purge -y \
+    aisleriot \
+    apport\* \
+    avahi\* \
+    deja-dup\* \
+    evolution\* \
+    firefox\* \
+    gdebi\* \
+    gnome-mahjongg \
+    gnome-mines \
+    gnome-sudoku \
+    gnome-todo \
+    gufw \
+    magnus \
+    onboard\* \
+    orca \
+    shotwell \
+    thunderbird \
+    transmission \
+    webcamoid\* \
+;
+
+add-apt-repository ppa:apt-fast/stable
+
+# TODO: Only on Ubuntu MATE
+#apt purge -y \
+#    ayatana-indicator-keyboard \
+#apt install -y \
+#    ayatana-indicator-datetime \
+#    breeze \
+#    cheese \
+#;
+
+apt install -y \
+    ack \
+    apt-fast \
+    apt-file \
+    aria2 \
+    bash-completion \
+    bleachbit \
+    copyq \
+    dconf-editor \
+    default-jdk \
+    git \
+    kolourpaint \
+    libreoffice-java-common \
+    moreutils \
+    npm \
+    openssh-server \
+    p7zip \
+    plasma-nm \
+    plocate \
+    pwgen \
+    speedtest-cli \
+    tree \
+    ubuntu-restricted-extras \
+    vim-gtk3 \
+    vlc \
+;
+
+apt autoremove -y
+apt clean
+
+git clone 'https://gitlab.com/ankitpati/dotfiles.git'
+make -C dotfiles/ install
+rm -rf dotfiles/
+
+git clone 'https://gitlab.com/ankitpati/scripts.git'
+make -C scripts/ install
+rm -rf scripts/
+
+git clone 'https://github.com/vlad2/git-sh.git'
+make -C git-sh/ install
+rm -rf git-sh/
+
+rm \
+    ~/.bash_logout \
+    ~/.cshrc \
+    ~/.tcshrc \
+;
+
+npm install -g diff-so-fancy
+apt-file update
+updatedb
+systemctl enable --now plocate-updatedb.service
