@@ -20,7 +20,6 @@ apt purge -y \
     apport\* \
     avahi\* \
     deja-dup\* \
-    evolution\* \
     firefox\* \
     gdebi\* \
     gnome-mahjongg \
