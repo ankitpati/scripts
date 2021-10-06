@@ -20,7 +20,7 @@ my @find_types = qw(d f);
 
 my $me = (split m{/}, $0)[-1];
 
-@ARGV or die "Usage:\n\t$me <filname glob>...\n";
+@ARGV or die "Usage:\n\t$me <filename glob>...\n";
 
 my (@name, @path, @type);
 
