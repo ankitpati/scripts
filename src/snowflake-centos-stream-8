@@ -3,6 +3,9 @@
 # Run this script twice on a new system, as root. It reboots in the middle, and
 # picks up where it left off when run again after the reboot.
 
+# NOTE for Oracle Linux: `opc` user becomes inaccessible after running this!
+# Create a different user and add it to `wheel` group before running!
+
 test -z "$(which tmux 2>/dev/null)" && \
     dnf install -y tmux && \
     tmux new-session 'touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot'
