@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# User-Serviceable Parts
+color='white'
+bgcolor='black'
+fontsize='22'
+font='Monaco'
+# End of User-Serviceable Parts
+
+exec dot \
+    -Ecolor="$color" \
+    -Efontcolor="$color" \
+    -Efontname="$font" \
+    -Efontsize="$fontsize" \
+    -Elabelfontcolor="$color" \
+    -Elabelfontname="$font" \
+    -Elabelfontsize="$fontsize" \
+    -Gbgcolor="$bgcolor" \
+    -Gcolor="$color" \
+    -Gfontcolor="$color" \
+    -Gfontname="$font" \
+    -Gfontsize="$fontsize" \
+    -Ncolor="$color" \
+    -Nfontcolor="$color" \
+    -Nfontname="$font" \
+    -Nfontsize="$fontsize" \
+    "$@"
