@@ -2,7 +2,7 @@
 
 docker ps -a -q | xargs -r docker stop
 docker container prune -f
-docker image prune -f
-docker network prune -f
-docker volume prune -f
-#docker image prune -af
+docker image     prune -f
+docker network   prune -f
+docker volume    prune -f
+#docker image     prune -fa
