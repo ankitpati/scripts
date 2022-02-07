@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-proc="$(docker ps -a -q)"
-test -n "$proc" && echo "$proc" | xargs -r docker stop
-
+docker ps -a -q | xargs -r docker stop
 docker container prune -f
 docker image prune -f
 docker network prune -f
