@@ -33,6 +33,7 @@ int main(int argc, char **argv, char **envp)
     fputc('\n', fout);
 
     fputs("** Standard Input **\n", fout);
+    fflush(fout);
     while ((read_bytes = fread(input, sizeof(*input), BUFSIZ, stdin))) {
         if (ferror(stdin)) {
             fprintf(stderr, "alleyes: error while reading stdin!\n");
@@ -40,6 +41,7 @@ int main(int argc, char **argv, char **envp)
         }
 
         fwrite(input, sizeof(*input), read_bytes, fout);
+        fflush(fout);
 
         if (ferror(fout)) {
             fprintf(stderr, "alleyes: error while writing stdout!\n");
