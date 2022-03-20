@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+
+use Modern::Perl qw(2020);
+use GParse::Domain;
+
+# UTF8 for file handles, and command-line arguments
+use open qw(:std :utf8);
+use Encode qw(decode);
+@ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
+
+die "Usage:\n\t${\((split m{/}, $0)[-1])} <url>...\n" unless @ARGV;
+
+say GParse::Domain->new ($_)->get_domain_name foreach @ARGV;
