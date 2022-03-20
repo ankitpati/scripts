@@ -41,6 +41,7 @@ add-apt-repository ppa:apt-fast/stable
 # TODO: Only on Ubuntu MATE
 #apt purge -y \
 #    ayatana-indicator-keyboard \
+#    ayatana-indicator-session \
 #;
 #apt install -y \
 #    ayatana-indicator-datetime \
