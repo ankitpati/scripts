@@ -48,6 +48,9 @@ add-apt-repository ppa:apt-fast/stable
 #    breeze \
 #    cheese \
 #;
+#snap remove \
+#    ubuntu-mate-welcome \
+#;
 
 apt install -y \
     ack \
