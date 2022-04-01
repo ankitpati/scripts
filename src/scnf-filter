@@ -24,18 +24,21 @@ foreach my $line (<STDIN>) {
         # do nothing
     } elsif ($line =~ /^\s*Host\s+(\S+)$/) {
         $current_host = $1;
+
+        # necessary to store the `Host` line even if it has no body
+        $hosts{$current_host} //= [];
     } else {
         push @{ $hosts{$current_host} }, $line;
     }
 }
 
 foreach my $host (sort keys %hosts) {
-    local $" = "\n";
+    my $body = join "\n", @{ $hosts{$host} };
+    $body .= "\n" if $body ne '';
 
     print <<"EOH";
 Host $host
-@{ $hosts{$host} }
-
+$body
 EOH
 }
 
