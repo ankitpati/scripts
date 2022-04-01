@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+# Sort SSH Config from STDIN
+
+use strict;
+use warnings;
+use autodie;
+
+our $VERSION = 1.00;
+
+# UTF8 for STDIN & STDOUT
+use open qw(:std :utf8);
+
+my $me = (split m{/}, $0)[-1];
+
+die "Usage:\n\t$me < ssh-config-with-optional-pseudo-directives\n"
+    if @ARGV;
+
+my %hosts;
+my $current_host;
+foreach my $line (<STDIN>) {
+    chomp $line;
+
+    if ($line eq '') {
+        # do nothing
+    } elsif ($line =~ /^\s*Host\s+(\S+)$/) {
+        $current_host = $1;
+    } else {
+        push @{ $hosts{$current_host} }, $line;
+    }
+}
+
+foreach my $host (sort keys %hosts) {
+    local $" = "\n";
+
+    print <<"EOH";
+Host $host
+@{ $hosts{$host} }
+
+EOH
+}
+
+__END__
