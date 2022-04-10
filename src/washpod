@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+buildah rm -a
+buildah rmi -p
+#buildah rmi -fa
+
+podman container prune -f
+podman image     prune -f
+podman network   prune -f
+podman volume    prune -f
+#podman image     prune -fa
