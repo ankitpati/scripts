@@ -15,6 +15,8 @@ test -z "$TMUX" && exec tmux new-session "bash $mydir/$me"
 ufw allow in ssh
 ufw --force enable
 
+snap remove --purge firefox
+
 apt purge -y \
     aisleriot \
     apport\* \
@@ -54,30 +56,45 @@ add-apt-repository ppa:apt-fast/stable
 
 apt install -y \
     ack \
+    adb \
     apt-fast \
     apt-file \
     aria2 \
     bash-completion \
     bleachbit \
-    copyq \
+    breeze-icon-theme \
+    build-essential \
+    curl \
     dconf-editor \
     default-jdk \
+    dos2unix \
+    fastboot \
+    ffmpeg \
     git \
+    gnome-shell-extension-gpaste \
+    gnome-tweaks \
     kolourpaint \
     libreoffice-java-common \
+    lm-sensors \
+    lvm2 \
     moreutils \
-    npm \
+    nmap \
     openssh-server \
     p7zip \
     plasma-nm \
     plocate \
+    podman \
     pwgen \
+    shellcheck \
     speedtest-cli \
     tree \
     ubuntu-restricted-extras \
     vim-gtk3 \
     vlc \
+    wireshark-qt \
 ;
+
+usermod -aG wireshark ankitpati
 
 aria2c -c -x 16 'https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb'
 apt install -y ./google-chrome-stable_current_amd64.deb
@@ -104,7 +121,5 @@ rm \
     ~/.tcshrc \
 ;
 
-npm install -g diff-so-fancy
 apt-file update
 updatedb
-systemctl enable --now plocate-updatedb.service
