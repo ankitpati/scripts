@@ -33,7 +33,6 @@ apt install -y \
     manpages \
     mlocate \
     moreutils \
-    npm \
     p7zip \
     tigervnc-scraping-server \
     tigervnc-standalone-server \
@@ -60,6 +59,5 @@ rm \
     ~/.tcshrc \
 ;
 
-npm install -g diff-so-fancy
 apt-file update
 updatedb

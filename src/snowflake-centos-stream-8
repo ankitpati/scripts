@@ -39,7 +39,6 @@ dnf install -y \
     man-pages \
     mlocate \
     moreutils \
-    npm \
     p7zip \
     perl-App-cpanminus \
     psmisc \
@@ -85,5 +84,4 @@ rm \
     /etc/sudoers.d/90-cloud-init-users \
 ;
 
-npm install -g diff-so-fancy
 updatedb
