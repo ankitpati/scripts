@@ -1,0 +1,26 @@
+#!/usr/bin/env -S jq -f
+
+def sort_all:
+    . as $input
+    |
+    if type == "object" then
+        reduce keys[] as $key (     # `keys` returns sorted keys.
+            {};                     # Start with empty object...
+            . + {                   # ...and merge new key-value pairs into it.
+                ($key): (
+                    $input[$key]
+                    |
+                    sort_all        # Recursively sort each value.
+                )
+            }
+        )
+    elif type == "array" then
+        map(sort_all)               # Recursively sort each item of the array.
+        |
+        sort                        # Sort the array itself.
+    else
+        .                           # No-op; the input is the output.
+    end
+;
+
+sort_all
