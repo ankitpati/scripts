@@ -1,7 +1,0 @@
-https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt
-https://easylist-downloads.adblockplus.org/antiadblockfilters.txt
-https://easylist-downloads.adblockplus.org/easylist.txt
-https://easylist-downloads.adblockplus.org/easyprivacy.txt
-https://easylist-downloads.adblockplus.org/i_dont_care_about_cookies.txt
-https://easylist.to/easylist/fanboy-annoyance.txt
-https://raw.githubusercontent.com/hoshsadiq/adblock-nocoin-list/master/nocoin.txt
