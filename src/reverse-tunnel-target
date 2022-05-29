@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 # User-Serviceable Parts
-USERNAME='username'
 TUNPORT='2200'
 # End of User-Serviceable Parts
 
-SSHCMD="ssh -fTN -R $TUNPORT:localhost:22 $USERNAME@ssh.ankitpati.in"
+SSHCMD="ssh -fTN -R $TUNPORT:localhost:22 rtun@ssh.ankitpati.in"
 
 test -z "$(ps -Ao command | grep "^$SSHCMD\$")" && exec $SSHCMD
