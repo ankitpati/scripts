@@ -4,7 +4,7 @@ set -e
 
 gitroot="$(git rev-parse --show-toplevel)"
 
-rm -f "$gitroot/.git/"{'COMMIT_EDITMSG','ORIG_HEAD'}
+rm -f "$gitroot"/.git/{COMMIT_EDITMSG,{ORIG,FETCH}_HEAD}
 
 mapfile -t remotes < <(git remote)
 
