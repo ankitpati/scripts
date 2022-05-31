@@ -12,4 +12,5 @@ clean:
 	rm -f $(OBJECTS)
 
 install: $(OBJECTS)
-	cp $(EXECUTABLES) /usr/local/bin/
+	mkdir -p ~/bin/
+	cp $(EXECUTABLES) ~/bin/
