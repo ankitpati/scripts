@@ -12,5 +12,10 @@ clean:
 	rm -f $(OBJECTS)
 
 install: $(OBJECTS)
+ifeq ($(shell id -u), 0)
+	mkdir -p /usr/bin/
+	cp $(EXECUTABLES) /usr/bin/
+else
 	mkdir -p ~/bin/
 	cp $(EXECUTABLES) ~/bin/
+endif
