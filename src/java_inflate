@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+mydir="$(dirname "$0")/"
+CLASSPATH="$(sanitize_path "$mydir:$CLASSPATH")"
+
+main_class_name='in.ankitpati.zip.InputInflater'
+
+javac "${main_class_name//.//}.java" && \
+    exec java "$main_class_name" "$@"
