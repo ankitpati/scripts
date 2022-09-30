@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 gitroot="$(git rev-parse --show-toplevel)"
 
-rm -f "$gitroot"/.git/{COMMIT_EDITMSG,{ORIG,FETCH}_HEAD}
+for dot_git_item in \
+    COMMIT_EDITMSG \
+    FETCH_HEAD \
+    ORIG_HEAD \
+    description \
+    hooks/ \
+    info/exclude \
+
+do
+    rm -rf "$gitroot/.git/$dot_git_item"
+done
 
 mapfile -t remotes < <(git remote)
 
-find . -type f -name '.gitignore' -delete
-git clean -fd
+git clean -ffdx
 git checkout -f
 
 for remote in "${remotes[@]}"
