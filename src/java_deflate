@@ -5,5 +5,5 @@ CLASSPATH="$(sanitize_path "$mydir:$CLASSPATH")"
 
 main_class_name='in.ankitpati.zip.InputDeflater'
 
-javac "${main_class_name//.//}.java" && \
+javac -Xlint:all "${main_class_name//.//}.java" && \
     exec java "$main_class_name" "$@"
