@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # icici-paste
 #
 # Named in honour of the stupid restrictions ICICI places on its web forms.

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 myname="$(basename "$0")"
 
 test "$#" -ne 1 -o ! -d "$1" && echo "Usage: $myname <directory>" && exit 1

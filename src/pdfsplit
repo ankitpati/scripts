@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 myname="$(basename "$0")"
 usage="Usage: $myname <input.pdf>"
 
 test "$#" -ne 1 && echo "$usage" && exit 1
 
 numpages="$(gs -q -d'NODISPLAY' \
-               -c "($1) (r) file runpdfbegin pdfpagecount = quit" \
-            2>'/dev/null')"
+               -c "($1) (r) file runpdfbegin pdfpagecount = quit")"
 
 test "$numpages" || numpages=0
 
@@ -15,6 +16,7 @@ echo "Processing $numpages pages..."
 
 for counter in $(seq "$numpages")
 do
+    # shellcheck disable=SC2001
     newname="$(echo "$1" | sed 's/\.pdf//g')"
     newnamenum="$newname-$counter.pdf"
     yes | gs -d'BATCH' -s"OutputFile=$newnamenum" -d"FirstPage=$counter" \

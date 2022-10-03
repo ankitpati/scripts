@@ -29,7 +29,7 @@ system qw(git clean -fd);
 
 system qw(git cherry-pick), $root_commit;
 
-my $shell = `which git-sh` || $ENV{SHELL} || `where cmd.exe` || 'sh';
+my $shell = `command -v git-sh` || $ENV{SHELL} || `where cmd.exe` || 'sh';
 
 foreach my $user (@ARGV) {
     run [qw(git log), $branch, "--author=$user", '--format=%H'],

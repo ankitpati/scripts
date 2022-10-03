@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 my_interface='ens192'
 my_port='443'
 kvm_ip_address='192.168.122.76'

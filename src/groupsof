@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 myname="$(basename "$0")"
 
 test "$#" -eq 0 && printf "Usage:\n\t%s <username>...\n" "$myname" && exit 1
@@ -8,10 +10,12 @@ error_users=''
 
 for username in "$@"
 do
+    # shellcheck disable=SC2029
     ssh my-server groups "$username" 2>'/dev/null' || \
         error_users="$username, $error_users"
 done
 
+# shellcheck disable=SC2001
 error_users="$(echo "$error_users" | sed 's/, $//')"
 
 test "$error_users" && \

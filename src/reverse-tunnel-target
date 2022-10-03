@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # User-Serviceable Parts
 TUNPORT='2200'
 # End of User-Serviceable Parts
 
 SSHCMD="ssh -fTN -R $TUNPORT:localhost:22 rtun@ssh.ankitpati.in"
 
-test -z "$(ps -Ao command | grep "^$SSHCMD\$")" && exec $SSHCMD
+# shellcheck disable=SC2009
+test -z "$(ps -Ao command | grep "^$SSHCMD\$" || :)" && exec $SSHCMD

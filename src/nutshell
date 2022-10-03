@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 me="$(basename "$0")"
 usage="Usage: $me <username[:groupname]> <path>... -- [bash arguments]"
 
@@ -30,7 +32,7 @@ do
 done
 
 # `sudo`, if available, is always the better option: it does not call a shell
-test -n "$(command -v sudo)" && \
+test -n "$(command -v sudo 2>/dev/null || :)" && \
     exec sudo -u "$username" "${env4sudo[@]}" -- "$@"
 
 # the following runs iff `sudo` is not available

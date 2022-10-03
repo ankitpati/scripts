@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
+@SuppressWarnings("PMD.SystemPrintln")
 public class InputDeflater {
     public static void main(String[] args) throws IOException {
         if (args.length != 0) {

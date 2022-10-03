@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 me="$(basename "$0")"
 
 test "$#" -ne 1 -o ! -f "$1" && echo "Usage: $me <filename.pbtxt>" && exit 1

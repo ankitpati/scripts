@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Run this script twice on a new system, as root. It reboots in the middle, and
 # picks up where it left off when run again after the reboot.
 
-test -z "$(which tmux 2>/dev/null)" && \
+test -z "$(command -v tmux 2>/dev/null || :)" && \
     apt install -y tmux && \
     tmux new-session 'touch .hushlogin; apt dist-upgrade -y; apt autoremove -y; apt clean; systemctl reboot'
 
 me="$(basename "$0")"
 mydir="$(dirname "$0")/"
 
+# shellcheck disable=SC2154
 test -z "$TMUX" && exec tmux new-session "bash $mydir/$me"
 
 ufw allow in ssh
@@ -115,7 +118,7 @@ git clone 'https://gitlab.com/ankitpati/git-sh.git'
 make -C git-sh/ install
 rm -rf git-sh/
 
-rm \
+rm -f \
     ~/.bash_logout \
     ~/.cshrc \
     ~/.tcshrc \

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 docker ps -a -q | xargs -r docker stop
 docker container prune -f
 docker image     prune -f

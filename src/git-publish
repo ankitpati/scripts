@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 me="$(basename "$0")"
 
 args=("$@")
@@ -19,12 +21,12 @@ do
     esac
 done
 
-test -z "$(git rev-parse --show-toplevel)" && \
+test -z "$(git rev-parse --show-toplevel || :)" && \
     echo "$me: present directory must be in a Git repository" && exit 1
 
 if test "${#args[@]}" -eq 0
 then
-    curbranch="$(git symbolic-ref --short HEAD 2>/dev/null)"
+    curbranch="$(git symbolic-ref --short HEAD 2>/dev/null || :)"
     test -z "$curbranch" \
         && echo "$me: no branch checked out, and none specified" && exit 2
     args=("$curbranch")

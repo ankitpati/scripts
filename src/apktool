@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
+
 mydir="$(dirname "$0")/"
 exec java -jar "$mydir/apktool-cli-all.jar" "$@"

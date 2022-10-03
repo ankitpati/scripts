@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -euo pipefail
+
 # hsts-fetch
 # Fetch Google Chrome HSTS List
 

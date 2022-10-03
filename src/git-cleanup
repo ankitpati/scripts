@@ -23,7 +23,7 @@ git checkout -f
 
 for remote in "${remotes[@]}"
 do
-    git remote prune "$remote" && true
+    git remote prune "$remote"
 done
 
 git reflog expire --all --expire=now

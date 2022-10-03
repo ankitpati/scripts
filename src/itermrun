@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env osascript
 
-osascript - "$@" <<EOF
 on run argv
 tell application "iTerm"
     activate
@@ -14,4 +13,3 @@ tell application "iTerm"
     end tell
 end tell
 end run
-EOF

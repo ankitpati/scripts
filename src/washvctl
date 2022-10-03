@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 vctl rm -a
 vctl rmi -a
 yes | vctl volume prune

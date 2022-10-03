@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 RANDOM_BITS_COUNT=512
 
 test "$#" != 0 && echo "Usage: $(basename "$0")" && exit 1
