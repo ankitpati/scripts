@@ -1,9 +1,3 @@
 #!/usr/bin/env bash
 
-mydir="$(dirname "$0")/"
-CLASSPATH="$(sanitize_path "$mydir:$CLASSPATH")"
-
-main_class_name='in.ankitpati.zip.InputDeflater'
-
-javac -Xlint:all "${main_class_name//.//}.java" && \
-    exec java "$main_class_name" "$@"
+exec java_runner 'in.ankitpati.zip.InputDeflater' "$@"
