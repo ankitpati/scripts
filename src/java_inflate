@@ -2,4 +2,5 @@
 
 set -euo pipefail
 
-exec java_runner 'in.ankitpati.zip.InputInflater' "$@"
+mydir="$(dirname "$0")/"
+exec "$mydir/java_runner" 'in.ankitpati.zip.InputInflater' "$@"
