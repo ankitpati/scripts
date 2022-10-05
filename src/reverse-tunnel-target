@@ -9,4 +9,6 @@ TUNPORT='2200'
 SSHCMD="ssh -fTN -R $TUNPORT:localhost:22 rtun@ssh.ankitpati.in"
 
 # shellcheck disable=SC2009
-test -z "$(ps -Ao command | grep "^$SSHCMD\$" || :)" && exec $SSHCMD
+test -z "$(ps -Ao command | grep "^$SSHCMD\$" || :)"
+
+exec $SSHCMD
