@@ -6,16 +6,18 @@
 #define NVTAND  (~(size_t)0u << 7)
 #define CONTEXT 5
 
-int isnvt(unsigned c)
+int isnvt(unsigned character)
 {
-    return !(c & NVTAND);
+    return !(character & NVTAND);
 }
 
 int main(int argc, char **argv)
 {
-    int     c;
-    size_t  i;
     FILE   *fin;
+    int     current_character;
+    int     previous_character;
+    size_t  context_counter;
+    size_t  line_number;
 
     if (argc < 2) {
         fprintf(stderr, "Usage:\n\tnvt-check <filename>...\n");
@@ -24,26 +26,53 @@ int main(int argc, char **argv)
 
     for (++argv; *argv; ++argv) {
         fin = fopen(*argv, "rb");
+
         if (!fin) {
             fprintf(stderr, "I/O Error: Could not open %s!\n", *argv);
             continue;
         }
 
-        while (isnvt(fgetc(fin)) && !feof(fin) && !ferror(fin));
+        previous_character = '\0';
+        line_number = 1;
+
+        while (
+            isnvt(current_character = fgetc(fin)) &&
+            !feof(fin) &&
+            !ferror(fin)
+        ) {
+            if (
+                current_character == '\r' ||
+                (previous_character != '\r' && current_character == '\n')
+            ) {
+                ++line_number;
+            }
+
+            previous_character = current_character;
+        }
 
         printf("%s is ", *argv);
+
         if (feof(fin)) {
             puts("NVT.");
-        }
-        else {
-            printf("not NVT. Position: %ld, Context: ", ftell(fin));
+        } else {
+            printf("not NVT. Position: %ld, Line: %zu, Context: ",
+                   ftell(fin), line_number);
 
-            i = 0;
-            while (i < CONTEXT && !feof(fin) && !ferror(fin))
-                if (isnvt(c = fgetc(fin)) && !isspace(c)) {
-                    putchar(c);
-                    ++i;
+            context_counter = 0;
+
+            while (
+                context_counter < CONTEXT &&
+                !feof(fin) &&
+                !ferror(fin)
+            ) {
+                if (
+                    isnvt(current_character = fgetc(fin)) &&
+                    !isspace(current_character)
+                ) {
+                    putchar(current_character);
+                    ++context_counter;
                 }
+            }
 
             putchar('\n');
         }
