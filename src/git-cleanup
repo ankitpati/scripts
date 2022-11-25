@@ -19,7 +19,9 @@ done
 mapfile -t remotes < <(git remote)
 
 git clean -ffdx
+git submodule foreach git clean -ffdx
 git checkout -f
+git submodule update --init --recursive
 
 for remote in "${remotes[@]}"
 do
