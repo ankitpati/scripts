@@ -17,6 +17,9 @@ local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 use constant {
     # The regexes below are specific to the `known_hosts` format,
     # and MUST NOT be used in any other context!
+    #
+    # Do NOT replace `[0-9]` and other pure ASCII items with
+    # named character classes. We need ASCII, not Unicode!
 
     HOSTPORT2HOST_RE => qr/^ \[? ([^]]+) \]? /x,
     HOST_IS_IP_RE    => qr/^ (?:[0-9]+\.){3} [0-9]+ $ | :/x, # covers IPv4 & IPv6
