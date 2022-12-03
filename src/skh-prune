@@ -14,6 +14,14 @@ use open qw(:std :utf8);
 use Encode qw(decode);
 local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
+use constant {
+    # The regexes below are specific to the `known_hosts` format,
+    # and MUST NOT be used in any other context!
+
+    HOSTPORT2HOST_RE => qr/^ \[? ([^]]+) \]? /x,
+    HOST_IS_IP_RE    => qr/^ (?:[0-9]+\.){3} [0-9]+ $ | :/x, # covers IPv4 & IPv6
+};
+
 # get filenames as arguments, or fallback to sensible defaults
 @ARGV or local @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
 
@@ -26,6 +34,11 @@ my %algo_precedence = map { $_ => $precedence++ } qw(
     ssh-rsa
 );
 
+sub _non_ip_hosts {
+    my ($host_without_port) = $_ =~ HOSTPORT2HOST_RE;
+    return $host_without_port !~ HOST_IS_IP_RE;
+}
+
 foreach my $skhfile (@ARGV) {
     open my $fin, '<', $skhfile;
     my @lines = <$fin>;
@@ -35,7 +48,11 @@ foreach my $skhfile (@ARGV) {
     foreach my $line (@lines) {
         my ($hosts, $algo, $key) = split /\s+/, $line; # comments are lost
 
-        foreach my $host (split /,/, $hosts) {
+        my @hosts = split /,/, $hosts;
+        my @non_ip_hosts = grep _non_ip_hosts, @hosts;
+        @hosts = @non_ip_hosts if @non_ip_hosts;
+
+        foreach my $host (@hosts) {
             # unlisted algos get a random non-conflicting precedence
             $algo_precedence{$algo} = $precedence++
                 unless exists $algo_precedence{$algo};
