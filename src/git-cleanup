@@ -18,12 +18,12 @@ do
     rm -rf "$gitroot/.git/$dot_git_item"
 done
 
-mapfile -t remotes < <(git remote)
-
 git clean -ffdx
 git submodule foreach "$me"
 git checkout -f
 git submodule update --init --recursive
+
+mapfile -t remotes < <(git remote)
 
 for remote in "${remotes[@]}"
 do
