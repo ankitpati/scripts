@@ -4,6 +4,7 @@ set -euo pipefail
 
 me="$(basename "$0")"
 
+git submodule update --init --recursive
 git submodule foreach "$me"
 
 gitroot="$(git rev-parse --show-toplevel)"
@@ -22,7 +23,6 @@ done
 
 git clean -ffdx
 git checkout -f
-git submodule update --init --recursive
 
 mapfile -t remotes < <(git remote)
 
