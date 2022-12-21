@@ -7,7 +7,7 @@ me="$(basename "$0")"
 git submodule update --init
 git submodule foreach "$me"
 
-gitroot="$(git rev-parse --show-toplevel)"
+dot_git="$(git rev-parse --git-dir)"
 
 for dot_git_item in \
     COMMIT_EDITMSG \
@@ -18,7 +18,7 @@ for dot_git_item in \
     info/exclude \
 
 do
-    rm -rf "$gitroot/.git/$dot_git_item"
+    rm -rf "${dot_git:?}/$dot_git_item"
 done
 
 git clean -ffdx
