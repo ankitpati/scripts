@@ -4,6 +4,8 @@ set -euo pipefail
 
 me="$(basename "$0")"
 
+git submodule foreach "$me"
+
 gitroot="$(git rev-parse --show-toplevel)"
 
 for dot_git_item in \
@@ -19,7 +21,6 @@ do
 done
 
 git clean -ffdx
-git submodule foreach "$me"
 git checkout -f
 git submodule update --init --recursive
 
