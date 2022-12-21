@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+me="$(basename "$0")"
+
 gitroot="$(git rev-parse --show-toplevel)"
 
 for dot_git_item in \
@@ -19,7 +21,7 @@ done
 mapfile -t remotes < <(git remote)
 
 git clean -ffdx
-git submodule foreach git clean -ffdx
+git submodule foreach "$me"
 git checkout -f
 git submodule update --init --recursive
 
