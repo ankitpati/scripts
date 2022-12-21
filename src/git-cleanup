@@ -32,9 +32,14 @@ do
 done
 
 git reflog expire --all --expire=now
-git -c gc.reflogExpire=0 \
+git \
+    -c gc.pruneExpire=now \
+    -c gc.reflogExpire=0 \
     -c gc.reflogExpireUnreachable=0 \
     -c gc.rerereresolved=0 \
     -c gc.rerereunresolved=0 \
-    -c gc.pruneExpire=now \
-    gc --prune=now --aggressive
+    \
+    gc \
+        --aggressive \
+        --prune=now \
+;
