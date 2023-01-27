@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+# Some formulae are forcefully versioned by Homebrew, so upgrading to the
+# latest needs some work.
+brew_forced_version_formulae=(
+    postgresql
+)
+
+container_manager="$(command -v podman 2>/dev/null || :)"
+container_manager="${container_manager:-docker}"
+
+brew update
+
+brew upgrade
+
+for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
+do
+    mapfile -t <<<"$( \
+        brew formulae | \
+        grep "^$brew_forced_version_formula@" | \
+        sort -rV \
+    )"
+
+    old_version_present=''
+    for brew_forced_version_old_formula in "${MAPFILE[@]:1}"
+    do
+        brew uninstall --zap "$brew_forced_version_old_formula" && \
+            old_version_present='1'
+    done
+
+    if [[ $old_version_present == 1 ]]
+    then
+        brew install "${MAPFILE[0]}"
+    fi
+done
+
+cpan-outdated --exclude-core -p | xargs -r cpan
+
+gcloud components update
+
+steampipe plugin update --all
+
+tldr --update
+
+"$container_manager" image ls --format '{{.Repository}}:{{.Tag}}' | \
+    grep -v '^localhost/' | \
+    xargs -n 1 "$container_manager" pull
+
+mapfile -t <<<"$(code --list-extensions)"
+for codext in "${MAPFILE[@]}"
+do
+    code --install-extension "$codext" --force
+done
+
+if [[ $(uname -s) == 'Darwin' ]]
+then
+    softwareupdate -l
+
+    # Upgrading GCloud CLI through Homebrew resets installed components, and
+    # they need to be reinstalled afterwards.
+    mapfile -t gcloud_installed_components <<<"$( \
+        gcloud components list --format 'json(id, state.name)' 2>/dev/null | \
+        jq -r '.[] | select(.state.name == "Installed") | .id' \
+    )"
+
+    brew upgrade --greedy
+
+    gcloud components install "${gcloud_installed_components[@]}"
+fi
+
+vim +PlugUpgrade +PlugUpdate
