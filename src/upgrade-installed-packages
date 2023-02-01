@@ -38,8 +38,6 @@ done
 
 cpan-outdated --exclude-core -p | xargs -r cpan
 
-gcloud components update
-
 steampipe plugin update --all
 
 tldr --update
@@ -54,7 +52,10 @@ do
     code --install-extension "$codext" --force
 done
 
-if [[ $(uname -s) == 'Darwin' ]]
+if [[ $(uname -s) == 'Linux' ]]
+then
+    gcloud components update
+elif [[ $(uname -s) == 'Darwin' ]]
 then
     softwareupdate -l
 
