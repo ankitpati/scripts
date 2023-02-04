@@ -17,11 +17,9 @@ brew update
 mapfile -d '' < <(find "$(brew --prefix)/Homebrew" -type d -name .git -printf '%h\0')
 for git_directory in "${MAPFILE[@]}"
 do
-    printf '%s' "$git_directory"
+    printf '%s\n' "$git_directory"
     git -C "$git_directory" pull || \
-        git -C "$git_directory" pull origin main || \
-        git -C "$git_directory" pull origin master || \
-        false
+        git -C "$git_directory" pull origin "$(git -C "$git_directory" branch --show-current)"
     echo
 done
 
