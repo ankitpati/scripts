@@ -1,0 +1,45 @@
+#!/usr/bin/env perl
+# Sort .netrc from STDIN
+
+use strict;
+use warnings;
+use autodie;
+
+our $VERSION = 1.00;
+
+# UTF8 for STDIN & STDOUT
+use open qw(:std :utf8);
+
+my $me = (split m{/}, $0)[-1];
+
+die "Usage:\n\t$me < .netrc\n"
+    if @ARGV;
+
+my %machines;
+my $current_machine;
+foreach my $line (<STDIN>) {
+    chomp $line;
+
+    if ($line eq '') {
+        # do nothing
+    } elsif ($line =~ /^\s*machine\s+(\S+)$/) {
+        $current_machine = $1;
+
+        # necessary to store the `machine` line even if it has no body
+        $machines{$current_machine} //= [];
+    } else {
+        push @{ $machines{$current_machine} }, $line;
+    }
+}
+
+foreach my $machine (sort keys %machines) {
+    my $body = join "\n", @{ $machines{$machine} };
+    $body .= "\n" if $body ne '';
+
+    print <<"EOH";
+machine $machine
+$body
+EOH
+}
+
+__END__
