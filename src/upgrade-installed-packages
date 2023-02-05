@@ -18,8 +18,8 @@ mapfile -d '' < <(find "$(brew --prefix)/Homebrew" -type d -name .git -printf '%
 for git_directory in "${MAPFILE[@]}"
 do
     printf '%s\n' "$git_directory"
-    git -C "$git_directory" pull || \
-        git -C "$git_directory" pull origin "$(git -C "$git_directory" branch --show-current)"
+    git -C "$git_directory" pull --ff-only || \
+        git -C "$git_directory" pull --ff-only origin "$(git -C "$git_directory" branch --show-current)"
     echo
 done
 
