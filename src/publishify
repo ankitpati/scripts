@@ -4,7 +4,11 @@ set -euo pipefail
 
 myname="$(basename "$0")"
 
-test "$#" -ne 1 -o ! -d "$1" && echo "Usage: $myname <directory>" && exit 1
+if [[ $# -ne 1 || ! -d $1 ]]
+then
+    printf 'Usage: %s <directory>\n' "$myname"
+    exit 1
+fi
 
 TARGET_DIRECTORY="$1"
 

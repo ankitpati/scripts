@@ -40,7 +40,7 @@ do
             old_version_present='1'
     done
 
-    if [[ $old_version_present == 1 ]]
+    if ((old_version_present == 1))
     then
         brew install "${MAPFILE[0]}"
     fi

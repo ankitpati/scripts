@@ -7,7 +7,7 @@ set -euo pipefail
 # Credits: https://ubuntuforums.org/showthread.php?t=636724
 
 if [[ -z "$1" ]]; then
-    echo "Syntax: $0 debfile"
+    printf 'Syntax: %s debfile\n' "$0"
     exit 1
 fi
 
@@ -16,7 +16,7 @@ TMPDIR="$(mktemp -d /tmp/deb.XXXXXXXXXX)" || exit 1
 OUTPUT="$(basename "$DEBFILE" .deb).modfied.deb"
 
 if [[ -e "$OUTPUT" ]]; then
-    echo "$OUTPUT exists."
+    printf '%s exists.\n' "$OUTPUT"
     rm -r "$TMPDIR"
     exit 1
 fi
@@ -25,7 +25,7 @@ dpkg-deb -x "$DEBFILE" "$TMPDIR"
 dpkg-deb --control "$DEBFILE" "$TMPDIR/DEBIAN"
 
 if [[ ! -e "$TMPDIR/DEBIAN/control" ]]; then
-    echo 'DEBIAN/control not found.'
+    printf 'DEBIAN/control not found.\n'
 
     rm -r "$TMPDIR"
     exit 1
@@ -36,10 +36,10 @@ CONTROL="$TMPDIR/DEBIAN/control"
 MOD="$(stat -c "%y" "$CONTROL")"
 editor "$CONTROL" # use the default editor from Debian alternatives
 
-if [[ "$MOD" == $(stat -c "%y" "$CONTROL") ]]; then
-    echo 'Not modfied.'
+if [[ $MOD == "$(stat -c "%y" "$CONTROL")" ]]; then
+    printf 'Not modfied.\n'
 else
-    echo 'Building new deb...'
+    printf 'Building new deb...\n'
     dpkg -b "$TMPDIR" "$OUTPUT"
 fi
 

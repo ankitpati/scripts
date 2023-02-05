@@ -6,13 +6,19 @@ username='username'
 password='password'
 findword='search-term'
 
-for dbase in $(mysql -u"$username" -p"$password" 2>/dev/null <<< 'show databases;' | grep -Ev '.*_schema$|^mysql$|^sys$' | tail -n +2)
+mysql -u"$username" -p"$password" 2>/dev/null <<< 'show databases;' | \
+grep -Ev '.*_schema$|^mysql$|^sys$' | \
+tail -n +2 | \
+while read -r dbase
 do
-    echo "Matches in database: $dbase"
-    for table in $(mysql -u"$username" -p"$password" "$dbase" 2>/dev/null <<< 'show tables;' | tail -n +2)
+    printf 'Matches in database: %s\n' "$dbase"
+    mysql -u"$username" -p"$password" "$dbase" 2>/dev/null <<< 'show tables;' | \
+    tail -n +2 | \
+    while read -r table
     do
-        echo "Matches in table: $table"
-        mysql -u"$username" -p"$password" "$dbase" 2>/dev/null <<< "select * from $table" | grep "$findword"
+        printf 'Matches in table: %s\n' "$table"
+        mysql -u"$username" -p"$password" "$dbase" 2>/dev/null <<< "select * from $table" | \
+            grep "$findword"
         echo
     done
     echo

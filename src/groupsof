@@ -4,7 +4,11 @@ set -euo pipefail
 
 myname="$(basename "$0")"
 
-test "$#" -eq 0 && printf "Usage:\n\t%s <username>...\n" "$myname" && exit 1
+if (($# == 0))
+then
+    printf 'Usage:\n\t%s <username>...\n' "$myname"
+    exit 1
+fi
 
 error_users=''
 
@@ -16,7 +20,10 @@ do
 done
 
 # shellcheck disable=SC2001
-error_users="$(echo "$error_users" | sed 's/, $//')"
+error_users="$(printf '%s\n' "$error_users" | sed 's/, $//')"
 
-test "$error_users" && \
-    echo "No public key found for $error_users." >&2 && exit 2
+if [[ -n $error_users ]]
+then
+    printf 'No public key found for %s.\n' "$error_users" >&2
+    exit 2
+fi

@@ -10,7 +10,7 @@ do
     case "${args[$i]}" in
         -h) ;&
         --help)
-            echo "Usage: $me [-<git-push-params>...] [branch]..."
+            printf 'Usage: %s [-<git-push-params>...] [branch]...\n' "$me"
             exit
             ;;
 
@@ -21,14 +21,20 @@ do
     esac
 done
 
-test -z "$(git rev-parse --show-toplevel || :)" && \
-    echo "$me: present directory must be in a Git repository" && exit 1
+if [[ -z $(git rev-parse --show-toplevel || :) ]]
+then
+    printf '%s: present directory must be in a Git repository\n' "$me"
+    exit 1
+fi
 
-if test "${#args[@]}" -eq 0
+if ((${#args[@]} == 0))
 then
     curbranch="$(git symbolic-ref --short HEAD 2>/dev/null || :)"
-    test -z "$curbranch" \
-        && echo "$me: no branch checked out, and none specified" && exit 2
+    if [[ -z $curbranch ]]
+    then
+        printf '%s: no branch checked out, and none specified\n' "$me"
+        exit 2
+    fi
     args=("$curbranch")
 fi
 

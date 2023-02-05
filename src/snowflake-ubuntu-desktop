@@ -5,15 +5,19 @@ set -euo pipefail
 # Run this script twice on a new system, as root. It reboots in the middle, and
 # picks up where it left off when run again after the reboot.
 
-test -z "$(command -v tmux 2>/dev/null || :)" && \
-    apt install -y tmux && \
+if [[ -z $(command -v tmux 2>/dev/null || :) ]]
+then
+    apt install -y tmux
     tmux new-session 'touch .hushlogin; apt dist-upgrade -y; apt autoremove -y; apt clean; systemctl reboot'
+fi
 
 me="$(basename "$0")"
 mydir="$(dirname "$0")/"
 
-# shellcheck disable=SC2154
-test -z "$TMUX" && exec tmux new-session "bash $mydir/$me"
+if [[ -z $TMUX ]]
+then
+    exec tmux new-session "bash $mydir/$me"
+fi
 
 ufw allow in ssh
 ufw --force enable

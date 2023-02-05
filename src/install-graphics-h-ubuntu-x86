@@ -19,4 +19,4 @@ mv geany-config .config/geany
 rm SDL_bgi-2.0.8.tar.gz
 rm -rf SDL_bgi-2.0.8/
 
-echo 'Done!'
+printf 'Done!\n'

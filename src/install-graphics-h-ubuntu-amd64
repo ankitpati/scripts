@@ -11,4 +11,4 @@ rm -rf .config/geany
 mv geany-config .config/geany
 rm sdl-bgi_2.0.8-1_amd64.deb
 
-echo 'Done!'
+printf 'Done!\n'

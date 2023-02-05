@@ -5,19 +5,25 @@ set -euo pipefail
 myname="$(basename "$0")"
 usage="Usage: $myname <input.pdf>"
 
-test "$#" -ne 1 && echo "$usage" && exit 1
+if (($# != 1))
+then
+    printf '%s\n' "$usage"
+    exit 1
+fi
 
 numpages="$(gs -q -d'NODISPLAY' \
                -c "($1) (r) file runpdfbegin pdfpagecount = quit")"
 
-test "$numpages" || numpages=0
+if [[ -z "$numpages" ]]
+then
+    numpages=0
+fi
 
-echo "Processing $numpages pages..."
+printf 'Processing %s pages...\n' "$numpages"
 
-for counter in $(seq "$numpages")
+for ((counter = 1; counter <= numpages; ++counter))
 do
-    # shellcheck disable=SC2001
-    newname="$(echo "$1" | sed 's/\.pdf//g')"
+    newname="$(printf '%s\n' "$1" | sed 's/\.pdf//g')"
     newnamenum="$newname-$counter.pdf"
     yes | gs -d'BATCH' -s"OutputFile=$newnamenum" -d"FirstPage=$counter" \
              -d"LastPage=$counter" -s'DEVICE=pdfwrite' "$1" >& '/dev/null'

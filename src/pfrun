@@ -4,7 +4,11 @@ set -euo pipefail
 
 me="$(basename "$0")"
 
-test "$#" -ne 1 -o ! -f "$1" && echo "Usage: $me <filename.pbtxt>" && exit 1
+if [[ $# -ne 1 || ! -f $1 ]]
+then
+    printf 'Usage: %s <filename.pbtxt>\n' "$me"
+    exit 1
+fi
 
 config="$1"
 

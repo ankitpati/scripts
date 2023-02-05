@@ -5,15 +5,30 @@ set -euo pipefail
 me="$(basename "$0")"
 usage="Usage: $me <username[:groupname]> <path>... -- [bash arguments]"
 
-test "$#" -lt 3 && echo "$usage" && exit 1
+if (($# < 3))
+then
+    printf '%s\n' "$usage"
+    exit 1
+fi
 
-for arg in "$@"; do test '--' = "$arg" && break; done
-test '--' != "$arg" && echo "$usage" && exit 2
+for arg in "$@"
+do
+    if [[ '--' == "$arg" ]]
+    then
+        break
+    fi
+done
+
+if [[ '--' != "$arg" ]]
+then
+    printf '%s\n' "$usage"
+    exit 2
+fi
 
 user_group="$1"
 shift # remove username:groupname
 
-while test '--' != "$1"
+while [[ '--' != "$1" ]]
 do
     chown "$user_group" -hR "$1" || exit 3 # die immediately upon failure
     shift # remove paths we have dealt with
@@ -32,8 +47,10 @@ do
 done
 
 # `sudo`, if available, is always the better option: it does not call a shell
-test -n "$(command -v sudo 2>/dev/null || :)" && \
+if [[ -n $(command -v sudo 2>/dev/null || :) ]]
+then
     exec sudo -u "$username" "${env4sudo[@]}" -- "$@"
+fi
 
 # the following runs iff `sudo` is not available
 for env_key in "${env2exp[@]}"
@@ -42,7 +59,7 @@ do
 done
 
 userhome="$(getent passwd "$username" | cut -d':' -f6)"
-echo "$env4bashrc" >> "$userhome/.bashrc"
+printf '%s\n' "$env4bashrc" >> "$userhome/.bashrc"
 
 # `su` is a fallback; calls the login shell of the specified user
 exec su - "$username" -- "$@"
