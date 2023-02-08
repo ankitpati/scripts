@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s extglob
+
+mapfile -t daemonsets < <(kubectl get daemonsets.apps -A -o json | jq -r .items[].metadata.name)
+mapfile -t deployments < <(kubectl get deployments.apps -A -o json | jq -r .items[].metadata.name)
+mapfile -t statefulsets < <(kubectl get statefulsets.apps -A -o json | jq -r .items[].metadata.name)
+
+while read -r pod
+do
+    rollout_object="${pod/%.+([^.])}"
+    namespace="${pod/#+([^.]).}"
+
+    longest_prefix_match=''
+    longest_prefix_type=''
+    shortest_postfix_length=0
+
+    for daemonset in "${daemonsets[@]}"
+    do
+        postfix="${rollout_object/#"$daemonset"}"
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        then
+            longest_prefix_match="$daemonset"
+            longest_prefix_type='daemonset'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    for deployment in "${deployments[@]}"
+    do
+        postfix="${rollout_object/#"$deployment"}"
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        then
+            longest_prefix_match="$deployment"
+            longest_prefix_type='deployment'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    for statefulset in "${statefulsets[@]}"
+    do
+        postfix="${rollout_object/#"$statefulset"}"
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        then
+            longest_prefix_match="$statefulset"
+            longest_prefix_type='statefulset'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    kubectl rollout restart "$longest_prefix_type/$longest_prefix_match" -n "$namespace"
+done < <(istioctl proxy-status --revision default | tail -n +2 | cut -d' ' -f1) | sort -u
