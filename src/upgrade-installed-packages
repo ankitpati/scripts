@@ -54,6 +54,7 @@ tldr --update
 
 "$container_manager" image ls --format '{{.Repository}}:{{.Tag}}' | \
     grep -v '^localhost/' | \
+    sed 's/:<none>$//' | \
     xargs -n 1 "$container_manager" pull
 
 mapfile -t <<<"$(code --list-extensions)"
