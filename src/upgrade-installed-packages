@@ -12,17 +12,6 @@ container_manager="$(command -v podman 2>/dev/null || :)"
 container_manager="${container_manager:-docker}"
 
 brew update
-
-# `brew update` should do the following block, but it sometimes doesn't?
-mapfile -d '' < <(find "$(brew --prefix)/Homebrew" -type d -name .git -printf '%h\0')
-for git_directory in "${MAPFILE[@]}"
-do
-    printf '%s\n' "$git_directory"
-    git -C "$git_directory" pull --ff-only || \
-        git -C "$git_directory" pull --ff-only origin "$(git -C "$git_directory" branch --show-current)"
-    echo
-done
-
 brew upgrade
 
 for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
