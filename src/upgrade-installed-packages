@@ -66,7 +66,7 @@ then
         jq -r '.[] | select(.state.name == "Installed") | .id' \
     )"
 
-    brew upgrade --greedy
+    brew upgrade --cask --greedy
 
     gcloud components install "${gcloud_installed_components[@]}"
 fi
