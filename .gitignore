@@ -1,2 +1,5 @@
 # Ignore .class files
 *.class
+
+# Ignore brew bundle lockfiles
+Brewfile.lock.json
