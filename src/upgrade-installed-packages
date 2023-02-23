@@ -11,7 +11,7 @@ brew_forced_version_formulae=(
 container_manager="$(command -v podman 2>/dev/null || :)"
 container_manager="${container_manager:-docker}"
 
-brew update
+brew update --force
 brew upgrade
 
 for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
@@ -67,6 +67,7 @@ then
     )"
 
     brew upgrade --cask --greedy
+    sudo -k
 
     gcloud components install "${gcloud_installed_components[@]}"
 fi
