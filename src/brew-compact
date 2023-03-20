@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+brew_prefix="$(brew --prefix)"
+
+printf 'Running `git cleanup` on Homebrew...\n'
+for brewtap in "$brew_prefix/Homebrew" \
+               "$brew_prefix/Homebrew/Library/Taps/"*/*
+do
+    git -C "$brewtap" cleanup
+done
+
+:
