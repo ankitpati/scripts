@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+printf 'Removing SSH known_hosts Backup...\n'
+rm "$HOME/.ssh/known_hosts.old"
+
+printf 'Uninstalling dangling Homebrew packages...\n'
+brew autoremove
+
+printf 'Removing the Homebrew Build Cache...\n'
+brew cleanup --prune=all
+
+printf 'Removing the Perlbrew Build Cache...\n'
+perlbrew clean
+
+printf 'Removing the CPAN.pm Cache...\n'
+rm -rf "$HOME/.cpan/"{'build/','sources/','Metadata'}
+
+printf 'Removing the CPANM Work Cache...\n'
+rm -rf "$HOME/.cpanm/"{'work/','build.log','latest-build'}
+
+printf 'Removing the PIP Cache...\n'
+rm -rf "$HOME/.cache/pip/"
+rm -rf "$HOME/Library/Caches/pip/"
+
+printf 'Removing the Maven Cache...\n'
+rm -rf "$HOME/.m2/repository/"
+
+printf 'Removing the Python Cache...\n'
+rm -rf "$HOME/.pycache/"
+
+printf 'Removing Maccy SQLite DB (only works if Maccy is not running)...\n'
+rm "$HOME/Library/Containers/org.p0deje.Maccy/Data/Library/Application Support/Maccy/Storage.sqlite"*
+
+printf 'Removing the QuickLook Cache...\n'
+qlmanage -r cache
+
+# TODO: [macOS] find & vacuum/remove all NSPersistentContainer SQLite DBs
+
+:
