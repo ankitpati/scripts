@@ -16,11 +16,11 @@ brew upgrade
 
 for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
 do
-    mapfile -t <<<"$( \
+    mapfile -t < <( \
         brew formulae | \
         grep "^$brew_forced_version_formula@" | \
         sort -rV \
-    )"
+    )
 
     old_version_present=''
     for brew_forced_version_old_formula in "${MAPFILE[@]:1}"
@@ -46,7 +46,7 @@ tldr --update
     sed 's/:<none>$//' | \
     xargs -n 1 "$container_manager" pull
 
-mapfile -t <<<"$(code --list-extensions)"
+mapfile -t < <(code --list-extensions)
 for codext in "${MAPFILE[@]}"
 do
     code --install-extension "$codext" --force
@@ -61,10 +61,10 @@ then
 
     # Upgrading GCloud CLI through Homebrew resets installed components, and
     # they need to be reinstalled afterwards.
-    mapfile -t gcloud_installed_components <<<"$( \
+    mapfile -t gcloud_installed_components < <( \
         gcloud components list --format 'json(id, state.name)' 2>/dev/null | \
         jq -r '.[] | select(.state.name == "Installed") | .id' \
-    )"
+    )
 
     brew upgrade --cask --greedy
     sudo -k
