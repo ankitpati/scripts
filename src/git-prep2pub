@@ -20,14 +20,13 @@ username="$1"
 repository="$2"
 aws_region="${3:-ap-south-1}"
 
-declare -A map
-map=(
+declare -A map=(
     [az]="git-codecommit.$aws_region.amazonaws.com/v1/repos"
     [bb]="bitbucket.org/$username"
     [gh]="github.com/$username"
     [gl]="gitlab.com/$username"
     [nb]="notabug.org/$username"
-);
+)
 
 for remote in "${!map[@]}"
 do
