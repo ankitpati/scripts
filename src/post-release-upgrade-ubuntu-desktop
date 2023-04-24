@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+mapfile -td '' apt_dist_upgrade_files < <( \
+    find /etc/apt/sources.list.d/ -type f -name '*.list.distUpgrade' -print0 \
+)
+
+for apt_dist_upgrade_file in "${apt_dist_upgrade_files[@]}"
+do
+    mv -- "$apt_dist_upgrade_file" "${apt_dist_upgrade_file%%.distUpgrade}"
+done
+
+snap remove --purge \
+    firefox \
+;
+
+apt purge -y \
+    firefox\* \
+;
