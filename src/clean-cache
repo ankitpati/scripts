@@ -36,6 +36,22 @@ rm "$HOME/Library/Containers/org.p0deje.Maccy/Data/Library/Application Support/M
 printf 'Removing the QuickLook Cache...\n'
 qlmanage -r cache
 
+printf 'Removing Disabled Snaps...\n'
+# shellcheck disable=SC2034
+snap list --all | \
+while read -r snapname version revision tracking publisher notes
+do
+    if [[ $notes = *disabled* ]]
+    then
+        sudo snap remove --purge "$snapname" --revision="$revision"
+    fi
+done
+
+printf 'Removing the Snap cache...\n'
+sudo rm /var/lib/snapd/cache/*
+
 # TODO: [macOS] find & vacuum/remove all NSPersistentContainer SQLite DBs
+
+sudo -k
 
 :
