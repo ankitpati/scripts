@@ -48,7 +48,10 @@ do
 done
 
 printf 'Removing the Snap cache...\n'
-sudo rm /var/lib/snapd/cache/*
+if command -v snap &>/dev/null
+then
+    sudo rm /var/lib/snapd/cache/*
+fi
 
 # TODO: [macOS] find & vacuum/remove all NSPersistentContainer SQLite DBs
 
