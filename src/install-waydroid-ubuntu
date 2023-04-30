@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_name='waydroid'
+repo_url='https://repo.waydro.id/'
+repo_path="/etc/apt/sources.list.d/$repo_name.list"
+
+keyring_url="$repo_url/$repo_name.gpg"
+keyring_path="/etc/apt/keyrings/${repo_name//:/_}.gpg"
+
+ubuntu_codename="$(grep ^UBUNTU_CODENAME= /etc/os-release | cut -d= -f2-)"
+
+curl "$keyring_url" \
+    --fail \
+    --location \
+    --output "$keyring_path" \
+    --proto =https \
+    --show-error \
+    --silent \
+    --tlsv1.3 \
+;
+
+cat <<EOF >"$repo_path"
+deb [signed-by=$keyring_path] $repo_url $ubuntu_codename main
+EOF
+
+apt update
+apt upgrade -y \
+    waydroid \
+;
