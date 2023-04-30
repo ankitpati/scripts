@@ -5,18 +5,33 @@ set -euo pipefail
 # Update the following using information from
 # https://build.opensuse.org/package/show/devel:kubic:libcontainers:unstable/podman
 # Look in the right pane for the latest supported Ubuntu release.
-architecture="$(dpkg --print-architecture)"
 kubic_latest_ubuntu='22.04'
+
+architecture="$(dpkg --print-architecture)"
 
 repo_name='devel:kubic:libcontainers:unstable'
 repo_url="https://download.opensuse.org/repositories/$repo_name/xUbuntu_$kubic_latest_ubuntu/"
+repo_path="/etc/apt/sources.list.d/$repo_name.list"
+
+keyring_url="$repo_url/Release.key"
 keyring_path="/etc/apt/keyrings/${repo_name//:/_}.gpg"
 
-curl -fsSL "$repo_url/Release.key" | gpg --dearmor >"$keyring_path"
+curl "$keyring_url" \
+    --fail \
+    --location \
+    --proto =https \
+    --show-error \
+    --silent \
+    --tlsv1.3 \
+| gpg --dearmor --output "$keyring_path"
 
-cat <<EOF >"/etc/apt/sources.list.d/$repo_name.list"
+cat <<EOF >"$repo_path"
 deb [arch=$architecture signed-by=$keyring_path] $repo_url /
 EOF
 
 apt update
-apt upgrade -y podman buildah skopeo
+apt upgrade -y \
+    buildah \
+    podman \
+    skopeo \
+;
