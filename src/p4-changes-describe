@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me="$(basename "$0")"
+
+if (($# != 2))
+then
+    printf 'Usage: %s <top-how-many-commits> <file[revRange]>\n' "$me" >&2
+    exit 1
+fi
+
+top_how_many_commits="$1"
+file_rev_range="$2"
+
+p4 changes -m "$top_how_many_commits" -s submitted "$file_rev_range" | \
+    cut -d' ' -f2 | \
+        while read -r cl_number
+        do
+            p4 describe -du5 "$cl_number" | \
+                PAGER='' delta
+        done
