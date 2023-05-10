@@ -19,17 +19,14 @@ fi
 gcp_project="$1"
 gce_vm_ip="$2"
 
-gce_vm_name_and_zone_json="$(steampipe query --output json "
-    select
-        name,
-        zone_name
-    from
-        gcp_project_${gcp_project//-/_}.gcp_compute_instance
-    where
-        network_interfaces -> 0 ->> 'networkIP' = '$gce_vm_ip'
-" | jq .[0])"
+gce_vm_name_zone_ip_csv="$(gcloud \
+    --project "$gcp_project" \
+    compute instances list \
+    --format 'csv(name,zone,networkInterfaces[0].networkIP)' | \
+    grep ",${gce_vm_ip//./\\.}\$" \
+)"
 
-gce_vm_name="$(jq -r .name <<< "$gce_vm_name_and_zone_json")"
-gce_vm_zone="$(jq -r .zone_name <<< "$gce_vm_name_and_zone_json")"
+gce_vm_name="$(cut -d, -f1 <<< "$gce_vm_name_zone_ip_csv")"
+gce_vm_zone="$(cut -d, -f2 <<< "$gce_vm_name_zone_ip_csv")"
 
 gcloud --project "$gcp_project" compute instances reset --zone "$gce_vm_zone" "$gce_vm_name"
