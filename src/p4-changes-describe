@@ -11,7 +11,13 @@ then
 fi
 
 top_how_many_commits="$1"
-file_rev_range="$2"
+file_rev_range="${2/#-/./-}"
+
+if [[ ! $top_how_many_commits =~ ^[1-9][0-9]*$ ]]
+then
+    printf '%s: number of commits must be a positive integer\n' "$me" >&2
+    exit 2
+fi
 
 p4 changes -m "$top_how_many_commits" -s submitted "$file_rev_range" | \
     cut -d' ' -f2 | \
