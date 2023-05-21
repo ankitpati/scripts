@@ -10,26 +10,30 @@ use List::Util qw(uniq);
 our $VERSION = 2.00;
 
 # UTF8 for File Handles and Command Line Arguments
-use open qw(:std :utf8);
+use open   qw(:std :utf8);
 use Encode qw(decode);
 local @ARGV = map { decode 'UTF-8', $_ } @ARGV unless utf8::is_utf8 $ARGV[0];
 
 use constant {
     # The regexes below are specific to the `known_hosts` format,
     # and MUST NOT be used in any other context!
-    #
-    # Do NOT replace `[0-9]` and other pure ASCII items with
-    # named character classes. We need ASCII, not Unicode!
 
     HOSTPORT2HOST_RE => qr/^ \[? ([^]]+) \]? /x,
-    HOST_IS_IP_RE    => qr/^ (?:[0-9]+\.){3} [0-9]+ $ | :/x, # covers IPv4 & IPv6
+
+    # Do NOT replace `[0-9]` and other pure ASCII items with
+    # named character classes. We need ASCII, not Unicode!
+    #
+    ## no critic qw(RegularExpressions::ProhibitEnumeratedClasses)
+    HOST_IS_IP_RE =>
+        qr/^ (?:[0-9]+\.){3} [0-9]+ $ | :/x,    # covers IPv4 & IPv6
+    ## use critic qw(RegularExpressions::ProhibitEnumeratedClasses)
 };
 
 # get filenames as arguments, or fallback to sensible defaults
 @ARGV or local @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
 
 # precedence order (high to low) in case of multiple public keys for a host
-my $precedence = 0;
+my $precedence      = 0;
 my %algo_precedence = map { $_ => $precedence++ } qw(
     ssh-ed25519
     ecdsa-sha2-nistp521
@@ -49,9 +53,9 @@ foreach my $skhfile (@ARGV) {
 
     my %host_algo_key;
     foreach my $line (@lines) {
-        my ($hosts, $algo, $key) = split /\s+/, $line; # comments are lost
+        my ($hosts, $algo, $key) = split /\s+/, $line;    # comments are lost
 
-        my @hosts = split /,/, $hosts;
+        my @hosts        = split /,/, $hosts;
         my @non_ip_hosts = grep _non_ip_hosts, @hosts;
         @hosts = @non_ip_hosts if @non_ip_hosts;
 
@@ -61,9 +65,11 @@ foreach my $skhfile (@ARGV) {
                 unless exists $algo_precedence{$algo};
 
             $host_algo_key{$host} = [$algo, $key]
-                if not exists $host_algo_key{$host} or
-                    $algo_precedence{ $algo } <
-                    $algo_precedence{ $host_algo_key{$host}[0] };
+                if (
+                    not exists $host_algo_key{$host}
+                    or ($algo_precedence{$algo} <
+                        $algo_precedence{ $host_algo_key{$host}[0] })
+                );
         }
     }
 
@@ -74,8 +80,8 @@ foreach my $skhfile (@ARGV) {
     }
 
     my @known_hosts =
-        map { ( join ',', sort &uniq (@{$algokey_hosts{$_}}) ) . " $_" }
-            sort keys %algokey_hosts;
+        map { (join ',', sort &uniq(@{ $algokey_hosts{$_} })) . " $_" }
+        sort keys %algokey_hosts;
 
     open my $fout, '>', $skhfile;
     print $fout (join ("\n", @known_hosts), "\n");
