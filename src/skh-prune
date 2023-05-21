@@ -73,6 +73,11 @@ foreach my $skhfile (@ARGV) {
         push @{ $algokey_hosts{"$algo $key"} }, $host;
     }
 
+    while (my ($algokey, $hosts) = each %algokey_hosts) {
+        my @non_ip_hosts = grep _non_ip_hosts, @$hosts;
+        @$hosts = @non_ip_hosts if @non_ip_hosts;
+    }
+
     my @known_hosts =
         map { (join ',', sort &uniq(@{ $algokey_hosts{$_} })) . " $_" }
         sort keys %algokey_hosts;
