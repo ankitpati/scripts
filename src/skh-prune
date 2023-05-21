@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use autodie;
 
-use List::Util qw(uniq);
+use List::Util qw(any first uniq);
 
 our $VERSION = 2.00;
 
@@ -33,8 +33,7 @@ use constant {
 @ARGV or local @ARGV = ("$ENV{HOME}/.ssh/known_hosts");
 
 # precedence order (high to low) in case of multiple public keys for a host
-my $precedence      = 0;
-my %algo_precedence = map { $_ => $precedence++ } qw(
+my @algo_precedence = qw(
     ssh-ed25519
     ecdsa-sha2-nistp521
     ecdsa-sha2-nistp256
@@ -55,28 +54,23 @@ foreach my $skhfile (@ARGV) {
     foreach my $line (@lines) {
         my ($hosts, $algo, $key) = split /\s+/, $line;    # comments are lost
 
-        my @hosts        = split /,/, $hosts;
-        my @non_ip_hosts = grep _non_ip_hosts, @hosts;
-        @hosts = @non_ip_hosts if @non_ip_hosts;
+        my @hosts = split /,/, $hosts;
 
         foreach my $host (@hosts) {
-            # unlisted algos get a random non-conflicting precedence
-            $algo_precedence{$algo} = $precedence++
-                unless exists $algo_precedence{$algo};
+            # unlisted algos get a non-conflicting FCFS precedence
+            push @algo_precedence, $algo
+                unless any { $_ eq $algo } @algo_precedence;
 
-            $host_algo_key{$host} = [$algo, $key]
-                if (
-                    not exists $host_algo_key{$host}
-                    or ($algo_precedence{$algo} <
-                        $algo_precedence{ $host_algo_key{$host}[0] })
-                );
+            $host_algo_key{$host}{$algo} = $key;
         }
     }
 
     my %algokey_hosts;
     while (my ($host, $algo_key) = each %host_algo_key) {
-        local $" = ' ';
-        push @{ $algokey_hosts{"@$algo_key"} }, $host;
+        my $algo = first { exists $algo_key->{$_} } @algo_precedence;
+        my $key  = $algo_key->{$algo};
+
+        push @{ $algokey_hosts{"$algo $key"} }, $host;
     }
 
     my @known_hosts =
