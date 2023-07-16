@@ -3,7 +3,7 @@
 set -euo pipefail
 
 mydir="$(dirname "$0")/"
-CLASSPATH="$(sanitize_path "$mydir:$CLASSPATH")"
+CLASSPATH="$mydir:$CLASSPATH"
 
 main_class_name="$1"
 shift
