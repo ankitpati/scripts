@@ -17,8 +17,8 @@ perlbrew clean
 printf 'Removing the CPAN.pm Cache...\n'
 rm -rf "$HOME/.cpan/"{'build/','sources/','Metadata'}
 
-printf 'Removing the CPANM Work Cache...\n'
-rm -rf "$HOME/.cpanm/"{'work/','build.log','latest-build'}
+printf 'Removing the CPANM Cache...\n'
+rm -rf "$HOME/.cpanm/"
 
 printf 'Removing the PIP Cache...\n'
 rm -rf "$HOME/.cache/pip/"
