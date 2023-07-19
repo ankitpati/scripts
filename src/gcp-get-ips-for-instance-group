@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me="$(basename "$0")"
+
+if [[
+    $# != 2
+    ||
+    ! ( $1 =~ ^[a-z]([-a-z0-9]{4,28}[a-z0-9])$ )
+    ||
+    ! ( $2 =~ ^[a-z]([-a-z0-9]{0,61}[a-z0-9])?$ )
+   ]]
+then
+    printf 'Usage: %s <gcp-project-name> <instance-group-name>\n' "$me" >&2
+    exit 1
+fi
+
+gcp_project=$1
+instance_group=$2
+
+gcloud compute instance-groups list-instances \
+    --project="$gcp_project" "$instance_group" \
+    --region="$(\
+        gcloud compute instance-groups list \
+            --project="$gcp_project" \
+            --filter="name <= $instance_group AND name >= $instance_group" \
+            --format='value(region.basename())' \
+    )" \
+    --format='value(instance.basename(),instance.segment(-3))' \
+    | \
+    while read -r name zone
+    do
+        gcloud compute instances describe \
+            --project="$gcp_project" \
+            --format='value(name,networkInterfaces.networkIP)' \
+            --zone="$zone" \
+            "$name"
+    done
