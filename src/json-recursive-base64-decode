@@ -44,7 +44,7 @@ sub expand {
 
         if ($base64_decoded_value !~ NON_COMMON_ASCII_RE) {
             $$value_ref = $base64_decoded_value;
-            $value = $$value_ref;
+            $value      = $$value_ref;
         }
     }
 
@@ -53,8 +53,10 @@ sub expand {
     if (defined $json_decoded_value) {
         walk ($json_decoded_value);
         $$value_ref = $json_decoded_value;
-        $value = $$value_ref;
+        $value      = $$value_ref;
     }
+
+    return;
 }
 
 sub walk {
