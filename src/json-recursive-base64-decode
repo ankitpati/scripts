@@ -5,6 +5,7 @@ use autodie;
 
 use Cpanel::JSON::XS qw(decode_json encode_json);
 use MIME::Base64     qw(decode_base64);
+use Crypt::JWT       qw(decode_jwt);
 
 use constant {
     ## no critic (RegularExpressions::ProhibitComplexRegexes RegularExpressions::ProhibitEnumeratedClasses)
@@ -39,7 +40,21 @@ sub expand {
 
     my $value = $$value_ref;
 
-    if ($value =~ s/\s//gsr =~ BASE64_RE) {
+    my $jwt_decoded_value = eval {
+        decode_jwt
+            token            => $value,
+            allow_none       => 1,
+            ignore_signature => 1,
+            decode_payload   => 1,
+            ignore_claims    => 1,
+            ;
+    };
+
+    if (defined $jwt_decoded_value) {
+        walk ($jwt_decoded_value);
+        $$value_ref = $jwt_decoded_value;
+        $value      = $$value_ref;
+    } elsif ($value =~ s/\s//gsr =~ BASE64_RE) {
         my $base64_decoded_value = decode_base64 $value;
 
         if ($base64_decoded_value !~ NON_COMMON_ASCII_RE) {
@@ -48,12 +63,14 @@ sub expand {
         }
     }
 
-    my $json_decoded_value = eval { decode_json $value };
+    unless (defined $jwt_decoded_value) {
+        my $json_decoded_value = eval { decode_json $value };
 
-    if (defined $json_decoded_value) {
-        walk ($json_decoded_value);
-        $$value_ref = $json_decoded_value;
-        $value      = $$value_ref;
+        if (defined $json_decoded_value) {
+            walk ($json_decoded_value);
+            $$value_ref = $json_decoded_value;
+            $value      = $$value_ref;
+        }
     }
 
     return;
