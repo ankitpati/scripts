@@ -6,6 +6,10 @@ use autodie;
 use Cpanel::JSON::XS qw(decode_json encode_json);
 use MIME::Base64     qw(decode_base64);
 use Crypt::JWT       qw(decode_jwt);
+use YAML::XS         qw(Load);
+
+## no critic (Variables::ProhibitPackageVars)
+$YAML::XS::Boolean = 'JSON::PP';
 
 use constant {
     ## no critic (RegularExpressions::ProhibitComplexRegexes RegularExpressions::ProhibitEnumeratedClasses)
@@ -20,6 +24,7 @@ use constant {
         )?
     $}x,
     NON_COMMON_ASCII_RE => qr{[^\x09\x0a\x0d\x20-\x7e]},
+    YAML_RE             => qr{(?=.*:)(?=.*\n).*}s,
 };
 
 our $VERSION = 1.00;
@@ -70,6 +75,14 @@ sub expand {
             walk ($json_decoded_value);
             $$value_ref = $json_decoded_value;
             $value      = $$value_ref;
+        } elsif ($value =~ YAML_RE) {
+            my $yaml_decoded_value = eval { Load $value };
+
+            if (defined $yaml_decoded_value) {
+                walk ($yaml_decoded_value);
+                $$value_ref = $yaml_decoded_value;
+                $value      = $$value_ref;
+            }
         }
     }
 
