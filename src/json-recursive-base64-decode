@@ -1,0 +1,103 @@
+#!/usr/bin/env perl
+
+use Modern::Perl 2023;
+use autodie;
+
+use Cpanel::JSON::XS qw(decode_json encode_json);
+use MIME::Base64     qw(decode_base64);
+
+use constant {
+    ## no critic (RegularExpressions::ProhibitComplexRegexes RegularExpressions::ProhibitEnumeratedClasses)
+    BASE64_RE => qr{^
+        (?:
+            [A-Za-z0-9+/]{4}
+        )*
+        (?:
+            [A-Za-z0-9+/]{2}==
+            |
+            [A-Za-z0-9+/]{3}=
+        )?
+    $}x,
+};
+
+our $VERSION = 1.00;
+
+my $me = (split m{/}, $0)[-1];
+die "Usage:\n\t$me <filename.json>\n" if @ARGV != 1;
+
+my $json_filename = shift;
+
+my $json_text;
+{
+    local $/;
+
+    open my $json_filehandle, '<', $json_filename;
+    $json_text = <$json_filehandle>;
+    close $json_filehandle;
+}
+
+my $decoded_json = decode_json $json_text;
+
+sub walk {
+    my $json_value = shift;
+
+    if ('ARRAY' eq ref $json_value) {
+        foreach my $index (0 .. $#$json_value) {
+            my $value = $json_value->[$index];
+
+            my $ref = ref $value;
+
+            if ('ARRAY' eq $ref or 'HASH' eq $ref) {
+                walk ($value);
+            } elsif ('' eq $ref) {
+                if ($value =~ s/\s//gsr =~ BASE64_RE) {
+                    my $base64_decoded_value = decode_base64 $value;
+
+                    if ($base64_decoded_value !~ /[^\x09\x0a\x0d\x20-\x7e]/) {
+                        $json_value->[$index] = $base64_decoded_value;
+                        $value = $json_value->[$index];
+                    }
+                }
+
+                my $json_decoded_value = eval { decode_json $value };
+
+                if (defined $json_decoded_value) {
+                    walk ($json_decoded_value);
+                    $json_value->[$index] = $json_decoded_value;
+                    $value = $json_value->[$index];
+                }
+            }
+        }
+    } elsif ('HASH' eq ref $json_value) {
+        while (my ($key, $value) = each %$json_value) {
+            my $ref = ref $value;
+
+            if ('ARRAY' eq $ref or 'HASH' eq $ref) {
+                walk ($value);
+            } elsif ('' eq $ref) {
+                if ($value =~ s/\s//gsr =~ BASE64_RE) {
+                    my $base64_decoded_value = decode_base64 $value;
+
+                    if ($base64_decoded_value !~ /[^\x09\x0a\x0d\x20-\x7e]/) {
+                        $json_value->{$key} = $base64_decoded_value;
+                        $value = $json_value->{$key};
+                    }
+                }
+
+                my $json_decoded_value = eval { decode_json $value };
+
+                if (defined $json_decoded_value) {
+                    walk ($json_decoded_value);
+                    $json_value->{$key} = $json_decoded_value;
+                    $value = $json_value->{$key};
+                }
+            }
+        }
+    }
+
+    return;
+}
+
+walk $decoded_json;
+
+say encode_json $decoded_json;
