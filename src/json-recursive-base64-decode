@@ -18,6 +18,7 @@ use constant {
             [A-Za-z0-9+/]{3}=
         )?
     $}x,
+    NON_COMMON_ASCII_RE => qr{[^\x09\x0a\x0d\x20-\x7e]},
 };
 
 our $VERSION = 1.00;
@@ -33,6 +34,29 @@ my $json_text;
 
 my $decoded_json = decode_json $json_text;
 
+sub expand {
+    my $value_ref = shift;
+
+    my $value = $$value_ref;
+
+    if ($value =~ s/\s//gsr =~ BASE64_RE) {
+        my $base64_decoded_value = decode_base64 $value;
+
+        if ($base64_decoded_value !~ NON_COMMON_ASCII_RE) {
+            $$value_ref = $base64_decoded_value;
+            $value = $$value_ref;
+        }
+    }
+
+    my $json_decoded_value = eval { decode_json $value };
+
+    if (defined $json_decoded_value) {
+        walk ($json_decoded_value);
+        $$value_ref = $json_decoded_value;
+        $value = $$value_ref;
+    }
+}
+
 sub walk {
     my $json_value = shift;
 
@@ -45,22 +69,7 @@ sub walk {
             if ('ARRAY' eq $ref or 'HASH' eq $ref) {
                 walk ($value);
             } elsif ('' eq $ref) {
-                if ($value =~ s/\s//gsr =~ BASE64_RE) {
-                    my $base64_decoded_value = decode_base64 $value;
-
-                    if ($base64_decoded_value !~ /[^\x09\x0a\x0d\x20-\x7e]/) {
-                        $json_value->[$index] = $base64_decoded_value;
-                        $value = $json_value->[$index];
-                    }
-                }
-
-                my $json_decoded_value = eval { decode_json $value };
-
-                if (defined $json_decoded_value) {
-                    walk ($json_decoded_value);
-                    $json_value->[$index] = $json_decoded_value;
-                    $value = $json_value->[$index];
-                }
+                expand \($json_value->[$index]);
             }
         }
     } elsif ('HASH' eq ref $json_value) {
@@ -70,22 +79,7 @@ sub walk {
             if ('ARRAY' eq $ref or 'HASH' eq $ref) {
                 walk ($value);
             } elsif ('' eq $ref) {
-                if ($value =~ s/\s//gsr =~ BASE64_RE) {
-                    my $base64_decoded_value = decode_base64 $value;
-
-                    if ($base64_decoded_value !~ /[^\x09\x0a\x0d\x20-\x7e]/) {
-                        $json_value->{$key} = $base64_decoded_value;
-                        $value = $json_value->{$key};
-                    }
-                }
-
-                my $json_decoded_value = eval { decode_json $value };
-
-                if (defined $json_decoded_value) {
-                    walk ($json_decoded_value);
-                    $json_value->{$key} = $json_decoded_value;
-                    $value = $json_value->{$key};
-                }
+                expand \($json_value->{$key});
             }
         }
     }
