@@ -23,17 +23,12 @@ use constant {
 our $VERSION = 1.00;
 
 my $me = (split m{/}, $0)[-1];
-die "Usage:\n\t$me <filename.json>\n" if @ARGV != 1;
-
-my $json_filename = shift;
+die "Usage:\n\t$me < filename.json\n" if @ARGV;
 
 my $json_text;
 {
     local $/;
-
-    open my $json_filehandle, '<', $json_filename;
-    $json_text = <$json_filehandle>;
-    close $json_filehandle;
+    $json_text = <STDIN>;
 }
 
 my $decoded_json = decode_json $json_text;
