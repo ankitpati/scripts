@@ -55,11 +55,7 @@ sub expand {
             ;
     };
 
-    if (defined $jwt_decoded_value) {
-        walk ($jwt_decoded_value);
-        $$value_ref = $jwt_decoded_value;
-        $value      = $$value_ref;
-    } elsif ($value =~ s/\s//gsr =~ BASE64_RE) {
+    if ($value =~ s/\s//gsr =~ BASE64_RE) {
         my $base64_decoded_value = decode_base64 $value;
 
         if ($base64_decoded_value !~ NON_COMMON_ASCII_RE) {
@@ -68,7 +64,11 @@ sub expand {
         }
     }
 
-    unless (defined $jwt_decoded_value) {
+    if (defined $jwt_decoded_value) {
+        walk ($jwt_decoded_value);
+        $$value_ref = $jwt_decoded_value;
+        $value      = $$value_ref;
+    } else {
         my $json_decoded_value = eval { decode_json $value };
 
         if (defined $json_decoded_value) {
