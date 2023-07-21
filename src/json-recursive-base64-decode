@@ -4,8 +4,9 @@ use Modern::Perl 2023;
 use autodie;
 
 use Cpanel::JSON::XS qw(decode_json encode_json);
-use MIME::Base64     qw(decode_base64);
 use Crypt::JWT       qw(decode_jwt);
+use IPC::Run         qw(run);
+use MIME::Base64     qw(decode_base64);
 use YAML::XS         qw(Load);
 
 ## no critic (Variables::ProhibitPackageVars)
@@ -24,7 +25,12 @@ use constant {
         )?
     $}x,
     NON_COMMON_ASCII_RE => qr{[^\x09\x0a\x0d\x20-\x7e]},
-    YAML_RE             => qr{(?=.*:)(?=.*\n).*}s,
+    X509_CERT_RE        => qr{
+        ^-----BEGIN[ ]CERTIFICATE-----$
+        .*?
+        ^-----END[ ]CERTIFICATE-----$
+    }smx,
+    YAML_RE => qr{(?=.*:)(?=.*\n).*}s,
 };
 
 our $VERSION = 1.00;
@@ -85,6 +91,12 @@ sub expand {
             }
         }
     }
+
+    $$value_ref =~ s/(${\(X509_CERT_RE)})/
+        run [qw(openssl x509 -text -noout)], '<', \$1, '>', \my $cert_as_text;
+        $cert_as_text;
+    /eg;
+    $value = $$value_ref;
 
     return;
 }
