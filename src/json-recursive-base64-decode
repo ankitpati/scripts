@@ -49,11 +49,9 @@ my $decoded_json = decode_json $json_text;
 sub expand {
     my $value_ref = shift;
 
-    my $value = $$value_ref;
-
     my $jwt_decoded_value = eval {
         decode_jwt
-            token            => $value,
+            token            => $$value_ref,
             allow_none       => 1,
             ignore_signature => 1,
             decode_payload   => 1,
@@ -61,33 +59,28 @@ sub expand {
             ;
     };
 
-    if ($value =~ s/\s//gsr =~ BASE64_RE) {
-        my $base64_decoded_value = decode_base64 $value;
+    if ($$value_ref =~ s/\s//gsr =~ BASE64_RE) {
+        my $base64_decoded_value = decode_base64 $$value_ref;
 
-        if ($base64_decoded_value !~ NON_COMMON_ASCII_RE) {
-            $$value_ref = $base64_decoded_value;
-            $value      = $$value_ref;
-        }
+        $$value_ref = $base64_decoded_value
+            if $base64_decoded_value !~ NON_COMMON_ASCII_RE;
     }
 
     if (defined $jwt_decoded_value) {
         walk ($jwt_decoded_value);
         $$value_ref = $jwt_decoded_value;
-        $value      = $$value_ref;
     } else {
-        my $json_decoded_value = eval { decode_json $value };
+        my $json_decoded_value = eval { decode_json $$value_ref };
 
         if (defined $json_decoded_value) {
             walk ($json_decoded_value);
             $$value_ref = $json_decoded_value;
-            $value      = $$value_ref;
-        } elsif ($value =~ YAML_RE) {
-            my $yaml_decoded_value = eval { Load $value };
+        } elsif ($$value_ref =~ YAML_RE) {
+            my $yaml_decoded_value = eval { Load $$value_ref };
 
             if (defined $yaml_decoded_value) {
                 walk ($yaml_decoded_value);
                 $$value_ref = $yaml_decoded_value;
-                $value      = $$value_ref;
             }
         }
     }
@@ -96,7 +89,6 @@ sub expand {
         run [qw(openssl x509 -text -noout)], '<', \$1, '>', \my $cert_as_text;
         $cert_as_text;
     /eg;
-    $value = $$value_ref;
 
     return;
 }
