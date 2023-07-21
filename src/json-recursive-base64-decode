@@ -49,6 +49,13 @@ my $decoded_json = decode_json $json_text;
 sub expand {
     my $value_ref = shift;
 
+    if ($$value_ref =~ s/\s//gsr =~ BASE64_RE) {
+        my $base64_decoded_value = decode_base64 $$value_ref;
+
+        $$value_ref = $base64_decoded_value
+            if $base64_decoded_value !~ NON_COMMON_ASCII_RE;
+    }
+
     my $jwt_decoded_value = eval {
         decode_jwt
             token            => $$value_ref,
@@ -58,13 +65,6 @@ sub expand {
             ignore_claims    => 1,
             ;
     };
-
-    if ($$value_ref =~ s/\s//gsr =~ BASE64_RE) {
-        my $base64_decoded_value = decode_base64 $$value_ref;
-
-        $$value_ref = $base64_decoded_value
-            if $base64_decoded_value !~ NON_COMMON_ASCII_RE;
-    }
 
     if (defined $jwt_decoded_value) {
         walk ($jwt_decoded_value);
