@@ -50,6 +50,8 @@ my $decoded_json = decode_json $json_text;
 sub expand {
     my $value_ref = shift;
 
+    return unless defined $$value_ref;
+
     if ($$value_ref =~ s/\s//gsr =~ BASE64_RE) {
         my $base64_decoded_value = decode_base64 $$value_ref;
 
