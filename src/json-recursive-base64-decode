@@ -24,6 +24,7 @@ use constant {
             [A-Za-z0-9+/]{3}=
         )?
     $}x,
+    CR_LF_RE            => qr{\r?\n},
     NON_COMMON_ASCII_RE => qr{[^\x09\x0a\x0d\x20-\x7e]},
     X509_CERT_RE        => qr{
         ^-----BEGIN[ ]CERTIFICATE-----$
@@ -85,10 +86,14 @@ sub expand {
         }
     }
 
-    $$value_ref =~ s/(${\(X509_CERT_RE)})/
-        run [qw(openssl x509 -text -noout)], '<', \$1, '>', \my $cert_as_text;
-        $cert_as_text;
-    /eg;
+    if ('' eq ref $$value_ref) {
+        $$value_ref =~ s/(${\(X509_CERT_RE)})/
+            run [qw(openssl x509 -text -noout)], '<', \$1, '>', \my $cert_as_text;
+            $cert_as_text;
+        /eg;
+
+        $$value_ref = [split CR_LF_RE, $$value_ref] if $$value_ref =~ CR_LF_RE;
+    }
 
     return;
 }
