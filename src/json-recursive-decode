@@ -52,7 +52,7 @@ sub expand {
 
     return unless defined $$value_ref;
 
-    if ($$value_ref =~ s/\s//gsr =~ BASE64_RE) {
+    if (5 <= length $$value_ref and $$value_ref =~ s/\s//gsr =~ BASE64_RE) {
         my $base64_decoded_value = decode_base64 $$value_ref;
 
         $$value_ref = $base64_decoded_value
