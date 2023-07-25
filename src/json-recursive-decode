@@ -32,6 +32,11 @@ use constant {
         .*?
         ^-----END[ ]CERTIFICATE-----$
     }smx,
+    X509_REQ_RE => qr{
+        ^-----BEGIN[ ]CERTIFICATE[ ]REQUEST-----$
+        .*?
+        ^-----END[ ]CERTIFICATE[ ]REQUEST-----$
+    }smx,
     YAML_RE => qr{(?=.*:)(?=.*\n).*}s,
 };
 
@@ -91,8 +96,13 @@ sub expand {
 
     if ('' eq ref $$value_ref) {
         $$value_ref =~ s/(${\(X509_CERT_RE)})/
-            run [qw(openssl x509 -text -noout)], '<', \$1, '>', \my $cert_as_text;
+            run [qw(openssl x509 -noout -text)], '<', \$1, '>', \my $cert_as_text;
             $cert_as_text;
+        /eg;
+
+        $$value_ref =~ s/(${\(X509_REQ_RE)})/
+            run [qw(openssl req -noout -text)], '<', \$1, '>', \my $req_as_text;
+            $req_as_text;
         /eg;
 
         $$value_ref = [split CR_LF_RE, $$value_ref] if $$value_ref =~ CR_LF_RE;
