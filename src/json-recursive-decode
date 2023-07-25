@@ -28,9 +28,9 @@ use constant {
     CR_LF_RE            => qr{\r?\n},
     NON_COMMON_ASCII_RE => qr{[^\x09\x0a\x0d\x20-\x7e]},
     X509_CERT_RE        => qr{
-        ^-----BEGIN[ ]CERTIFICATE-----$
+        ^-----BEGIN[ ]((?:TRUSTED[ ])?)CERTIFICATE-----$
         .*?
-        ^-----END[ ]CERTIFICATE-----$
+        ^-----END[ ]\g-1CERTIFICATE-----$
     }smx,
     X509_REQ_RE => qr{
         ^-----BEGIN[ ]CERTIFICATE[ ]REQUEST-----$
