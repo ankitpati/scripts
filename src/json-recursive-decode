@@ -3,7 +3,6 @@
 use Modern::Perl 2023;
 use autodie;
 
-use Config::Properties;
 use Cpanel::JSON::XS qw(decode_json encode_json);
 use Crypt::JWT       qw(decode_jwt);
 use IPC::Run         qw(run);
@@ -66,30 +65,17 @@ sub expand {
             if $base64_decoded_value !~ NON_COMMON_ASCII_RE;
     }
 
-    my $config_properties = Config::Properties->new;
-
-    open my $vin, '<', $value_ref;
-    my $is_properties = eval { $config_properties->load ($vin); 1 };
-    close $vin;
-    if ($is_properties) {
-        my $properties_decoded_value = $config_properties->splitToTree;
-        walk ($properties_decoded_value);
-        $$value_ref = $properties_decoded_value;
-    }
-
-    my $jwt_decoded_value;
-    my $is_jwt_decode_successful = eval {
-        $jwt_decoded_value = decode_jwt
+    my $jwt_decoded_value = eval {
+        decode_jwt
             token            => $$value_ref,
             allow_none       => 1,
             ignore_signature => 1,
             decode_payload   => 1,
             ignore_claims    => 1,
             ;
-        1;
     };
 
-    if ($is_jwt_decode_successful and defined $jwt_decoded_value) {
+    if (defined $jwt_decoded_value) {
         walk ($jwt_decoded_value);
         $$value_ref = $jwt_decoded_value;
     } else {
