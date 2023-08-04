@@ -2,11 +2,10 @@
 
 set -euo pipefail
 
-docker ps -a -q | xargs -r docker stop
-docker container prune -f
-docker image     prune -f
-docker network   prune -f
-docker volume    prune -f
-docker builder   prune -f
-#docker image     prune -fa
-#docker builder   prune -fa
+ docker ps --all --quiet | xargs --no-run-if-empty docker rm --force
+ docker container prune       --force
+ docker image     prune       --force
+ docker network   prune       --force
+ docker volume    prune --all --force
+#docker image     prune --all --force
+ docker buildx    prune --all --force --verbose
