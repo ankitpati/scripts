@@ -46,6 +46,12 @@ tldr --update
     sed 's/:<none>$//' | \
     xargs -n 1 "$container_manager" pull
 
+mapfile -t -d '' < <(find "$HOME/.arkade/bin" -type f -executable -print0)
+for arktool in "${MAPFILE[@]}"
+do
+    arkade get arktool
+done
+
 mapfile -t < <(code --list-extensions)
 for codext in "${MAPFILE[@]}"
 do
