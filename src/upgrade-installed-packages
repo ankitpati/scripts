@@ -46,10 +46,10 @@ tldr --update
     sed 's/:<none>$//' | \
     xargs -n 1 "$container_manager" pull
 
-mapfile -t -d '' < <(find "$HOME/.arkade/bin" -type f -executable -print0)
+mapfile -t -d '' < <(find "$HOME/.arkade/bin" -type f -executable -printf '%f\0')
 for arktool in "${MAPFILE[@]}"
 do
-    arkade get arktool
+    arkade get "$arktool"
 done
 
 krew upgrade
