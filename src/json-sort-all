@@ -18,8 +18,6 @@ def sort_all:
         map(sort_all)               # Recursively sort each item of the array.
         |
         sort                        # Sort the array itself.
-    else
-        .                           # No-op; the input is the output.
     end
 ;
 
