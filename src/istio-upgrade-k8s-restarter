@@ -16,12 +16,12 @@ do
 
     longest_prefix_match=''
     longest_prefix_type=''
-    shortest_postfix_length=0
+    shortest_postfix_length=$((2**15))
 
     for daemonset in "${daemonsets[@]}"
     do
         postfix="${rollout_object/#"$daemonset"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$daemonset"
             longest_prefix_type='daemonset'
@@ -32,7 +32,7 @@ do
     for deployment in "${deployments[@]}"
     do
         postfix="${rollout_object/#"$deployment"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$deployment"
             longest_prefix_type='deployment'
@@ -43,7 +43,7 @@ do
     for statefulset in "${statefulsets[@]}"
     do
         postfix="${rollout_object/#"$statefulset"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} > shortest_postfix_length))
+        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$statefulset"
             longest_prefix_type='statefulset'
