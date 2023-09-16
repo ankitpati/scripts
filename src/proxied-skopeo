@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+export \
+    HTTPS_PROXY \
+    NO_PROXY \
+;
+
+HTTPS_PROXY="$(jq --raw-output '.proxies."https-proxy"' < ~/.docker/daemon.json)"
+NO_PROXY="$(jq --raw-output '.proxies."no-proxy"' < ~/.docker/daemon.json)"
+
+skopeo "$@"
