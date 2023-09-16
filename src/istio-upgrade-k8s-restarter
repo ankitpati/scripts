@@ -3,9 +3,11 @@
 set -euo pipefail
 shopt -s extglob
 
-mapfile -t daemonsets < <(kubectl get daemonsets.apps -A -o json | jq -r .items[].metadata.name)
-mapfile -t deployments < <(kubectl get deployments.apps -A -o json | jq -r .items[].metadata.name)
-mapfile -t statefulsets < <(kubectl get statefulsets.apps -A -o json | jq -r .items[].metadata.name)
+old_revision='1-17-0'
+
+mapfile -t daemonsets < <(kubectl get daemonsets.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t deployments < <(kubectl get deployments.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t statefulsets < <(kubectl get statefulsets.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
 
 while read -r pod
 do
@@ -49,5 +51,5 @@ do
         fi
     done
 
-    kubectl rollout restart "$longest_prefix_type/$longest_prefix_match" -n "$namespace"
-done < <(istioctl proxy-status --revision default | tail -n +2 | cut -d' ' -f1) | sort -u
+    kubectl rollout restart "$longest_prefix_type/$longest_prefix_match" --namespace="$namespace"
+done < <(istioctl proxy-status --revision="$old_revision" | tail --lines=+2 | cut --delimiter=' ' --fields=1) | sort --unique
