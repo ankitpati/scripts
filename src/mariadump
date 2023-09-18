@@ -31,7 +31,7 @@ sub mycnf {
         open my $fin, '<', $filename;
         while (<$fin>) {
             next if /^\s*#/ # comments
-                 or /^\s*!/ # directives (we should handle these, but don’t)
+                 or /^\s*!/ # directives (we should handle these, but don't)
                  or /^\s*$/ # blank lines
             ;
 

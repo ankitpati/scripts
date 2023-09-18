@@ -45,7 +45,7 @@ foreach my $url (@ARGV) {
     my $domain_name = get_domain_name $url;
 
     unless ($domain_name) {
-        say "$url doesn’t represent a valid registrable domain name!";
+        say "$url doesn't represent a valid registrable domain name!";
         next;
     }
 

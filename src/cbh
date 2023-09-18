@@ -93,7 +93,7 @@ my @discards = (
 );
 
 my @prefixes = (
-# Keep package manager “info” and “install” commands in ARRAYrefs, as shown.
+# Keep package manager `info` and `install` commands in ARRAYrefs, as shown.
 #   ['pkg-mgr info '  , 'pkg-mgr install '  , 'pkg-mgr uninstall'   ],
 
     ['brew info '     , 'brew install '     , 'brew uninstall '     ],

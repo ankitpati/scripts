@@ -53,7 +53,7 @@ sub main {
 
         push @paths_to_delete, map "$candidate/$_/", @versions;
                                                  # trailing slash to ensure we
-                                                 # don’t accidentally operate
+                                                 # don't accidentally operate
                                                  # on files, only directories
     }
 

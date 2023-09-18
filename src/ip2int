@@ -18,7 +18,7 @@ my $me = (split m{/}, $0)[-1];
 foreach (@ARGV) {
     s/\s+//g; # Remove all whitespace.
 
-    print "$_ → ";
+    print "$_ -> ";
 
     if (/^( (\d{0,3}) \. ){3} (?2)$ | [:.]+/x) {
         # IPv4                        # IPv6

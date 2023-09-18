@@ -24,14 +24,14 @@ my $me = (split m{/}, $0)[-1];
 sub main {
     my ($backup) = @_;
 
-    -f $backup and -r $backup or die "“$backup” is not a readable file!\n";
+    -f $backup and -r $backup or die "`$backup` is not a readable file!\n";
 
     my $directory = $backup;
     $directory =~ s/${\(STRIP_FILE_EXT)}//;
-    mkdir $directory or die "Could not create folder “$directory”: $!\n";
+    mkdir $directory or die "Could not create folder `$directory`: $!\n";
 
     unzip $backup => \my $metadata_json, name => NOTES_METADATA
-        or die "Could not open backup file “$backup”: $UnzipError\n";
+        or die "Could not open backup file `$backup`: $UnzipError\n";
 
     foreach my $metadata (@{ (decode_json $metadata_json)->{notes} }) {
         my $ctime = $metadata->{creationDate};
@@ -64,11 +64,11 @@ sub main {
                 close $fout;
             }
             else {
-                warn "Could not open file “$outfile” to write note: $!\n";
+                warn "Could not open file `$outfile` to write note: $!\n";
             }
         }
         else {
-            warn "Could not open “$notefile” from “$backup”: $UnzipError\n";
+            warn "Could not open `$notefile` from `$backup`: $UnzipError\n";
         }
     }
 
