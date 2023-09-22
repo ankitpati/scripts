@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+git rev-list \
+    --all \
+    --objects \
+|
+git cat-file \
+    --batch-check='%(objecttype) %(objectsize) %(rest)' \
+|
+grep '^blob ' \
+|
+cut \
+    --delimiter=' ' \
+    --fields=2- \
+|
+numfmt \
+    --field=1 \
+    --round=nearest \
+    --suffix=B \
+    --to=iec-i \
+;
