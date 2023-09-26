@@ -5,9 +5,11 @@ shopt -s extglob
 
 old_revision='1-17-0'
 
-mapfile -t daemonsets < <(kubectl get daemonsets.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
-mapfile -t deployments < <(kubectl get deployments.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
-mapfile -t statefulsets < <(kubectl get statefulsets.apps --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t daemonsets < <(kubectl get daemonsets --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t deployments < <(kubectl get deployments --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t statefulsets < <(kubectl get statefulsets --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+
+declare -A objects_to_restart
 
 while read -r pod
 do
@@ -51,5 +53,11 @@ do
         fi
     done
 
-    kubectl rollout restart "$longest_prefix_type/$longest_prefix_match" --namespace="$namespace"
-done < <(istioctl proxy-status --revision="$old_revision" | tail --lines=+2 | cut --delimiter=' ' --fields=1) | sort --unique
+    objects_to_restart[$longest_prefix_type/$longest_prefix_match --namespace=$namespace]=1
+done < <(istioctl proxy-status --revision="$old_revision" | tail --lines=+2 | cut --delimiter=' ' --fields=1)
+
+for object_to_restart in "${!objects_to_restart[@]}"
+do
+    mapfile -td ' ' args_to_restart < <(printf '%s' "$object_to_restart")
+    kubectl rollout restart "${args_to_restart[@]}"
+done
