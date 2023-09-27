@@ -5,16 +5,31 @@ shopt -s extglob
 
 old_revision='1-17-0'
 
-mapfile -t daemonsets < <(kubectl get daemonsets --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
-mapfile -t deployments < <(kubectl get deployments --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
-mapfile -t statefulsets < <(kubectl get statefulsets --all-namespaces --output=json | jq --raw-output .items[].metadata.name)
+mapfile -t daemonsets < <(
+    kubectl get daemonsets --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+mapfile -t deployments < <(
+    kubectl get deployments --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+mapfile -t statefulsets < <(
+    kubectl get statefulsets --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+
+mapfile -t pods_details < <(
+    istioctl proxy-status --revision="$old_revision" |
+    tail --lines=+2 |
+    cut --delimiter=' ' --fields=1
+)
 
 declare -A objects_to_restart
 
-while read -r pod
+for pod_details in "${pods_details[@]}"
 do
-    rollout_object="${pod/%.+([^.])}"
-    namespace="${pod/#+([^.]).}"
+    pod_name="${pod_details/%.+([^.])}"
+    namespace="${pod_details/#+([^.]).}"
 
     longest_prefix_match=''
     longest_prefix_type=''
@@ -22,8 +37,8 @@ do
 
     for daemonset in "${daemonsets[@]}"
     do
-        postfix="${rollout_object/#"$daemonset"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
+        postfix="${pod_name/#"$daemonset"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$daemonset"
             longest_prefix_type='daemonset'
@@ -33,8 +48,8 @@ do
 
     for deployment in "${deployments[@]}"
     do
-        postfix="${rollout_object/#"$deployment"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
+        postfix="${pod_name/#"$deployment"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$deployment"
             longest_prefix_type='deployment'
@@ -44,8 +59,8 @@ do
 
     for statefulset in "${statefulsets[@]}"
     do
-        postfix="${rollout_object/#"$statefulset"}"
-        if ((${#postfix} != ${#rollout_object} && ${#postfix} < shortest_postfix_length))
+        postfix="${pod_name/#"$statefulset"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
         then
             longest_prefix_match="$statefulset"
             longest_prefix_type='statefulset'
@@ -54,7 +69,7 @@ do
     done
 
     objects_to_restart[$longest_prefix_type/$longest_prefix_match --namespace=$namespace]=1
-done < <(istioctl proxy-status --revision="$old_revision" | tail --lines=+2 | cut --delimiter=' ' --fields=1)
+done
 
 for object_to_restart in "${!objects_to_restart[@]}"
 do
