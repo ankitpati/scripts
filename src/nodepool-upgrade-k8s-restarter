@@ -5,12 +5,34 @@ shopt -s extglob
 
 old_pool='1.24'
 
-mapfile -t daemonsets < <(kubectl get daemonsets --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
-mapfile -t deployments < <(kubectl get deployments --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
-mapfile -t statefulsets < <(kubectl get statefulsets --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
+mapfile -t daemonsets < <(
+    kubectl get daemonsets --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+mapfile -t deployments < <(
+    kubectl get deployments --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+mapfile -t statefulsets < <(
+    kubectl get statefulsets --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
 
-mapfile -t nodes_details < <(kubectl get nodes --output=json | jq --raw-output '.items[] | (.metadata.name + " " + .status.nodeInfo.kubeProxyVersion)')
-mapfile -t pods_details < <(kubectl get pods --all-namespaces --output=json | jq --raw-output '.items[] | select(all(.metadata.ownerReferences[]; .kind != "Job")) | (.metadata.name + " " + .metadata.namespace + " " + .spec.nodeName)')
+mapfile -t nodes_details < <(
+    kubectl get nodes --output=json |
+    jq --raw-output '
+        .items[] |
+        (.metadata.name + " " + .status.nodeInfo.kubeProxyVersion)
+    '
+)
+mapfile -t pods_details < <(
+    kubectl get pods --all-namespaces --output=json |
+    jq --raw-output '
+        .items[] |
+        select(all(.metadata.ownerReferences[]; .kind != "Job")) |
+        (.metadata.name + " " + .metadata.namespace + " " + .spec.nodeName)
+    '
+)
 
 declare -A node_version_map
 
