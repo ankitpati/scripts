@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s extglob
+
+old_pool='1.24'
+
+mapfile -t daemonsets < <(kubectl get daemonsets --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
+mapfile -t deployments < <(kubectl get deployments --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
+mapfile -t statefulsets < <(kubectl get statefulsets --all-namespaces --output=json | jq --raw-output '.items[].metadata.name')
+
+mapfile -t nodes_details < <(kubectl get nodes --output=json | jq --raw-output '.items[] | (.metadata.name + " " + .status.nodeInfo.kubeProxyVersion)')
+mapfile -t pods_details < <(kubectl get pods --all-namespaces --output=json | jq --raw-output '.items[] | (.metadata.name + " " + .metadata.namespace + " " + .spec.nodeName)')
+
+declare -A node_version_map
+
+for node_details in "${nodes_details[@]}"
+do
+    node_name="${node_details/% *}"
+    node_kube_proxy_version="${node_details/#* }"
+
+    node_version_map[$node_name]=$node_kube_proxy_version
+done
+
+declare -A objects_to_restart
+
+for pod_details in "${pods_details[@]}"
+do
+    node_name="${pod_details/#* }"
+    if [[ -z $node_name ]]
+    then
+        continue
+    fi
+
+    node_kube_proxy_version=${node_version_map[$node_name]}
+    if ! [[ $node_kube_proxy_version =~ ^v"$old_pool"\. ]]
+    then
+        continue
+    fi
+
+    pod_name="${pod_details/% *}"
+    namespace="${pod_details/#+([^ ]) }"
+    namespace="${namespace/% +([^ ])}"
+
+    longest_prefix_match=''
+    longest_prefix_type=''
+    shortest_postfix_length=$((2**15))
+
+    for daemonset in "${daemonsets[@]}"
+    do
+        postfix="${pod_name/#"$daemonset"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
+        then
+            longest_prefix_match="$daemonset"
+            longest_prefix_type='daemonset'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    for deployment in "${deployments[@]}"
+    do
+        postfix="${pod_name/#"$deployment"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
+        then
+            longest_prefix_match="$deployment"
+            longest_prefix_type='deployment'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    for statefulset in "${statefulsets[@]}"
+    do
+        postfix="${pod_name/#"$statefulset"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
+        then
+            longest_prefix_match="$statefulset"
+            longest_prefix_type='statefulset'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    objects_to_restart[$longest_prefix_type/$longest_prefix_match --namespace=$namespace]=1
+done
+
+for object_to_restart in "${!objects_to_restart[@]}"
+do
+    mapfile -td ' ' args_to_restart < <(printf '%s' "$object_to_restart")
+    kubectl rollout restart "${args_to_restart[@]}"
+done
