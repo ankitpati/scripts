@@ -17,34 +17,37 @@ brew upgrade
 for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
 do
     mapfile -t < <( \
-        brew formulae | \
-        grep "^$brew_forced_version_formula@" | \
-        sort -rV \
+        brew formulae |
+            grep -- "^$brew_forced_version_formula@" |
+            sort --reverse --version-sort \
     )
 
     old_version_present=''
     for brew_forced_version_old_formula in "${MAPFILE[@]:1}"
     do
-        brew uninstall --zap "$brew_forced_version_old_formula" && \
-            old_version_present='1'
+        if brew uninstall -- "$brew_forced_version_old_formula"
+        then
+            old_version_present=1
+        fi
     done
 
     if ((old_version_present == 1))
     then
-        brew install "${MAPFILE[0]}"
+        brew install -- "${MAPFILE[0]}"
     fi
 done
 
-cpan-outdated --exclude-core -p | xargs -r cpan
+cpan-outdated --exclude-core -p |
+    xargs --no-run-if-empty -- cpan --
 
 steampipe plugin update --all
 
 tldr --update
 
-"$container_manager" image ls --format '{{.Repository}}:{{.Tag}}' | \
-    grep -v '^localhost/' | \
-    sed 's/:<none>$//' | \
-    xargs -n 1 "$container_manager" pull
+"$container_manager" image ls --format='{{.Repository}}:{{.Tag}}' |
+    grep --invert-match -- '^localhost/' |
+    sed -- 's/:<none>$//' |
+    xargs --max-args=1 --no-run-if-empty -- "$container_manager" pull --
 
 mapfile -t -d '' < <(find "$HOME/.arkade/bin" -type f -executable -printf '%f\0')
 for arktool in "${MAPFILE[@]}"
@@ -57,25 +60,25 @@ krew upgrade
 mapfile -t < <(code --list-extensions)
 for codext in "${MAPFILE[@]}"
 do
-    code --install-extension "$codext" --force
+    code --install-extension="$codext" --force
 done
 
-if [[ $(uname -s) == 'Linux' ]]
+if [[ $OSTYPE == *linux* ]]
 then
     gcloud components update
-elif [[ $(uname -s) == 'Darwin' ]]
+elif [[ $OSTYPE == *darwin* ]]
 then
     softwareupdate -l
 
     # Upgrading GCloud CLI through Homebrew resets installed components, and
     # they need to be reinstalled afterwards.
     mapfile -t gcloud_installed_components < <( \
-        gcloud components list --format 'json(id, state.name)' 2>/dev/null | \
-        jq -r '.[] | select(.state.name == "Installed") | .id' \
+        gcloud components list --format='json(id, state.name)' 2>/dev/null |
+            jq --raw-output '.[] | select(.state.name == "Installed") | .id' \
     )
 
     brew upgrade --cask --greedy
-    sudo -k
+    sudo --reset-timestamp
 
     gcloud components install "${gcloud_installed_components[@]}"
 fi
