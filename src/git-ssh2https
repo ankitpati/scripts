@@ -11,6 +11,10 @@ mapfile -t remotes <<<"$(git remote show -n)"
 
 for remote in "${remotes[@]}"
 do
+    if [[ -z $remote ]]
+    then
+        continue
+    fi
     url=$(git remote get-url "$remote")
     git remote set-url "$remote" "${url/#ssh:\/\/?(git@)/https://}"
 done
