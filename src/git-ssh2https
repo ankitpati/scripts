@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s extglob
+
+me="$(basename "$0")"
+
+git submodule update --init
+git submodule foreach "$me"
+
+mapfile -t remotes <<<"$(git remote)"
+
+for remote in "${remotes[@]}"
+do
+    url=$(git remote get-url "$remote")
+    git remote set-url "$remote" "${url/#ssh:\/\/?(git@)/https://}"
+done
