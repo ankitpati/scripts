@@ -5,10 +5,9 @@ shopt -s extglob
 
 me="$(basename "$0")"
 
-git submodule update --init
 git submodule foreach "$me"
 
-mapfile -t remotes <<<"$(git remote)"
+mapfile -t remotes <<<"$(git remote show -n)"
 
 for remote in "${remotes[@]}"
 do
