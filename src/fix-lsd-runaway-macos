@@ -12,7 +12,7 @@ framework='/System/Library/Frameworks/CoreServices.framework/'
     -domain user \
 ;
 
-"$framework/LaunchServices.framework/Support/lsregister" \
+"$framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister" \
     -kill \
     -seed \
     -lint \
