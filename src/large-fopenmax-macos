@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+rm -rf /Library/LaunchDaemons/limit.maxfiles.plist
+
+launchctl limit maxfiles unlimited
