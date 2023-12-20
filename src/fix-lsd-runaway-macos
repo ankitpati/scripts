@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+framework='/System/Library/Frameworks/CoreServices.framework/'
+
+"$framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister" \
+    -kill \
+    -r \
+    -domain local \
+    -domain system \
+    -domain user \
+;
+
+"$framework/LaunchServices.framework/Support/lsregister" \
+    -kill \
+    -seed \
+    -lint \
+    -r \
+    -f \
+    -v \
+    -dump \
+    -domain local \
+    -domain system \
+    -domain user \
+    -domain network \
+;
+
+killall Dock
