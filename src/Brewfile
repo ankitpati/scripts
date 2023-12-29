@@ -209,6 +209,7 @@ elsif OS.mac? then
     brew "lastpass-cli"
     brew "lemmeknow"
     brew "less"
+    brew "libplist"
     brew "libressl"
     brew "libtermkey"
     brew "libvterm"
