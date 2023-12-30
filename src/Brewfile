@@ -191,10 +191,8 @@ elsif OS.mac? then
     brew "jvm-mon"
     brew "k6"
     brew "k9s"
-    brew "kind"
     brew "kops"
     brew "kotlin"
-    brew "krew"
     brew "ksh93"
     brew "kube-linter"
     brew "kube-score"
@@ -322,7 +320,6 @@ elsif OS.mac? then
     brew "sslyze"
     brew "stackql"
     brew "staticcheck"
-    brew "steampipe"
     brew "stylua"
     brew "subnetcalc"
     brew "swift"
@@ -404,7 +401,10 @@ elsif OS.mac? then
 end
 
 brew "hashicorp/tap/terraform"
+brew "kind"
+brew "krew"
 brew "shellharden"
+brew "steampipe"
 brew "xq"
 
 vscode "aykutsarac.jsoncrack-vscode"
