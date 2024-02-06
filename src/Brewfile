@@ -203,7 +203,6 @@ elsif OS.mac? then
     brew "kubesess"
     brew "kubevious"
     brew "kwok"
-    brew "lastpass-cli"
     brew "lemmeknow"
     brew "less"
     brew "libplist"
@@ -380,6 +379,8 @@ elsif OS.mac? then
     brew "zlint"
     brew "zsh"
 
+    cask "1password"
+    cask "1password-cli"
     cask "chromedriver"
     cask "docker"
     cask "font-code-new-roman-nerd-font"
