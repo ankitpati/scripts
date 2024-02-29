@@ -45,6 +45,7 @@ elsif OS.mac? then
     brew "bc"
     brew "benerator"
     brew "binutils"
+    brew "binwalk"
     brew "bison"
     brew "black"
     brew "brotli"
@@ -400,7 +401,9 @@ elsif OS.mac? then
     cask "zoom"
 end
 
+brew "foremost"
 brew "hashicorp/tap/terraform"
+brew "hex"
 brew "kind"
 brew "krew"
 brew "shellharden"
