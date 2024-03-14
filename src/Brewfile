@@ -404,6 +404,8 @@ end
 brew "foremost"
 brew "hashicorp/tap/terraform"
 brew "hex"
+brew "jsonnet"
+brew "jsonnet-bundler"
 brew "kind"
 brew "krew"
 brew "shellharden"
