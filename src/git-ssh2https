@@ -16,5 +16,15 @@ do
         continue
     fi
     url=$(git remote get-url "$remote")
-    git remote set-url "$remote" "${url/#ssh:\/\/?(git@)/https://}"
+
+    if [[ $url =~ ^ssh:// ]]
+    then
+        url=${url/#ssh:\/\/?(git@)/https://}
+    elif [[ $url =~ ^git@ ]]
+    then
+        url=${url//:/\/}
+        url=${url/#git@/https://}
+    fi
+
+    git remote set-url "$remote" "$url"
 done
