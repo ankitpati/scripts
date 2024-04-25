@@ -412,6 +412,7 @@ brew "krew"
 brew "logdy"
 brew "shellharden"
 brew "steampipe"
+brew "stern"
 brew "xq"
 
 vscode "aykutsarac.jsoncrack-vscode"
