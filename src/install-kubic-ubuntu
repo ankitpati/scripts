@@ -5,7 +5,7 @@ set -euo pipefail
 # Update the following using information from
 # https://build.opensuse.org/package/show/devel:kubic:libcontainers:unstable/podman
 # Look in the right pane for the latest supported Ubuntu release.
-kubic_latest_ubuntu='22.04'
+kubic_latest_ubuntu='23.10'
 
 architecture="$(dpkg --print-architecture)"
 
