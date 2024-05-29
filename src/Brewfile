@@ -338,6 +338,7 @@ elsif OS.mac? then
     brew "terraformer"
     brew "terrascan"
     brew "testssl"
+    brew "texinfo"
     brew "textract"
     brew "tfk8s"
     brew "tflint"
