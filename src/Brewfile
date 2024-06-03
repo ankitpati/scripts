@@ -402,6 +402,7 @@ elsif OS.mac? then
     cask "zoom"
 end
 
+brew "actionlint"
 brew "dive"
 brew "foremost"
 brew "hashicorp/tap/terraform"
