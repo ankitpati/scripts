@@ -404,6 +404,7 @@ end
 
 brew "actionlint"
 brew "dive"
+brew "duckdb"
 brew "foremost"
 brew "hashicorp/tap/terraform"
 brew "hex"
