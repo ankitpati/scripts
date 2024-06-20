@@ -24,8 +24,11 @@ use constant {
     # named character classes. We need ASCII, not Unicode!
     #
     ## no critic qw(RegularExpressions::ProhibitEnumeratedClasses)
-    HOST_IS_IP_RE =>
-        qr/^ (?:[0-9]+\.){3} [0-9]+ $ | :/x,    # covers IPv4 & IPv6
+    HOST_IS_IP_RE => qr/
+        ^ (?:[0-9]+\.){3} [0-9]+ $  # IPv4
+        |
+        :                           # IPv6
+    /x,
     ## use critic qw(RegularExpressions::ProhibitEnumeratedClasses)
 };
 
