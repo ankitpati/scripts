@@ -91,7 +91,6 @@ elsif OS.mac? then
     brew "diffutils"
     brew "dnscontrol"
     brew "dnstracer"
-    brew "docker"
     brew "docker-slim"
     brew "dockviz"
     brew "doggo"
