@@ -14,12 +14,6 @@ container_manager="${container_manager:-docker}"
 brew update --force
 brew upgrade
 
-if [[ $OSTYPE == *darwin* ]]
-then
-    brew unlink docker
-    brew link --overwrite docker
-fi
-
 for brew_forced_version_formula in "${brew_forced_version_formulae[@]}"
 do
     mapfile -t < <( \
@@ -85,9 +79,6 @@ then
 
     brew upgrade --cask --greedy
     sudo --reset-timestamp
-
-    brew unlink docker
-    brew link --overwrite docker
 
     gcloud components install "${gcloud_installed_components[@]}"
 fi
