@@ -251,6 +251,7 @@ elsif OS.mac? then
     brew "octosql"
     brew "onefetch"
     brew "opa"
+    brew "openjdk"
     brew "openssh"
     brew "openssl"
     brew "openstackclient"
