@@ -13,7 +13,6 @@ if OS.linux? then
 
 elsif OS.mac? then
     tap "InstantClientTap/instantclient"
-    tap "homebrew/cask-fonts"
     tap "snyk/tap"
     tap "sourcegraph/src-cli"
 
@@ -315,7 +314,6 @@ elsif OS.mac? then
     brew "ssdeep"
     brew "ssh-copy-id"
     brew "sslscan"
-    brew "sslyze"
     brew "stackql"
     brew "staticcheck"
     brew "stylua"
