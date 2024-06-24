@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-myname="$(basename "$0")"
+me=${0##*/}
 
 if [[ $# -ne 1 || ! -f $1 ]]
 then
-    printf 'Usage: %s <filename>\n' "$myname"
+    printf 'Usage: %s <filename>\n' "$me"
     exit 1
 fi
 

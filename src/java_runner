@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-mydir="$(dirname "$0")/"
+mydir=${0%/*}
 CLASSPATH="$mydir:$CLASSPATH"
 
 main_class_name="$1"

@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-myname="$(basename "$0")"
-usage="Usage: $myname <input.pdf>"
+me=${0##*/}
+usage="Usage: $me <input.pdf>"
 
 if (($# != 1))
 then

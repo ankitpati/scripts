@@ -3,7 +3,7 @@
 set -euo pipefail
 shopt -s extglob
 
-me="$(basename "$0")"
+me=${0##*/}
 
 git submodule foreach "$me"
 

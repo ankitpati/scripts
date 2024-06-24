@@ -2,11 +2,13 @@
 
 set -euo pipefail
 
+me=${0##*/}
+
 RANDOM_BITS_COUNT=512
 
 if (($# != 0))
 then
-    printf 'Usage: %s\n' "$(basename "$0")"
+    printf 'Usage: %s\n' "$me"
     exit 1
 fi
 

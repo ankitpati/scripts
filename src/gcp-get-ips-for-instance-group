@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-me="$(basename "$0")"
+me=${0##*/}
 
 if [[
     $# != 2

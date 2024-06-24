@@ -14,8 +14,8 @@ then
     tmux new-session 'touch .hushlogin; dnf upgrade --refresh -y; systemctl reboot'
 fi
 
-me="$(basename "$0")"
-mydir="$(dirname "$0")/"
+me=${0##*/}
+mydir=${0%/*}
 
 if [[ -z $TMUX ]]
 then

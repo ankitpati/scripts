@@ -11,8 +11,8 @@ then
     tmux new-session 'touch .hushlogin; apt dist-upgrade -y; apt autoremove -y; apt clean; systemctl reboot'
 fi
 
-me="$(basename "$0")"
-mydir="$(dirname "$0")/"
+me=${0##*/}
+mydir=${0%/*}
 
 if [[ -z $TMUX ]]
 then

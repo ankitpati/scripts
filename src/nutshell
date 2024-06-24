@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-me="$(basename "$0")"
+me=${0##*/}
 usage="Usage: $me <username[:groupname]> <path>... -- [bash arguments]"
 
 if (($# < 3))
