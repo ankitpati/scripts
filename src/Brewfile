@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+tap "buildpacks/tap"
 tap "hashicorp/tap"
 tap "homebrew/command-not-found"
 tap "homebrew/services"
@@ -398,6 +399,7 @@ elsif OS.mac? then
 end
 
 brew "actionlint"
+brew "buildpacks/tap/pack"
 brew "dive"
 brew "duckdb"
 brew "foremost"
