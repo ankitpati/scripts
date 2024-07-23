@@ -381,6 +381,7 @@ elsif OS.mac? then
     cask "maccy"
     cask "microsoft-edge"
     cask "skim"
+    cask "sqlcl"
     cask "utm"
     cask "visual-studio-code"
     cask "visualvm"
