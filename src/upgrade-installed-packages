@@ -63,9 +63,30 @@ do
     code --install-extension="$codext" --force
 done
 
-tfenv install "$(tfenv list-remote | grep --invert-match -- - | head --lines=1)"
+terraform_current_version=''
+terraform_previous_version=''
+
+mapfile -t terraform_available_versions < <(tfenv list-remote)
+for terraform_available_version in "${terraform_available_versions[@]}"
+do
+    if [[ $terraform_available_version =~ - ]]
+    then
+        continue
+    fi
+
+    if [[ -z $terraform_current_version ]]
+    then
+        terraform_current_version=$terraform_available_version
+        continue
+    fi
+
+    terraform_previous_version=$terraform_available_version
+    break
+done
+
+tfenv install "$terraform_current_version"
 tfenv use latest
-tfenv uninstall "$(tfenv list-remote | grep --invert-match -- - | head --lines=2 | tail --lines=1)"
+tfenv uninstall "$terraform_previous_version"
 
 if [[ $OSTYPE == *linux* ]]
 then
