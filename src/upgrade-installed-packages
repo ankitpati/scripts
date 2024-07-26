@@ -63,6 +63,10 @@ do
     code --install-extension="$codext" --force
 done
 
+tfenv install "$(tfenv list-remote | grep --invert-match -- - | head --lines=1)"
+tfenv use latest
+tfenv uninstall "$(tfenv list-remote | grep --invert-match -- - | head --lines=2 | tail --lines=1)"
+
 if [[ $OSTYPE == *linux* ]]
 then
     gcloud components update
