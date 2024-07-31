@@ -24,6 +24,7 @@ elsif OS.mac? then
     brew "aliyun-cli"
     brew "ant"
     brew "ares"
+    brew "argo"
     brew "argocd"
     brew "aria2"
     brew "arkade"
