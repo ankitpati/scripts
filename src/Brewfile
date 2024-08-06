@@ -406,6 +406,7 @@ brew "logdy"
 brew "shellharden"
 brew "steampipe"
 brew "stern"
+brew "usage"
 brew "xq"
 
 vscode "aykutsarac.jsoncrack-vscode"
