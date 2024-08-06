@@ -195,6 +195,7 @@ elsif OS.mac? then
     brew "kube-score"
     brew "kubecfg"
     brew "kubecm"
+    brew "kubehound"
     brew "kubent"
     brew "kubergrunt"
     brew "kubernetes-cli"
