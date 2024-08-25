@@ -46,7 +46,6 @@ elsif OS.mac? then
     brew "bc"
     brew "benerator"
     brew "binutils"
-    brew "binwalk"
     brew "bison"
     brew "black"
     brew "brotli"
