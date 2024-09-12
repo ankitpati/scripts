@@ -267,6 +267,7 @@ elsif OS.mac? then
     brew "plantuml"
     brew "pluto"
     brew "pmd"
+    brew "poetry"
     brew "popeye"
     brew "postgresql@15"
     brew "potrace"
