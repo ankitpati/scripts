@@ -34,9 +34,7 @@ my $current_variable;
 foreach my $line (<STDIN>) {
     chomp $line;
 
-    if ($line =~ /^(?:\s*\}\s*|)$/) {
-        # do nothing
-    } elsif ($line =~ /^\s*variable\s+"([^"]+)"\s*\{\s*$/) {
+    if ($line =~ /^\s*variable\s+"([^"]+)"\s*\{\s*$/) {
         $current_variable = $1;
 
         # necessary to store the `variable` line even if it has no body
@@ -51,9 +49,7 @@ foreach my $variable (sort keys %variables) {
 
     print <<"EOH";
 variable "$variable" {
-  $body
-}
-
+$body
 EOH
 }
 
