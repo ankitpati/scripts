@@ -13,7 +13,6 @@ if OS.linux? then
     brew "pmd", args: ["ignore-dependencies"]
 
 elsif OS.mac? then
-    tap "InstantClientTap/instantclient"
     tap "snyk/tap"
     tap "sourcegraph/src-cli"
 
@@ -167,11 +166,6 @@ elsif OS.mac? then
     brew "ijq"
     brew "imagemagick"
     brew "inetutils"
-    brew "instantclient-basic"
-    brew "instantclient-odbc"
-    brew "instantclient-sdk"
-    brew "instantclient-sqlplus"
-    brew "instantclient-tools"
     brew "iproute2mac"
     brew "ipv6calc"
     brew "iredis"
