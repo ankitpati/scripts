@@ -6,7 +6,7 @@ set -euo pipefail
 TUNPORT='2200'
 # End of User-Serviceable Parts
 
-SSHCMD="ssh -fTN -R $TUNPORT:localhost:22 rtun@ssh.ankitpati.in"
+SSHCMD="ssh -4fTN -R $TUNPORT:localhost:22 rtun@ssh.ankitpati.in"
 
 # shellcheck disable=SC2009
 test -z "$(ps -Ao command | grep "^$SSHCMD\$" || :)"
