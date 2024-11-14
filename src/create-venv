@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me=${0##*/}
+
+if (($# < 2))
+then
+    printf '
+        Usage:
+            %s <python_binary> <venv_name> [venv_packages]...
+
+        Sample:
+            %s python3.12 foomatic numpy pandas
+    ' "$me" "$me" >&2
+    exit 1
+fi
+
+venv_creator_python=$1
+venv_name=$2
+venv_packages=("${@:3}")
+
+venv_root="$HOME/.venv"
+mkdir --parents "$venv_root"
+
+venv_base="$venv_root/$venv_name"
+venv_bin="$venv_base/bin"
+venv_python="$venv_bin/python"
+venv_pip="$venv_bin/pip"
+
+rm --recursive --force "$venv_base"
+
+"$venv_creator_python" -m venv "$venv_base"
+
+source "$venv_bin/activate"
+
+path_python=$(command -v python)
+path_pip=$(command -v pip)
+
+if [[ $path_python != "$venv_python" || $path_pip != "$venv_pip" ]]
+then
+    printf '`python` on `PATH` (%s) != `python` from `venv` (%s)\n' \
+        "$path_python" "$venv_python" >&2
+fi
+
+# `pip` in a freshly-created `venv` is usually outdated, so...
+pip install --upgrade -- pip
+
+# Linters, fixers, & other dev tools
+pip install -- \
+    black \
+    flake8 \
+    isort \
+    mypy \
+    pylint \
+    pyright \
+    ruff \
+;
+
+if ((${#venv_packages[@]} != 0))
+then
+    # Tools the user ordered
+    pip install -- "${venv_packages[@]}"
+fi
