@@ -5,6 +5,9 @@ set -uo pipefail
 printf 'Removing SSH known_hosts Backup...\n'
 rm "$HOME/.ssh/known_hosts.old"
 
+printf 'Pruning SSH known_hosts...\n'
+skh-prune
+
 printf 'Uninstalling dangling Homebrew packages...\n'
 brew autoremove
 
