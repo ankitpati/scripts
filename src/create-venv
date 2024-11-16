@@ -12,7 +12,7 @@ then
 
         Sample:
             %s python3.12 foomatic numpy pandas
-    ' "$me" "$me" >&2
+    \n' "$me" "$me" >&2
     exit 1
 fi
 
