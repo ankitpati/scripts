@@ -223,7 +223,7 @@ function _git_dirty {
     then
         return 0
     fi
-    local dirty_marker="$(git config gitsh.dirty 2>/dev/null || echo ' *')"
+    local dirty_marker=' *'
 
     if ! git diff --quiet 2>/dev/null
     then
@@ -242,7 +242,7 @@ function _git_dirty_stash {
     then
         return 0
     fi
-    local dirty_stash_marker="$(git config gitsh.dirty-stash 2>/dev/null || echo ' $')"
+    local dirty_stash_marker=' $'
     _git_apply_color "$dirty_stash_marker" red
 }
 
