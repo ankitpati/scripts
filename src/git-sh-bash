@@ -23,6 +23,11 @@
 
 # ALIASES + COMPLETION =========================================================
 
+if ! command -v __git_complete &>/dev/null
+then
+    _comp_load -D -- git
+fi
+
 # gitcomp <alias> <command>
 #
 # Complete command named <alias> like standard git command named
