@@ -2,9 +2,9 @@
 #
 # A customized Bash environment suitable for Git work.
 #
-# Copyright © 2008 Ryan Tomayko <http://tomayko.com/>
-# Copyright © 2008 Aristotle Pagaltzis <http://plasmasturm.org/>
-# Copyright © 2023 Ankit Pati <https://ankitpati.in/>
+# Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/>
+# Copyright (c) 2008 Aristotle Pagaltzis <http://plasmasturm.org/>
+# Copyright (c) 2023 Ankit Pati <https://ankitpati.in/>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,293 +21,264 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # Distributed under the GNU General Public License, version 2.0.
 
-# ALIASES + COMPLETION =========================================================
-
 if ! command -v __git_complete &>/dev/null
 then
     _comp_load -D -- git
 fi
 
-# gitcomp <alias> <command>
-#
-# Complete command named <alias> like standard git command named
-# <command>. <command> must be a valid git command with completion.
-#
-# Examples:
-#   gitcomplete ci commit
-#   gitcomplete c  checkout
-function gitcomplete {
+function gitsh_complete {
     local alias=$1
     local command=$2
+
     __git_complete "$alias" "_git_${command//-/_}"
 }
 
-# gitalias <alias>='<command> [<args>...]'
-#
-# Define a new shell alias (as with the alias builtin) named <alias>
-# and enable command completion based on <command>. <command> must be
-# a standard non-abbreviated git command name that has completion support.
-#
-# Examples:
-#   gitalias c=checkout
-#   gitalias ci='commit -v'
-#   gitalias r='rebase --interactive HEAD~10'
-function gitalias {
-    local alias=${1%%=*}
-    local command=${1#*=}
-    local prog=${command##git }
-    prog=${prog%% *}
-    alias "$alias"="$command"
-    gitcomplete "$alias" "$prog"
+function gitsh_alias {
+    local alias=$1
+    local command=$2
+    local prog=${command%% *}
+
+    alias "$alias"="git $command"
+    gitsh_complete "$alias" "$prog"
 }
 
-# create aliases and configure bash completion for most porcelain commands
+gitsh_alias a       'add'
+gitsh_alias aa      'add --update'
+gitsh_alias amend   'commit --verbose --amend'
+gitsh_alias ap      'add --patch'
+gitsh_alias b       'branch'
+gitsh_alias c       'checkout'
+gitsh_alias ca      'commit --verbose --all'
+gitsh_alias ci      'commit --verbose'
+gitsh_alias d       'diff'
+gitsh_alias ds      'diff --stat'
+gitsh_alias f       'fetch --prune'
+gitsh_alias f       'fetch'
+gitsh_alias hard    'reset --hard'
+gitsh_alias k       'cherry-pick'
+gitsh_alias l       'log --pretty=oneline --abbrev-commit'
+gitsh_alias n       'commit --verbose --amend'
+gitsh_alias p       'diff --cached'
+gitsh_alias peek    'log --patch --max-count=1'
+gitsh_alias pm      'pull'
+gitsh_alias pop     'reset --soft HEAD^'
+gitsh_alias pr      'pull --rebase'
+gitsh_alias r       'remote'
+gitsh_alias re      'rebase --interactive'
+gitsh_alias s       'commit --dry-run --short'
+gitsh_alias scrap   'checkout HEAD'
+gitsh_alias soft    'reset --soft'
+gitsh_alias stage   'add'
+gitsh_alias t       'diff --cached'
+gitsh_alias unstage 'reset HEAD'
+gitsh_alias wt      'worktree'
 
-# These are the standard set of aliases enabled by default in all
-# git-sh sessions.
+unset -f gitsh_alias
 
-gitalias a='git add'
-gitalias b='git branch'
-gitalias c='git checkout'
-gitalias d='git diff'
-gitalias f='git fetch --prune'
-gitalias k='git cherry-pick'
-gitalias l='git log --pretty=oneline --abbrev-commit'
-gitalias n='git commit --verbose --amend'
-gitalias r='git remote'
-gitalias s='git commit --dry-run --short'
-gitalias t='git diff --cached'
+function gitsh_load_completions {
+    local git_cmd_cfg=(
+        'add            alias'
+        'am             alias  stdcmpl'
+        'annotate       alias'
+        'apply          alias  stdcmpl'
+        'archive        alias'
+        'bisect         alias  stdcmpl'
+        'blame          alias'
+        'branch         alias  stdcmpl'
+        'bundle                stdcmpl'
+        'cat-file       alias'
+        'checkout       alias  stdcmpl'
+        'check-ignore   alias'
+        'cherry-pick    alias  stdcmpl'
+        'clean          alias'
+        'clone          alias'
+        'commit         alias  stdcmpl'
+        'config         alias  stdcmpl'
+        'describe       alias  stdcmpl'
+        'diff           alias  stdcmpl'
+        'difftool       alias'
+        'fetch          alias  stdcmpl'
+        'flow           alias'
+        'format-patch   alias  stdcmpl'
+        'fsck           alias'
+        'gui            alias'
+        'hash-object    alias'
+        'init           alias'
+        'instaweb       alias'
+        'log            alias  logcmpl'
+        'lost-found     alias'
+        'ls-files       alias'
+        'ls-remote      alias  stdcmpl'
+        'ls-tree        alias  stdcmpl'
+        'merge          alias  stdcmpl'
+        'merge-base     alias  stdcmpl'
+        'mergetool      alias'
+        'patch-id       alias'
+        'peek-remote    alias'
+        'prune          alias'
+        'pull           alias  stdcmpl'
+        'push           alias  stdcmpl'
+        'quiltimport    alias'
+        'rebase         alias  stdcmpl'
+        'reflog         alias'
+        'remote         alias  stdcmpl'
+        'repack         alias'
+        'repo-config    alias'
+        'request-pull   alias'
+        'reset          alias  stdcmpl'
+        'restore        alias'
+        'rev-list       alias'
+        'rev-parse      alias'
+        'revert         alias'
+        'send-email     alias'
+        'send-pack      alias'
+        'shortlog       alias  stdcmpl'
+        'show           alias  stdcmpl'
+        'show-branch    alias  logcmpl'
+        'stash          alias  stdcmpl'
+        'status         alias'
+        'stripspace     alias'
+        'submodule      alias  stdcmpl'
+        'svn            alias  stdcmpl'
+        'symbolic-ref   alias'
+        'switch         alias'
+        'tag            alias  stdcmpl'
+        'tar-tree       alias'
+        'var            alias'
+        'whatchanged    alias  logcmpl'
+        'worktree       alias  stdcmpl'
+    )
 
-# git add and the staging area
-gitalias a='git add'
-gitalias aa='git add --update'          # mnemonic: "add all"
-gitalias stage='git add'
-gitalias ap='git add --patch'
-gitalias p='git diff --cached'          # mnemonic: "patch"
-gitalias unstage='git reset HEAD'
+    local cfg
+    for cfg in "${git_cmd_cfg[@]}" ; do
+        local cmd
+        local opts
 
-# commits and history
-gitalias ci='git commit --verbose'
-gitalias ca='git commit --verbose --all'
-gitalias amend='git commit --verbose --amend'
-gitalias n='git commit --verbose --amend'
-gitalias k='git cherry-pick'
-gitalias re='git rebase --interactive'
-gitalias pop='git reset --soft HEAD^'
-gitalias peek='git log -p --max-count=1'
+        read -r cmd opts <<< $cfg
 
-# git fetch
-gitalias f='git fetch'
-gitalias pm='git pull'          # mnemonic: pull merge
-gitalias pr='git pull --rebase' # mnemonic: pull rebase
-
-# git diff
-gitalias d='git diff'
-gitalias ds='git diff --stat'    # mnemonic: "diff stat"
-
-# git reset
-gitalias hard='git reset --hard'
-gitalias soft='git reset --soft'
-gitalias scrap='git checkout HEAD'
-
-# git worktree
-gitalias wt='git worktree'
-
-_git_cmd_cfg=(
-    'add            alias'
-    'am             alias  stdcmpl'
-    'annotate       alias'
-    'apply          alias  stdcmpl'
-    'archive        alias'
-    'bisect         alias  stdcmpl'
-    'blame          alias'
-    'branch         alias  stdcmpl'
-    'bundle                stdcmpl'
-    'cat-file       alias'
-    'checkout       alias  stdcmpl'
-    'check-ignore   alias'
-    'cherry-pick    alias  stdcmpl'
-    'clean          alias'
-    'clone          alias'
-    'commit         alias  stdcmpl'
-    'config         alias  stdcmpl'
-    'describe       alias  stdcmpl'
-    'diff           alias  stdcmpl'
-    'difftool       alias'
-    'fetch          alias  stdcmpl'
-    'flow           alias'
-    'format-patch   alias  stdcmpl'
-    'fsck           alias'
-    'gui            alias'
-    'hash-object    alias'
-    'init           alias'
-    'instaweb       alias'
-    'log            alias  logcmpl'
-    'lost-found     alias'
-    'ls-files       alias'
-    'ls-remote      alias  stdcmpl'
-    'ls-tree        alias  stdcmpl'
-    'merge          alias  stdcmpl'
-    'merge-base     alias  stdcmpl'
-    'mergetool      alias'
-    'patch-id       alias'
-    'peek-remote    alias'
-    'prune          alias'
-    'pull           alias  stdcmpl'
-    'push           alias  stdcmpl'
-    'quiltimport    alias'
-    'rebase         alias  stdcmpl'
-    'reflog         alias'
-    'remote         alias  stdcmpl'
-    'repack         alias'
-    'repo-config    alias'
-    'request-pull   alias'
-    'reset          alias  stdcmpl'
-    'restore        alias'
-    'rev-list       alias'
-    'rev-parse      alias'
-    'revert         alias'
-    'send-email     alias'
-    'send-pack      alias'
-    'shortlog       alias  stdcmpl'
-    'show           alias  stdcmpl'
-    'show-branch    alias  logcmpl'
-    'stash          alias  stdcmpl'
-    'status         alias'
-    'stripspace     alias'
-    'submodule      alias  stdcmpl'
-    'svn            alias  stdcmpl'
-    'symbolic-ref   alias'
-    'switch         alias'
-    'tag            alias  stdcmpl'
-    'tar-tree       alias'
-    'var            alias'
-    'whatchanged    alias  logcmpl'
-    'worktree       alias  stdcmpl'
-)
-
-for cfg in "${_git_cmd_cfg[@]}" ; do
-    read -r cmd opts <<< $cfg
-    for opt in $opts ; do
-        case $opt in
-            alias)
-                alias "$cmd"="git $cmd"
-                ;;
-            stdcmpl)
-                __git_complete "$cmd" "_git_${cmd//-/_}"
-                ;;
-            logcmpl)
-                __git_complete "$cmd" _git_log
-                ;;
-        esac
+        local opt
+        for opt in $opts ; do
+            case $opt in
+                alias)
+                    alias "$cmd"="git $cmd"
+                    ;;
+                stdcmpl)
+                    __git_complete "$cmd" "_git_${cmd//-/_}"
+                    ;;
+                logcmpl)
+                    __git_complete "$cmd" _git_log
+                    ;;
+            esac
+        done
     done
-done
-
-# PROMPT =======================================================================
-
-function gitsh_prompt {
-    _git_headname
-    _git_upstream_state
-    printf '!'
-    _git_repo_state
-    _git_workdir
-    _git_dirty
-    _git_dirty_stash
 }
 
-PS1='$(gitsh_prompt)> '
+gitsh_load_completions
+unset -f gitsh_load_completions
 
-# detect whether the tree is in a dirty state.
-function _git_dirty {
+function gitsh_dirty {
     if ! git rev-parse --verify HEAD >/dev/null 2>&1
     then
         return 0
     fi
+
     local dirty_marker=' *'
 
     if ! git diff --quiet 2>/dev/null
     then
-        _git_apply_color "$dirty_marker" red
+        gitsh_apply_color "$dirty_marker" red
     elif ! git diff --staged --quiet 2>/dev/null
     then
-        _git_apply_color "$dirty_marker" yellow
+        gitsh_apply_color "$dirty_marker" yellow
     else
         return 0
     fi
 }
 
-# detect whether any changesets are stashed
-function _git_dirty_stash {
+function gitsh_dirty_stash {
     if ! git rev-parse --verify refs/stash >/dev/null 2>&1
     then
         return 0
     fi
+
     local dirty_stash_marker=' $'
-    _git_apply_color "$dirty_stash_marker" red
+
+    gitsh_apply_color "$dirty_stash_marker" red
 }
 
-# detect the current branch; use 7-sha when not on branch
-function _git_headname {
-    local br=$(git symbolic-ref -q HEAD 2>/dev/null)
-    if [[ -n $br ]]
+function gitsh_headname {
+    local headname=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+
+    if [[ -n $headname ]]
     then
-        br=${br#refs/heads/}
+        headname=${headname#refs/heads/}
     else
-        br=$(git rev-parse --short HEAD 2>/dev/null)
+        headname=$(git rev-parse --short HEAD 2>/dev/null)
     fi
-    _git_apply_color "$br" 'yellow reverse'
+
+    gitsh_apply_color "$headname" 'yellow reverse'
 }
 
-# detect the deviation from the upstream branch
-function _git_upstream_state {
-    local p
-
-    # Find how many commits we are ahead/behind our upstream
-    local count="$(git rev-list --count --left-right '@{upstream}'...HEAD 2>/dev/null)"
+function gitsh_upstream_state {
+    # find how many commits we are ahead/behind our upstream
+    local count=$(git rev-list --count --left-right '@{upstream}'...HEAD 2>/dev/null)
     count=${count//$'\t'/ }
 
-    # calculate the result
+    local upstream_state
     case "$count" in
-        "") # no upstream
-            p="" ;;
-        "0 0") # equal to upstream
-            p=" u=" ;;
-        "0 "*) # ahead of upstream
-            p=" u+${count#0 }" ;;
-        *" 0") # behind upstream
-            p=" u-${count% 0}" ;;
-        *) # diverged from upstream
-            p=" u+${count#* }-${count% *}" ;;
+        '')
+            # no upstream
+            upstream_state=''
+            ;;
+        '0 0')
+            # equal to upstream
+            upstream_state=' u='
+            ;;
+        '0 '*)
+            # ahead of upstream
+            upstream_state=" u+${count#0 }"
+            ;;
+        *' 0')
+            # behind upstream
+            upstream_state=" u-${count% 0}"
+            ;;
+        *)
+            # diverged from upstream
+            upstream_state=" u+${count#* }-${count% *}"
+            ;;
     esac
 
-    _git_apply_color "$p" 'yellow bold'
+    gitsh_apply_color "$upstream_state" 'yellow bold'
 }
 
-# detect working directory relative to working tree root
-function _git_workdir {
-    subdir=$(git rev-parse --show-prefix 2>/dev/null)
+function gitsh_workdir {
+    local subdir=$(git rev-parse --show-prefix 2>/dev/null)
     subdir=${subdir%/}
-    workdir=${PWD%/"$subdir"}
-    _git_apply_color "${workdir/*\/}${subdir:+/$subdir}" 'blue bold'
+
+    local workdir=${PWD%/"$subdir"}
+    workdir="${workdir/*\/}${subdir:+/$subdir}"
+
+    gitsh_apply_color "$workdir" 'blue bold'
 }
 
-# detect if the repository is in a special state (rebase or merge)
-function _git_repo_state {
+function gitsh_repo_state {
     local state_marker
     local git_dir=$(git rev-parse --git-dir 2>/dev/null)
-    if [[ -d "$git_dir/rebase-merge" || -d "$git_dir/rebase-apply" ]]
+
+    if [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]
     then
         state_marker='(rebase)'
-    elif [[ -f "$git_dir/MERGE_HEAD" ]]
+    elif [[ -f $git_dir/MERGE_HEAD ]]
     then
         state_marker='(merge)'
-    elif [[ -f "$git_dir/CHERRY_PICK_HEAD" ]]
+    elif [[ -f $git_dir/CHERRY_PICK_HEAD ]]
     then
         state_marker='(cherry-pick)'
     else
         return 0
     fi
-    _git_apply_color "$state_marker" red
+
+    gitsh_apply_color "$state_marker" red
 }
 
 declare -A gitsh_colors=(
@@ -318,8 +289,7 @@ declare -A gitsh_colors=(
     [yellow]=$'\e[33m'
 )
 
-# apply a color to the first argument
-function _git_apply_color {
+function gitsh_apply_color {
     local ansi_reset=$'\001\e[m\002'
 
     local output=$1
@@ -330,16 +300,18 @@ function _git_apply_color {
     echo -ne "${color}${output}${ansi_reset}"
 }
 
-# CONFIG ==============================================================
+function gitsh_prompt {
+    gitsh_headname
+    gitsh_upstream_state
+    printf '!'
+    gitsh_repo_state
+    gitsh_workdir
+    gitsh_dirty
+    gitsh_dirty_stash
+}
 
-# Source system-wide rc file.
-if [[ -f /etc/gitshrc ]]
-then
-    source /etc/gitshrc
-fi
+PS1='$(gitsh_prompt)> '
 
-# Source the user rc file.
-if [[ -f $HOME/.gitshrc ]]
-then
-    source "$HOME/.gitshrc"
-fi
+# This is referenced in `~/.bashrc`.
+# shellcheck disable=2034
+ADD_ON_PS1=$PS1
