@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+
 # A customized Bash environment suitable for Git work.
 #
 # Copyright (c) 2008 Ryan Tomayko <http://tomayko.com/>
@@ -176,36 +176,6 @@ function gitsh_load_completions {
 gitsh_load_completions
 unset -f gitsh_load_completions
 
-function gitsh_dirty {
-    if ! git rev-parse --verify HEAD >/dev/null 2>&1
-    then
-        return 0
-    fi
-
-    local dirty_marker=' *'
-
-    if ! git diff --quiet 2>/dev/null
-    then
-        gitsh_apply_color "$dirty_marker" red
-    elif ! git diff --staged --quiet 2>/dev/null
-    then
-        gitsh_apply_color "$dirty_marker" yellow
-    else
-        return 0
-    fi
-}
-
-function gitsh_dirty_stash {
-    if ! git rev-parse --verify refs/stash >/dev/null 2>&1
-    then
-        return 0
-    fi
-
-    local dirty_stash_marker=' $'
-
-    gitsh_apply_color "$dirty_stash_marker" red
-}
-
 function gitsh_headname {
     local headname=$(git symbolic-ref --quiet HEAD 2>/dev/null)
 
@@ -251,16 +221,6 @@ function gitsh_upstream_state {
     gitsh_apply_color "$upstream_state" 'yellow bold'
 }
 
-function gitsh_workdir {
-    local subdir=$(git rev-parse --show-prefix 2>/dev/null)
-    subdir=${subdir%/}
-
-    local workdir=${PWD%/"$subdir"}
-    workdir="${workdir/*\/}${subdir:+/$subdir}"
-
-    gitsh_apply_color "$workdir" 'blue bold'
-}
-
 function gitsh_repo_state {
     local state_marker
     local git_dir=$(git rev-parse --git-dir 2>/dev/null)
@@ -279,6 +239,46 @@ function gitsh_repo_state {
     fi
 
     gitsh_apply_color "$state_marker" red
+}
+
+function gitsh_workdir {
+    local subdir=$(git rev-parse --show-prefix 2>/dev/null)
+    subdir=${subdir%/}
+
+    local workdir=${PWD%/"$subdir"}
+    workdir="${workdir/*\/}${subdir:+/$subdir}"
+
+    gitsh_apply_color "$workdir" 'blue bold'
+}
+
+function gitsh_dirty {
+    if ! git rev-parse --verify HEAD >/dev/null 2>&1
+    then
+        return 0
+    fi
+
+    local dirty_marker=' *'
+
+    if ! git diff --quiet 2>/dev/null
+    then
+        gitsh_apply_color "$dirty_marker" red
+    elif ! git diff --staged --quiet 2>/dev/null
+    then
+        gitsh_apply_color "$dirty_marker" yellow
+    else
+        return 0
+    fi
+}
+
+function gitsh_dirty_stash {
+    if ! git rev-parse --verify refs/stash >/dev/null 2>&1
+    then
+        return 0
+    fi
+
+    local dirty_stash_marker=' $'
+
+    gitsh_apply_color "$dirty_stash_marker" red
 }
 
 declare -A gitsh_colors=(
