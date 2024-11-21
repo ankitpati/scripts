@@ -27,18 +27,18 @@ then
 fi
 
 function gitsh_complete {
-    local alias=$1
-    local command=$2
+    local -r alias=$1
+    local -r subcommand=$2
 
-    __git_complete "$alias" "_git_${command//-/_}"
+    __git_complete "$alias" "_git_${subcommand//-/_}"
 }
 
 function gitsh_alias {
-    local alias=$1
-    local command=$2
-    local prog=${command%% *}
+    local -r alias=$1
+    local -r subcommand=$2
+    local -r prog=${subcommand%% *}
 
-    alias "$alias"="git $command"
+    alias "$alias"="git $subcommand"
     gitsh_complete "$alias" "$prog"
 }
 
@@ -76,97 +76,100 @@ gitsh_alias wt      'worktree'
 unset -f gitsh_alias
 
 function gitsh_load_completions {
-    local git_cmd_cfg=(
-        'add            alias'
-        'am             alias  stdcmpl'
-        'annotate       alias'
-        'apply          alias  stdcmpl'
-        'archive        alias'
-        'bisect         alias  stdcmpl'
-        'blame          alias'
-        'branch         alias  stdcmpl'
-        'bundle                stdcmpl'
-        'cat-file       alias'
-        'checkout       alias  stdcmpl'
-        'check-ignore   alias'
-        'cherry-pick    alias  stdcmpl'
-        'clean          alias'
-        'clone          alias'
-        'commit         alias  stdcmpl'
-        'config         alias  stdcmpl'
-        'describe       alias  stdcmpl'
-        'diff           alias  stdcmpl'
-        'difftool       alias'
-        'fetch          alias  stdcmpl'
-        'flow           alias'
-        'format-patch   alias  stdcmpl'
-        'fsck           alias'
-        'gui            alias'
-        'hash-object    alias'
-        'init           alias'
-        'instaweb       alias'
-        'log            alias  logcmpl'
-        'lost-found     alias'
-        'ls-files       alias'
-        'ls-remote      alias  stdcmpl'
-        'ls-tree        alias  stdcmpl'
-        'merge          alias  stdcmpl'
-        'merge-base     alias  stdcmpl'
-        'mergetool      alias'
-        'patch-id       alias'
-        'peek-remote    alias'
-        'prune          alias'
-        'pull           alias  stdcmpl'
-        'push           alias  stdcmpl'
-        'quiltimport    alias'
-        'rebase         alias  stdcmpl'
-        'reflog         alias'
-        'remote         alias  stdcmpl'
-        'repack         alias'
-        'repo-config    alias'
-        'request-pull   alias'
-        'reset          alias  stdcmpl'
-        'restore        alias'
-        'rev-list       alias'
-        'rev-parse      alias'
-        'revert         alias'
-        'send-email     alias'
-        'send-pack      alias'
-        'shortlog       alias  stdcmpl'
-        'show           alias  stdcmpl'
-        'show-branch    alias  logcmpl'
-        'stash          alias  stdcmpl'
-        'status         alias'
-        'stripspace     alias'
-        'submodule      alias  stdcmpl'
-        'svn            alias  stdcmpl'
-        'symbolic-ref   alias'
-        'switch         alias'
-        'tag            alias  stdcmpl'
-        'tar-tree       alias'
-        'var            alias'
-        'whatchanged    alias  logcmpl'
-        'worktree       alias  stdcmpl'
+    local -rA completion_configs=(
+        [add]='a'
+        [am]='as'
+        [annotate]='a'
+        [apply]='as'
+        [archive]='a'
+        [bisect]='as'
+        [blame]='a'
+        [branch]='as'
+        [bundle]='s'
+        [cat-file]='a'
+        [checkout]='as'
+        [check-ignore]='a'
+        [cherry-pick]='as'
+        [clean]='a'
+        [clone]='a'
+        [commit]='as'
+        [config]='as'
+        [describe]='as'
+        [diff]='as'
+        [difftool]='a'
+        [fetch]='as'
+        [flow]='a'
+        [format-patch]='as'
+        [fsck]='a'
+        [gui]='a'
+        [hash-object]='a'
+        [init]='a'
+        [instaweb]='a'
+        [log]='al'
+        [lost-found]='a'
+        [ls-files]='a'
+        [ls-remote]='as'
+        [ls-tree]='as'
+        [merge]='as'
+        [merge-base]='as'
+        [mergetool]='a'
+        [patch-id]='a'
+        [peek-remote]='a'
+        [prune]='a'
+        [pull]='as'
+        [push]='as'
+        [quiltimport]='a'
+        [rebase]='as'
+        [reflog]='a'
+        [remote]='as'
+        [repack]='a'
+        [repo-config]='a'
+        [request-pull]='a'
+        [reset]='as'
+        [restore]='a'
+        [rev-list]='a'
+        [rev-parse]='a'
+        [revert]='a'
+        [send-email]='a'
+        [send-pack]='a'
+        [shortlog]='as'
+        [show]='as'
+        [show-branch]='al'
+        [stash]='as'
+        [status]='a'
+        [stripspace]='a'
+        [submodule]='as'
+        [svn]='as'
+        [symbolic-ref]='a'
+        [switch]='a'
+        [tag]='as'
+        [tar-tree]='a'
+        [var]='a'
+        [whatchanged]='al'
+        [worktree]='as'
     )
 
-    local cfg
-    for cfg in "${git_cmd_cfg[@]}" ; do
-        local cmd
-        local opts
+    local subcommand
+    for subcommand in "${!completion_configs[@]}"
+    do
+        local -r completion_config=${completion_configs[$subcommand]}
 
-        read -r cmd opts <<< $cfg
-
-        local opt
-        for opt in $opts ; do
-            case $opt in
-                alias)
-                    alias "$cmd"="git $cmd"
+        local completion_index
+        for (( completion_index=0; completion_index < ${#completion_config}; ++completion_index ))
+        do
+            local -r completion_type=${completion_config:completion_index:1}
+            case $completion_type in
+                a)
+                    # alias
+                    alias "$subcommand"="git $subcommand"
                     ;;
-                stdcmpl)
-                    __git_complete "$cmd" "_git_${cmd//-/_}"
+                s)
+                    # standard completion
+                    __git_complete "$subcommand" "_git_${subcommand//-/_}"
                     ;;
-                logcmpl)
-                    __git_complete "$cmd" _git_log
+                l)
+                    # log completion
+                    __git_complete "$subcommand" _git_log
                     ;;
             esac
         done
@@ -223,7 +226,7 @@ function gitsh_upstream_state {
 
 function gitsh_repo_state {
     local state_marker
-    local git_dir=$(git rev-parse --git-dir 2>/dev/null)
+    local -r git_dir=$(git rev-parse --git-dir 2>/dev/null)
 
     if [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]
     then
@@ -257,7 +260,7 @@ function gitsh_dirty {
         return 0
     fi
 
-    local dirty_marker=' *'
+    local -r dirty_marker=' *'
 
     if ! git diff --quiet 2>/dev/null
     then
@@ -276,12 +279,12 @@ function gitsh_dirty_stash {
         return 0
     fi
 
-    local dirty_stash_marker=' $'
+    local -r dirty_stash_marker=' $'
 
     gitsh_apply_color "$dirty_stash_marker" red
 }
 
-declare -A gitsh_colors=(
+readonly -A gitsh_colors=(
     [blue bold]=$'\e[1;34m'
     [red]=$'\e[31m'
     [yellow bold]=$'\e[1;33m'
@@ -290,9 +293,9 @@ declare -A gitsh_colors=(
 )
 
 function gitsh_apply_color {
-    local ansi_reset=$'\001\e[m\002'
+    local -r ansi_reset=$'\001\e[m\002'
 
-    local output=$1
+    local -r output=$1
     local color=$2
 
     color="\001${gitsh_colors[$color]}\002"
