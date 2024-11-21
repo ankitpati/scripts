@@ -26,47 +26,51 @@ then
     _comp_load -D -- git
 fi
 
-function gitsh_alias {
-    local -r alias=$1
-    local -r invocation=$2
-    local -r subcommand=${invocation%% *}
+function gitsh_load_aliases {
+    local -rA alias_configs=(
+        [a]='add'
+        [aa]='add --update'
+        [amend]='commit --verbose --amend'
+        [ap]='add --patch'
+        [b]='branch'
+        [c]='checkout'
+        [ca]='commit --verbose --all'
+        [ci]='commit --verbose'
+        [d]='diff'
+        [ds]='diff --stat'
+        [f]='fetch --prune'
+        [hard]='reset --hard'
+        [k]='cherry-pick'
+        [l]='log --pretty=oneline --abbrev-commit'
+        [n]='commit --verbose --amend'
+        [p]='diff --cached'
+        [peek]='log --patch --max-count=1'
+        [pm]='pull'
+        [pop]='reset --soft HEAD^'
+        [pr]='pull --rebase'
+        [r]='remote'
+        [re]='rebase --interactive'
+        [s]='commit --dry-run --short'
+        [scrap]='checkout HEAD'
+        [soft]='reset --soft'
+        [stage]='add'
+        [t]='diff --cached'
+        [unstage]='reset HEAD'
+        [wt]='worktree'
+    )
 
-    alias "$alias"="git $invocation"
-    __git_complete "$alias" "_git_${subcommand//-/_}"
+    local gitsh_alias
+    for gitsh_alias in "${!alias_configs[@]}"
+    do
+        local -r invocation=${alias_configs[$gitsh_alias]}
+        local -r subcommand=${invocation%% *}
+        alias "$gitsh_alias"="git $invocation"
+        __git_complete "$gitsh_alias" "_git_${subcommand//-/_}"
+    done
 }
 
-gitsh_alias a       'add'
-gitsh_alias aa      'add --update'
-gitsh_alias amend   'commit --verbose --amend'
-gitsh_alias ap      'add --patch'
-gitsh_alias b       'branch'
-gitsh_alias c       'checkout'
-gitsh_alias ca      'commit --verbose --all'
-gitsh_alias ci      'commit --verbose'
-gitsh_alias d       'diff'
-gitsh_alias ds      'diff --stat'
-gitsh_alias f       'fetch --prune'
-gitsh_alias f       'fetch'
-gitsh_alias hard    'reset --hard'
-gitsh_alias k       'cherry-pick'
-gitsh_alias l       'log --pretty=oneline --abbrev-commit'
-gitsh_alias n       'commit --verbose --amend'
-gitsh_alias p       'diff --cached'
-gitsh_alias peek    'log --patch --max-count=1'
-gitsh_alias pm      'pull'
-gitsh_alias pop     'reset --soft HEAD^'
-gitsh_alias pr      'pull --rebase'
-gitsh_alias r       'remote'
-gitsh_alias re      'rebase --interactive'
-gitsh_alias s       'commit --dry-run --short'
-gitsh_alias scrap   'checkout HEAD'
-gitsh_alias soft    'reset --soft'
-gitsh_alias stage   'add'
-gitsh_alias t       'diff --cached'
-gitsh_alias unstage 'reset HEAD'
-gitsh_alias wt      'worktree'
-
-unset -f gitsh_alias
+gitsh_load_aliases
+unset -f gitsh_load_aliases
 
 function gitsh_load_completions {
     local -rA completion_configs=(
