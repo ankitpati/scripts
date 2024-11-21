@@ -152,12 +152,12 @@ function gitsh_load_completions {
     local subcommand
     for subcommand in "${!completion_configs[@]}"
     do
-        local -r completion_config=${completion_configs[$subcommand]}
+        local completion_config=${completion_configs[$subcommand]}
 
         local completion_index
         for (( completion_index=0; completion_index < ${#completion_config}; ++completion_index ))
         do
-            local -r completion_type=${completion_config:completion_index:1}
+            local completion_type=${completion_config:completion_index:1}
             case $completion_type in
                 a)
                     # alias
