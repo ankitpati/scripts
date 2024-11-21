@@ -198,7 +198,7 @@ function gitsh_upstream_state {
     count=${count//$'\t'/ }
 
     local upstream_state
-    case "$count" in
+    case $count in
         '')
             # no upstream
             upstream_state=''
