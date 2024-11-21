@@ -62,8 +62,8 @@ function gitsh_load_aliases {
     local gitsh_alias
     for gitsh_alias in "${!alias_configs[@]}"
     do
-        local -r invocation=${alias_configs[$gitsh_alias]}
-        local -r subcommand=${invocation%% *}
+        local invocation=${alias_configs[$gitsh_alias]}
+        local subcommand=${invocation%% *}
         alias "$gitsh_alias"="git $invocation"
         __git_complete "$gitsh_alias" "_git_${subcommand//-/_}"
     done
