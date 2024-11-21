@@ -26,20 +26,13 @@ then
     _comp_load -D -- git
 fi
 
-function gitsh_complete {
-    local -r alias=$1
-    local -r subcommand=$2
-
-    __git_complete "$alias" "_git_${subcommand//-/_}"
-}
-
 function gitsh_alias {
     local -r alias=$1
-    local -r subcommand=$2
-    local -r prog=${subcommand%% *}
+    local -r invocation=$2
+    local -r subcommand=${invocation%% *}
 
-    alias "$alias"="git $subcommand"
-    gitsh_complete "$alias" "$prog"
+    alias "$alias"="git $invocation"
+    __git_complete "$alias" "_git_${subcommand//-/_}"
 }
 
 gitsh_alias a       'add'
