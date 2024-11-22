@@ -21,11 +21,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # Distributed under the GNU General Public License, version 2.0.
 
-if ! command -v __git_complete &>/dev/null
-then
-    _comp_load -D -- git
-fi
-
 function gitsh_load_aliases {
     local -rA alias_configs=(
         [a]='add'
@@ -68,9 +63,6 @@ function gitsh_load_aliases {
         __git_complete "$gitsh_alias" "_git_${subcommand//-/_}"
     done
 }
-
-gitsh_load_aliases
-unset -f gitsh_load_aliases
 
 function gitsh_load_completions {
     local -rA completion_configs=(
@@ -173,11 +165,8 @@ function gitsh_load_completions {
     done
 }
 
-gitsh_load_completions
-unset -f gitsh_load_completions
-
 function gitsh_headname {
-    local headname=$(git symbolic-ref --quiet HEAD 2>/dev/null)
+    headname=$(git symbolic-ref --quiet HEAD 2>/dev/null)
 
     if [[ -n $headname ]]
     then
@@ -186,7 +175,7 @@ function gitsh_headname {
         headname=$(git rev-parse --short HEAD 2>/dev/null)
     fi
 
-    gitsh_apply_color "$headname" 'yellow reverse'
+    gitsh_apply_color headname 'yellow reverse'
 }
 
 function gitsh_upstream_state {
@@ -194,7 +183,6 @@ function gitsh_upstream_state {
     local count=$(git rev-list --count --left-right '@{upstream}'...HEAD 2>/dev/null)
     count=${count//$'\t'/ }
 
-    local upstream_state
     case $count in
         '')
             # no upstream
@@ -218,11 +206,10 @@ function gitsh_upstream_state {
             ;;
     esac
 
-    gitsh_apply_color "$upstream_state" 'yellow bold'
+    gitsh_apply_color upstream_state 'yellow bold'
 }
 
 function gitsh_repo_state {
-    local state_marker
     local -r git_dir=$(git rev-parse --git-dir 2>/dev/null)
 
     if [[ -d $git_dir/rebase-merge || -d $git_dir/rebase-apply ]]
@@ -238,17 +225,17 @@ function gitsh_repo_state {
         return 0
     fi
 
-    gitsh_apply_color "$state_marker" red
+    gitsh_apply_color state_marker red
 }
 
 function gitsh_workdir {
     local subdir=$(git rev-parse --show-prefix 2>/dev/null)
     subdir=${subdir%/}
 
-    local workdir=${PWD%/"$subdir"}
+    workdir=${PWD%/"$subdir"}
     workdir="${workdir/*\/}${subdir:+/$subdir}"
 
-    gitsh_apply_color "$workdir" 'blue bold'
+    gitsh_apply_color workdir 'blue bold'
 }
 
 function gitsh_dirty {
@@ -257,14 +244,14 @@ function gitsh_dirty {
         return 0
     fi
 
-    local -r dirty_marker=' *'
+    dirty_marker=' *'
 
     if ! git diff --quiet 2>/dev/null
     then
-        gitsh_apply_color "$dirty_marker" red
+        gitsh_apply_color dirty_marker red
     elif ! git diff --staged --quiet 2>/dev/null
     then
-        gitsh_apply_color "$dirty_marker" yellow
+        gitsh_apply_color dirty_marker yellow
     else
         return 0
     fi
@@ -276,9 +263,9 @@ function gitsh_dirty_stash {
         return 0
     fi
 
-    local -r dirty_stash_marker=' $'
+    dirty_stash_marker=' $'
 
-    gitsh_apply_color "$dirty_stash_marker" red
+    gitsh_apply_color dirty_stash_marker red
 }
 
 readonly -A gitsh_colors=(
@@ -292,26 +279,57 @@ readonly -A gitsh_colors=(
 function gitsh_apply_color {
     local -r ansi_reset=$'\001\e[m\002'
 
-    local -r output=$1
+    local -n output=$1
     local color=$2
 
     color=$'\001'"${gitsh_colors[$color]}"$'\002'
 
-    printf '%s%s%s' "$color" "$output" "$ansi_reset"
+    output="$color$output$ansi_reset"
 }
 
 function gitsh_prompt {
+    local -n output=$1
+
+    local headname
     gitsh_headname
+
+    local upstream_state
     gitsh_upstream_state
-    printf '!'
+
+    local state_marker
     gitsh_repo_state
+
+    local workdir
     gitsh_workdir
+
+    local dirty_marker
     gitsh_dirty
+
+    local dirty_stash_marker
     gitsh_dirty_stash
+
+    output="$headname$upstream_state"'!'"$state_marker$workdir$dirty_marker$dirty_stash_marker> "
 }
 
-PS1='$(gitsh_prompt)> '
+function gitsh_main {
+    if [[ -n $GITSH_MAIN_SOURCED ]]
+    then
+        return 0
+    fi
 
-# This is referenced in `~/.bashrc`.
-# shellcheck disable=2034
-ADD_ON_PS1=$PS1
+    readonly GITSH_MAIN_SOURCED=1
+
+    if ! command -v __git_complete &>/dev/null
+    then
+        _comp_load -D -- git
+    fi
+
+    gitsh_load_aliases
+    unset -f gitsh_load_aliases
+
+    gitsh_load_completions
+    unset -f gitsh_load_completions
+}
+
+gitsh_main
+unset -f gitsh_main
