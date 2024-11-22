@@ -277,12 +277,12 @@ readonly -A gitsh_colors=(
 )
 
 function gitsh_apply_color {
-    local -r ansi_reset=$'\001\e[m\002'
+    local -r ansi_reset='\[\e[m\]'
 
     local -n output=$1
     local color=$2
 
-    color=$'\001'"${gitsh_colors[$color]}"$'\002'
+    color='\['"${gitsh_colors[$color]}"'\]'
 
     output="$color$output$ansi_reset"
 }
