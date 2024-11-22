@@ -244,13 +244,13 @@ function gitsh_dirty {
         return 0
     fi
 
-    dirty_marker=' *'
-
     if ! git diff --quiet 2>/dev/null
     then
+        dirty_marker=' *'
         gitsh_apply_color dirty_marker red
     elif ! git diff --staged --quiet 2>/dev/null
     then
+        dirty_marker=' *'
         gitsh_apply_color dirty_marker yellow
     else
         return 0
@@ -264,27 +264,34 @@ function gitsh_dirty_stash {
     fi
 
     dirty_stash_marker=' $'
-
     gitsh_apply_color dirty_stash_marker red
 }
 
-readonly -A gitsh_colors=(
-    [blue bold]=$'\e[1;34m'
-    [red]=$'\e[31m'
-    [yellow bold]=$'\e[1;33m'
-    [yellow reverse]=$'\e[7;33m'
-    [yellow]=$'\e[33m'
-)
-
 function gitsh_apply_color {
+    local -n output=$1
+    local -r color_name=$2
+
+    case $color_name in
+        'blue bold')
+            ansi_color='\[\e[1;34m\]'
+            ;;
+        'red')
+            ansi_color='\[\e[31m\]'
+            ;;
+        'yellow bold')
+            ansi_color='\[\e[1;33m\]'
+            ;;
+        'yellow reverse')
+            ansi_color='\[\e[7;33m\]'
+            ;;
+        'yellow')
+            ansi_color='\[\e[33m\]'
+            ;;
+    esac
+
     local -r ansi_reset='\[\e[m\]'
 
-    local -n output=$1
-    local color=$2
-
-    color='\['"${gitsh_colors[$color]}"'\]'
-
-    output="$color$output$ansi_reset"
+    output="$ansi_color$output$ansi_reset"
 }
 
 function gitsh_prompt {
