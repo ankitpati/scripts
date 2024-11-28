@@ -71,6 +71,7 @@ elsif OS.mac? then
     brew "coreutils"
     brew "cosign"
     brew "crane"
+    brew "creduce"
     brew "cscope"
     brew "csvkit"
     brew "csvprintf"
