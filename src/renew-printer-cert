@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+cert_hostname='printer.tiger.ankitpati.in'
+pfx_password='printer'
+
+sudo certbot certonly \
+    --domain="$cert_hostname" \
+    --standalone \
+;
+
+sudo openssl pkcs12 \
+    -certfile "/etc/letsencrypt/live/$cert_hostname-0001/chain.pem" \
+    -export \
+    -in "/etc/letsencrypt/live/$cert_hostname-0001/cert.pem" \
+    -inkey "/etc/letsencrypt/live/$cert_hostname-0001/privkey.pem" \
+    -out "$cert_hostname.pfx" \
+    -passout pass:"$pfx_password" \
+;
+
+sudo chown "$USER:$USER" -- "$cert_hostname.pfx"
