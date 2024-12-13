@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s extglob
+
+readonly me=${0##*/}
+
+if (($# != 0))
+then
+    printf 'Usage: %s\n' "$me" >&2
+    exit 1
+fi
+
+readonly dot_ssh="$HOME/.ssh"
+
+if [[ ! -d $dot_ssh ]]
+then
+    printf '%s: "%s" directory missing; create to proceed!\n' "$me" "$dot_ssh" >&2
+    exit 2
+fi
+
+readarray -t pubkeys < <(ssh-add -L)
+readonly -a pubkeys
+
+for pubkey in "${pubkeys[@]}"
+do
+    filename=${pubkey##+([^ ]) +([^ ]) }
+    pubkey=${pubkey%% "$filename"}
+
+    filename=${filename//[^A-Za-z0-9._-]/_} # prevents path traversal
+    filename="$dot_ssh/$filename.pub"
+
+    if [[ -e $filename || $filename =~ config|authorized|allowed|known ]]
+    then
+        # This is security-critical because it disallows lower priority keys
+        # from shared vaults in 1Password from overwriting higher priority keys
+        # from `Private` or `Employee` vaults, and also prevents code execution
+        # or remote access by protecting `config`, `authorized_keys`,
+        # `allowed_signers`, and `known_hosts`.
+
+        printf '%s: "%s" exists; not overwriting!\n' "$me" "$filename" >&2
+        continue
+    fi
+
+    printf '%s\n' "$pubkey" > "$filename"
+done
