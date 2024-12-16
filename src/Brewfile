@@ -150,6 +150,7 @@ elsif OS.mac? then
     brew "gron"
     brew "groovy"
     brew "grpc"
+    brew "grpcurl"
     brew "gzip"
     brew "hashicorp/tap/packer"
     brew "hck"
