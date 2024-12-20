@@ -9,12 +9,12 @@ mapfile -t daemonsets < <(
     kubectl get daemonsets --all-namespaces --output=json |
     jq --raw-output '.items[].metadata.name'
 )
-mapfile -t deployments < <(
-    kubectl get deployments --all-namespaces --output=json |
-    jq --raw-output '.items[].metadata.name'
-)
 mapfile -t statefulsets < <(
     kubectl get statefulsets --all-namespaces --output=json |
+    jq --raw-output '.items[].metadata.name'
+)
+mapfile -t deployments < <(
+    kubectl get deployments --all-namespaces --output=json |
     jq --raw-output '.items[].metadata.name'
 )
 
@@ -46,17 +46,6 @@ do
         fi
     done
 
-    for deployment in "${deployments[@]}"
-    do
-        postfix="${pod_name/#"$deployment"}"
-        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
-        then
-            longest_prefix_match="$deployment"
-            longest_prefix_type='deployment'
-            shortest_postfix_length="${#postfix}"
-        fi
-    done
-
     for statefulset in "${statefulsets[@]}"
     do
         postfix="${pod_name/#"$statefulset"}"
@@ -64,6 +53,17 @@ do
         then
             longest_prefix_match="$statefulset"
             longest_prefix_type='statefulset'
+            shortest_postfix_length="${#postfix}"
+        fi
+    done
+
+    for deployment in "${deployments[@]}"
+    do
+        postfix="${pod_name/#"$deployment"}"
+        if ((${#postfix} != ${#pod_name} && ${#postfix} < shortest_postfix_length))
+        then
+            longest_prefix_match="$deployment"
+            longest_prefix_type='deployment'
             shortest_postfix_length="${#postfix}"
         fi
     done
