@@ -1,4 +1,3 @@
-/* isnvt.c */
 /* Check for Non-NVT Characters in Files */
 #include <stdio.h>
 #include <ctype.h>
@@ -11,75 +10,86 @@ int isnvt(unsigned character)
     return !(character & NVTAND);
 }
 
-int main(int argc, char **argv)
+void examine(FILE *fin, char *filename)
 {
-    FILE   *fin;
+    char    context[CONTEXT + 1];
     int     current_character;
     int     previous_character;
+    long    non_nvt_position;
     size_t  context_counter;
     size_t  line_number;
+    size_t  non_nvt_line_number;
+
+    previous_character = '\0';
+    line_number = 1;
+
+    while (
+        isnvt(current_character = fgetc(fin)) &&
+        !feof(fin) &&
+        !ferror(fin)
+    ) {
+        if (
+            current_character == '\r' ||
+            (previous_character != '\r' && current_character == '\n')
+        ) {
+            ++line_number;
+        }
+
+        previous_character = current_character;
+    }
+
+
+    if (feof(fin)) {
+        printf("%s is NVT.\n", filename);
+        return;
+    }
+
+    non_nvt_line_number = line_number;
+    non_nvt_position = fin == stdin ? 0 : ftell(fin);
+
+    context_counter = 0;
+
+    while (
+        context_counter < CONTEXT &&
+        !feof(fin) &&
+        !ferror(fin)
+    ) {
+        current_character = fgetc(fin);
+        if (
+            isnvt(current_character) &&
+            isprint(current_character) &&
+            !isspace(current_character)
+        ) {
+            context[context_counter++] = current_character;
+        }
+    }
+
+    context[context_counter] = '\0';
+
+    printf("%s is not NVT. Position: %ld, Line: %zu, Context: %s\n",
+           filename, non_nvt_position, non_nvt_line_number, context);
+}
+
+int main(int argc, char **argv)
+{
+    FILE *fin;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage:\n\tnvt-check <filename>...\n");
-        return 1;
+        examine(stdin, "Standard Input (stdin, file descriptor (fd) 0)");
+        return 0;
     }
 
     for (++argv; *argv; ++argv) {
         fin = fopen(*argv, "rb");
-
         if (!fin) {
             fprintf(stderr, "I/O Error: Could not open %s!\n", *argv);
             continue;
         }
 
-        previous_character = '\0';
-        line_number = 1;
-
-        while (
-            isnvt(current_character = fgetc(fin)) &&
-            !feof(fin) &&
-            !ferror(fin)
-        ) {
-            if (
-                current_character == '\r' ||
-                (previous_character != '\r' && current_character == '\n')
-            ) {
-                ++line_number;
-            }
-
-            previous_character = current_character;
-        }
-
-        printf("%s is ", *argv);
-
-        if (feof(fin)) {
-            puts("NVT.");
-        } else {
-            printf("not NVT. Position: %ld, Line: %zu, Context: ",
-                   ftell(fin), line_number);
-
-            context_counter = 0;
-
-            while (
-                context_counter < CONTEXT &&
-                !feof(fin) &&
-                !ferror(fin)
-            ) {
-                if (
-                    isnvt(current_character = fgetc(fin)) &&
-                    !isspace(current_character)
-                ) {
-                    putchar(current_character);
-                    ++context_counter;
-                }
-            }
-
-            putchar('\n');
-        }
+        examine(fin, *argv);
 
         fclose(fin);
     }
 
     return 0;
 }
-/* end of isnvt.c */
