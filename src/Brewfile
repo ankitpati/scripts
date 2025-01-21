@@ -381,6 +381,7 @@ elsif OS.mac? then
     cask "chromedriver"
     cask "docker"
     cask "font-code-new-roman-nerd-font"
+    cask "ghostty"
     cask "google-chrome"
     cask "google-cloud-sdk"
     cask "iterm2"
