@@ -243,6 +243,7 @@ elsif OS.mac? then
     brew "netcat"
     brew "nmap"
     brew "numdiff"
+    brew "oath-toolkit"
     brew "ocm"
     brew "ocrmypdf"
     brew "octosql"
