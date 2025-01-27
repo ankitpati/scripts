@@ -375,6 +375,7 @@ elsif OS.mac? then
     brew "zip"
     brew "zlib"
     brew "zlint"
+    brew "zopfli"
     brew "zsh"
 
     cask "1password"
