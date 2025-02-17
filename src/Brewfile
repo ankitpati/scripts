@@ -6,8 +6,6 @@ tap "homebrew/command-not-found"
 tap "homebrew/services"
 
 if OS.linux? then
-    brew "bazelisk"
-
     brew "checkstyle", args: ["ignore-dependencies"]
     brew "google-java-format", args: ["ignore-dependencies"]
     brew "pmd", args: ["ignore-dependencies"]
@@ -41,7 +39,6 @@ elsif OS.mac? then
     brew "bash-completion@2"
     brew "bash_unit"
     brew "bat"
-    brew "bazel"
     brew "bc"
     brew "benerator"
     brew "binutils"
@@ -399,6 +396,7 @@ elsif OS.mac? then
 end
 
 brew "actionlint"
+brew "bazelisk"
 brew "buildpacks/tap/pack"
 brew "dive"
 brew "duckdb"
