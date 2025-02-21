@@ -398,6 +398,7 @@ end
 
 brew "actionlint"
 brew "bazelisk"
+brew "buildifier"
 brew "buildpacks/tap/pack"
 brew "dive"
 brew "dockerfilegraph"
