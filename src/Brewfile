@@ -422,6 +422,7 @@ brew "usage"
 brew "xq"
 
 vscode "aykutsarac.jsoncrack-vscode"
+vscode "bazelbuild.vscode-bazel"
 vscode "eamodio.gitlens"
 vscode "esbenp.prettier-vscode"
 vscode "googlecloudtools.cloudcode"
