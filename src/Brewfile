@@ -281,6 +281,7 @@ elsif OS.mac? then
     brew "qemu"
     brew "rakudo"
     brew "range2cidr"
+    brew "redis"
     brew "redpen"
     brew "repo"
     brew "rich-cli"
