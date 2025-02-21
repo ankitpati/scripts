@@ -385,6 +385,7 @@ elsif OS.mac? then
     cask "google-chrome"
     cask "google-cloud-sdk"
     cask "iterm2"
+    cask "jetbrains-toolbox"
     cask "maccy"
     cask "microsoft-edge"
     cask "skim"
