@@ -33,7 +33,7 @@ foreach my $line (<STDIN>) {
 }
 
 foreach my $host (sort keys %hosts) {
-    my $body = join "\n", @{ $hosts{$host} };
+    my $body = join "\n", sort @{ $hosts{$host} };
     $body .= "\n" if $body ne '';
 
     print <<"EOH";
