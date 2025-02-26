@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+# Sort Git Config from STDIN
+
+use strict;
+use warnings;
+use autodie;
+
+our $VERSION = 1.00;
+
+# UTF8 for STDIN & STDOUT
+use open qw(:std :utf8);
+
+my $me = (split m{/}, $0)[-1];
+
+die "Usage:\n\t$me < git-config\n"
+    if @ARGV;
+
+my %sections;
+my $current_section;
+foreach my $line (<STDIN>) {
+    chomp $line;
+
+    if ($line eq '') {
+        # do nothing
+    } elsif ($line =~ /^\s*\[([^\]]+)\]\s*$/) {
+        $current_section = $1;
+    } else {
+        push @{ $sections{$current_section} }, $line;
+    }
+}
+
+foreach my $section (sort keys %sections) {
+    my $body = join "\n", sort @{ $sections{$section} };
+    $body =~ s/^\t/    /;
+
+    print <<"EOH";
+[$section]
+$body
+EOH
+}
+
+__END__
