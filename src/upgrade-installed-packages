@@ -55,7 +55,7 @@ do
     arkade get "$arktool"
 done
 
-krew upgrade
+kubectl krew upgrade
 
 mapfile -t < <(code --list-extensions)
 for codext in "${MAPFILE[@]}"
