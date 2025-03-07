@@ -82,6 +82,7 @@ elsif OS.mac? then
     brew "ddrescue"
     brew "dependency-check"
     brew "devspace"
+    brew "diff-pdf"
     brew "diffoscope"
     brew "diffstat"
     brew "difftastic"
