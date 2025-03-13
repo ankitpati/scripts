@@ -410,6 +410,7 @@ end
 brew "actionlint"
 brew "bazelisk"
 brew "buildifier"
+brew "buildozer"
 brew "dockerfilegraph"
 brew "duckdb"
 brew "foremost"
