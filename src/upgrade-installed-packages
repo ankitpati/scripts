@@ -109,3 +109,4 @@ then
 fi
 
 vim +PlugUpgrade +PlugUpdate
+nvim +PlugUpgrade +PlugUpdate
