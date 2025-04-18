@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me=${0##*/}
+
+if (($# != 1))
+then
+    printf 'Usage: %s <swarm-review-number>\n' "$me" >&2
+    exit 1
+fi
+
+declare -i swarm_review_number=10#$1
+
+curl \
+    --silent \
+    --user "${P4USER:?must be set in env}:$(
+        p4 tickets |
+        head --lines=1 |
+        rev |
+        cut --delimiter=' ' --fields=1 |
+        rev
+    )" "${SWARM_HOST:?must be set in env}/api/v9/reviews/$swarm_review_number" |
+    jq \
+        --raw-output \
+        '.review.changes[0]'
