@@ -397,6 +397,7 @@ elsif OS.mac? then
     cask "git-credential-manager"
     cask "google-chrome"
     cask "google-cloud-sdk"
+    cask "headlamp"
     cask "iterm2"
     cask "jetbrains-toolbox"
     cask "maccy"
