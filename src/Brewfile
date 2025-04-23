@@ -349,6 +349,7 @@ elsif OS.mac? then
     brew "tfmigrate"
     brew "tfmv"
     brew "tfsec"
+    brew "tfsort"
     brew "tfupdate"
     brew "tika"
     brew "timg"
