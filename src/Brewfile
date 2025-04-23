@@ -347,6 +347,7 @@ elsif OS.mac? then
     brew "tfk8s"
     brew "tflint"
     brew "tfmigrate"
+    brew "tfmv"
     brew "tfsec"
     brew "tfupdate"
     brew "tika"
