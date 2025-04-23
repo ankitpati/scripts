@@ -375,6 +375,7 @@ elsif OS.mac? then
     brew "wget"
     brew "whois"
     brew "with-readline"
+    brew "wrkflw"
     brew "xdg-ninja"
     brew "xidel"
     brew "yamllint"
