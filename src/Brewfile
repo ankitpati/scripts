@@ -336,6 +336,7 @@ elsif OS.mac? then
     brew "tcptraceroute"
     brew "tcsh"
     brew "teip"
+    brew "temporal"
     brew "terminal-notifier"
     brew "terracognita"
     brew "terraform-docs"
