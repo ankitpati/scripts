@@ -430,6 +430,7 @@ brew "krew"
 brew "logdy"
 brew "shellharden"
 brew "soft-serve"
+brew "tilt"
 brew "usage"
 brew "xq"
 
