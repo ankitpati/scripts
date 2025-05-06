@@ -3,7 +3,6 @@
 tap "buildpacks/tap"
 tap "hashicorp/tap"
 tap "homebrew/command-not-found"
-tap "homebrew/services"
 
 if OS.linux? then
     brew "checkstyle", args: ["ignore-dependencies"]
