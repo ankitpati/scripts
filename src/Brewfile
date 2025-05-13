@@ -243,6 +243,7 @@ elsif OS.mac? then
     brew "mypy"
     brew "nano"
     brew "ncdu"
+    brew "nelm"
     brew "neovim"
     brew "netcat"
     brew "nmap"
