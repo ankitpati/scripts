@@ -373,6 +373,7 @@ elsif OS.mac? then
     brew "watch"
     brew "watchexec"
     brew "webp"
+    brew "werf"
     brew "wget"
     brew "whois"
     brew "with-readline"
