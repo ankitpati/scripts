@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me=${0##*/}
+
+if [[ $# -ne 1 || $1 =~ ':' || ! -f $1 ]]
+then
+    printf 'Usage:\n\t%s <filename (must not have colons `:`)>n' "$me"
+    exit 1
+fi
+
+filename=$1
+
+container_manager='docker'
+
+if command -v podman &>/dev/null
+then
+    container_manager='podman'
+fi
+
+exec "$container_manager" run \
+    --entrypoint=bash \
+    --pull=never \
+    --rm \
+    --volume="$PWD/$filename:/home/colorized-logs/input" \
+        colorized-logs \
+            -c '
+                cd
+                ansi2txt <input >output
+                mv output input
+            '
