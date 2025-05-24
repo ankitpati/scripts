@@ -28,5 +28,5 @@ exec "$container_manager" run \
             -c '
                 cd
                 ansi2txt <input >output
-                mv output input
+                cp output input
             '
