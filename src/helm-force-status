@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me=${0##*/}
+
+printf -v usage 'Usage:
+    %s <context> <namespace> <helm_release_name =~ ^[A-Za-z0-9_-]+$> <"deployed"|"pending-upgrade">
+' "$me"
+
+if (($# != 4))
+then
+    printf '%s' "$usage"
+    exit 1
+fi
+
+context=$1
+readonly context
+
+namespace=$2
+readonly namespace
+
+helm_release_name=$3
+readonly helm_release_name
+
+if [[ ! $helm_release_name =~ ^[A-Za-z0-9_-]+$ ]]
+then
+    printf '%s' "$usage"
+    exit 2
+fi
+
+desired_status=$4
+readonly desired_status
+
+case $desired_status in
+    'deployed')
+        ;&
+    'pending-upgrade')
+        ;;
+    *)
+        printf '%s' "$usage"
+        exit 3
+        ;;
+esac
+
+helm_secret_type='helm.sh/release.v1'
+readonly helm_secret_type
+
+helm_secret_prefix='^sh[.]helm[.]release[.]v1[.]'
+readonly helm_secret_prefix
+
+helm_secret_postfix='[.]v[0-9]+$'
+readonly helm_secret_postfix
+
+secret_name=$(
+    kubectl \
+        --context="$context" \
+        --namespace="$namespace" \
+        get secrets \
+            --field-selector=type="$helm_secret_type" \
+            --output=json \
+    |
+    jq --raw-output '[
+        .items[]
+        .metadata
+        .name
+        |
+        select(
+            test(
+                "'"$helm_secret_prefix$helm_release_name$helm_secret_postfix"'"
+            )
+        )
+    ][-1]'
+)
+readonly secret_name
+
+patched_release_blob=$(
+    kubectl \
+        --context="$context" \
+        --namespace="$namespace" \
+        get "secret/$secret_name" \
+            --output=jsonpath='{.data.release}' |
+    base64 --decode | base64 --decode | gunzip |
+    jq \
+        --compact-output \
+        '.info.status = "'"$desired_status"'"' |
+    gzip | base64 --wrap=0 | base64 --wrap=0
+)
+readonly patched_release_blob
+
+kubectl \
+    --context="$context" \
+    --namespace="$namespace" \
+    patch "secret/$secret_name" \
+        --patch='{
+            "data": {
+                "release": "'"$patched_release_blob"'"
+            }
+        }' \
+        --type=merge
+
+kubectl \
+    --context="$context" \
+    --namespace="$namespace" \
+    label "secret/$secret_name" \
+        --overwrite \
+        status="$desired_status"
