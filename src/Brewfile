@@ -208,6 +208,7 @@ elsif OS.mac? then
     brew "libtermkey"
     brew "libvterm"
     brew "litecli"
+    brew "lld"
     brew "llvm"
     brew "lorem"
     brew "lowdown"
