@@ -163,6 +163,7 @@ elsif OS.mac? then
     brew "httpd"
     brew "httpie"
     brew "httrack"
+    brew "hurl"
     brew "hyperfine"
     brew "ijq"
     brew "imagemagick"
