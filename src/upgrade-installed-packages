@@ -108,5 +108,5 @@ then
     gcloud components install "${gcloud_installed_components[@]}"
 fi
 
-vim +PlugUpgrade +PlugUpdate
+vim +PlugUpgrade +PlugUpdate +quitall
 nvim +PlugUpgrade +PlugUpdate
