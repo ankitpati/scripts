@@ -60,11 +60,7 @@ done
 
 kubectl krew upgrade
 
-mapfile -t < <(code --list-extensions)
-for codext in "${MAPFILE[@]}"
-do
-    code --install-extension="$codext" --force
-done
+code --update-extensions
 
 terraform_current_version=''
 terraform_previous_version=''
