@@ -357,6 +357,7 @@ elsif OS.mac? then
     brew "timg"
     brew "tlrc"
     brew "tmux"
+    brew "topgrade"
     brew "tree"
     brew "treefmt"
     brew "trivy"
