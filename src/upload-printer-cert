@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+shopt -s extglob
+
+hostname='printer.tiger.ankitpati.in'
+readonly hostname
+ip_address='192.168.1.201'
+readonly ip_address
+
+authorization_bearer_token=$(
+    printf '%s:%s' admin "${PRINTER_PASSWORD:-$(
+        op read "op://Private/$hostname/password"
+    )}" |
+    base64 --wrap=0
+)
+readonly authorization_bearer_token
+
+declare -i current_nanoseconds
+current_nanoseconds=$(date +%N)
+current_nanoseconds=${current_nanoseconds##+(0)}
+readonly current_nanoseconds
+printf -v current_timestamp_milliseconds '%(%s)T%03u' -1 $((current_nanoseconds / 1000000))
+readonly current_timestamp_milliseconds
+
+authentication_cookie=$(
+    curl "https://$hostname/AuthChk?_=$current_timestamp_milliseconds" \
+        --header "Referer: https://$ip_address/" \
+        --header "origin: https://$ip_address" \
+        --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7' \
+        --header 'Accept: application/json, text/javascript, */*' \
+        --header 'Connection: keep-alive' \
+        --header 'Sec-Fetch-Dest: empty' \
+        --header 'Sec-Fetch-Mode: cors' \
+        --header 'Sec-Fetch-Site: same-origin' \
+        --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36' \
+        --header 'X-Auth-Client-Counter: 531506' \
+        --header 'sec-ch-ua-mobile: ?0' \
+        --header 'sec-ch-ua-platform: "macOS"' \
+        --header 'sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"' \
+        \
+        --cacert "$hostname.cert.pem" \
+        --dump-header - \
+        --header "Authorization: Basic $authorization_bearer_token" \
+        --output /dev/null \
+        --silent \
+        |
+        grep '^Set-Cookie: ' |
+        grep --extended-regexp --only-matching 'sid=[^;]+' |
+        tail --lines=1 \
+    ;
+)
+readonly authorization_bearer_token
+
+curl "https://$hostname/Security/DeviceCertificates/NewCertWithPassword/Upload?fixed_response=true" \
+    --verbose \
+    \
+    --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7' \
+    --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+    --header 'Cache-Control: max-age=0' \
+    --header 'Connection: keep-alive' \
+    --header 'Sec-Fetch-Dest: iframe' \
+    --header 'Sec-Fetch-Mode: navigate' \
+    --header 'Sec-Fetch-Site: same-origin' \
+    --header 'Sec-Fetch-User: ?1' \
+    --header 'Upgrade-Insecure-Requests: 1' \
+    --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36' \
+    --header 'sec-ch-ua-mobile: ?0' \
+    --header 'sec-ch-ua-platform: "macOS"' \
+    --header 'sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"' \
+    \
+    --cacert "$hostname.cert.pem" \
+    --cookie "$authentication_cookie" \
+    --form certificate="@$hostname.pfx" \
+    --form password=printer \
+    --header "Origin: https://$ip_address" \
+    --header "Referer: https://$ip_address/" \
+;
