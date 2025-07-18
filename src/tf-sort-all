@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+me=${0##*/}
+
+if (($# != 0))
+then
+    printf 'Usage:\n\t%s\n' "$me"
+    exit 1
+fi
+
+terraform fmt -recursive
+
+tflint --fix --minimum-failure-severity=notice --recursive
+
+tfsort .
