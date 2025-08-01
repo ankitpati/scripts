@@ -230,6 +230,7 @@ elsif OS.mac? then
     brew "mat2"
     brew "maven"
     brew "maven-completion"
+    brew "media-control"
     brew "mergiraf"
     brew "mg"
     brew "minikube"
