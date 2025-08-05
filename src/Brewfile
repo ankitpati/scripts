@@ -409,6 +409,7 @@ elsif OS.mac? then
     cask "headlamp"
     cask "iterm2"
     cask "jetbrains-toolbox"
+    cask "losslesscut"
     cask "maccy"
     cask "microsoft-edge"
     cask "skim"
