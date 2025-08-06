@@ -287,6 +287,7 @@ elsif OS.mac? then
     brew "pyenv"
     brew "pyenv-virtualenv"
     brew "pylint"
+    brew "pyrefly"
     brew "pyright"
     brew "python"
     brew "qemu"
