@@ -1,0 +1,315 @@
+#!/usr/bin/env python3
+"""
+SVG Path Translate Tool
+
+Translates SVG path coordinates by given x and y offsets.
+Supports all standard SVG path commands.
+"""
+
+import re
+import sys
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from dataclasses import dataclass
+from re import Pattern
+from sys import stderr, stdin
+from typing import Iterator, NamedTuple
+
+
+class Point(NamedTuple):
+    """Represents a 2D point."""
+
+    x: float
+    y: float
+
+
+@dataclass
+class PathCommand:
+    """Represents an SVG path command with its parameters."""
+
+    command: str
+    params: list[float]
+    is_relative: bool
+
+    def __post_init__(self) -> None:
+        self.is_relative = self.command.islower()
+
+
+class SVGPathTranslater:
+    """Handles SVG path transposition operations."""
+
+    # Pattern to match SVG path commands and their parameters
+    PATH_COMMAND_PATTERN: Pattern[str] = re.compile(
+        r"([MmLlHhVvCcSsQqTtAaZz])\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?(?:\s*,?\s*[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)*)?"
+    )
+
+    # Pattern to extract numeric values
+    NUMBER_PATTERN: Pattern[str] = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
+
+    def __init__(self, dx: float = 0, dy: float = 0) -> None:
+        """
+        Initialize the translater with x and y offsets.
+
+        Args:
+            dx: X-axis offset for transposition
+            dy: Y-axis offset for transposition
+        """
+        self.offset = Point(dx, dy)
+
+    def parse_path(self, path_data: str) -> Iterator[PathCommand]:
+        """
+        Parse SVG path data into commands.
+
+        Args:
+            path_data: SVG path data string
+
+        Yields:
+            PathCommand objects
+        """
+        for match in self.PATH_COMMAND_PATTERN.finditer(path_data):
+            command = match.group(1)
+            params_str = match.group(2) or ""
+
+            # Extract numeric parameters
+            params = [float(num) for num in self.NUMBER_PATTERN.findall(params_str)]
+
+            yield PathCommand(command, params, False)
+
+    def translate_command(self, cmd: PathCommand) -> PathCommand:
+        """
+        Translate a single path command.
+
+        Args:
+            cmd: PathCommand to translate
+
+        Returns:
+            Translated PathCommand
+        """
+        # Don't translate relative commands or commands without coordinates
+        if cmd.is_relative or cmd.command.upper() == "Z":
+            return cmd
+
+        params = cmd.params.copy()
+        command_upper = cmd.command.upper()
+
+        match command_upper:
+            case "M" | "L" | "T":
+                # Move to, Line to, Smooth quadratic Bézier curve to
+                # Format: x y
+                for i in range(0, len(params), 2):
+                    if i + 1 < len(params):
+                        params[i] += self.offset.x
+                        params[i + 1] += self.offset.y
+
+            case "H":
+                # Horizontal line to
+                # Format: x
+                for i, _ in enumerate(params):
+                    params[i] += self.offset.x
+            case "V":
+                # Vertical line to
+                # Format: y
+                for i, _ in enumerate(params):
+                    params[i] += self.offset.y
+
+            case "C":
+                # Cubic Bézier curve
+                # Format: x1 y1 x2 y2 x y
+                for i in range(0, len(params), 6):
+                    for j in range(0, min(6, len(params) - i), 2):
+                        if i + j + 1 < len(params):
+                            params[i + j] += self.offset.x
+                            params[i + j + 1] += self.offset.y
+
+            case "S":
+                # Smooth cubic Bézier curve
+                # Format: x2 y2 x y
+                for i in range(0, len(params), 4):
+                    for j in range(0, min(4, len(params) - i), 2):
+                        if i + j + 1 < len(params):
+                            params[i + j] += self.offset.x
+                            params[i + j + 1] += self.offset.y
+
+            case "Q":
+                # Quadratic Bézier curve
+                # Format: x1 y1 x y
+                for i in range(0, len(params), 4):
+                    for j in range(0, min(4, len(params) - i), 2):
+                        if i + j + 1 < len(params):
+                            params[i + j] += self.offset.x
+                            params[i + j + 1] += self.offset.y
+
+            case "A":
+                # Elliptical arc
+                # Format: rx ry x-axis-rotation large-arc-flag sweep-flag x y
+                for i in range(0, len(params), 7):
+                    if i + 6 < len(params):
+                        params[i + 5] += self.offset.x
+                        params[i + 6] += self.offset.y
+
+            case _:
+                # No action for unhandled commands
+                pass
+
+        return PathCommand(cmd.command, params, cmd.is_relative)
+
+    def translate(self, path_data: str) -> str:
+        """
+        Translate an entire SVG path.
+
+        Args:
+            path_data: Original SVG path data
+
+        Returns:
+            Translated SVG path data
+        """
+        result: list[str] = []
+
+        for cmd in self.parse_path(path_data):
+            translated = self.translate_command(cmd)
+
+            # Format the command
+            result.append(translated.command)
+
+            # Format parameters based on command type
+            if translated.params:
+                # Use appropriate formatting for better readability
+                params_str = self._format_params(translated.command, translated.params)
+                result.append(params_str)
+
+        return "".join(result)
+
+    def _format_params(self, command: str, params: list[float]) -> str:
+        """
+        Format parameters for a command.
+
+        Args:
+            command: SVG command letter
+            params: List of numeric parameters
+
+        Returns:
+            Formatted parameter string
+        """
+        if not params:
+            return ""
+
+        # Format numbers, removing unnecessary decimals
+        formatted: list[str] = []
+        for p in params:
+            if p == int(p):
+                formatted.append(str(int(p)))
+            else:
+                # Format with reasonable precision, strip trailing zeros
+                formatted.append(f"{p:.6f}".rstrip("0").rstrip("."))
+
+        # Join with appropriate separators based on command
+        command_upper = command.upper()
+
+        groups: list[str] = []
+        match command_upper:
+            case "H" | "V":
+                # Single coordinate commands
+                return " ".join(formatted)
+            case "M" | "L" | "T":
+                # Pair coordinates
+                pairs = [
+                    f"{formatted[i]} {formatted[i + 1]}"
+                    for i in range(0, len(formatted), 2)
+                    if i + 1 < len(formatted)
+                ]
+                return " ".join(pairs)
+            case "C":
+                # Cubic Bézier - group by 6
+                for i in range(0, len(formatted), 6):
+                    group = formatted[i: i + 6]
+                    if len(group) == 6:
+                        groups.append(" ".join(group))
+                return " ".join(groups)
+            case "S" | "Q":
+                # Smooth cubic / Quadratic - group by 4
+                for i in range(0, len(formatted), 4):
+                    group = formatted[i: i + 4]
+                    if len(group) == 4:
+                        groups.append(" ".join(group))
+                return " ".join(groups)
+            case "A":
+                # Arc - group by 7
+                for i in range(0, len(formatted), 7):
+                    group = formatted[i: i + 7]
+                    if len(group) == 7:
+                        groups.append(" ".join(group))
+                return " ".join(groups)
+            case _:
+                return " ".join(formatted)
+
+
+def main() -> int:
+    """Main entry point for the script."""
+    parser = ArgumentParser(
+        description="Translate SVG path coordinates by given offsets",
+        formatter_class=RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s -x 10 -y 20 "M0 0 L100 100"
+  %(prog)s --dx 50 --dy -30 < input.svg > output.svg
+  echo "M10 10 C20 20, 40 20, 50 10" | %(prog)s -x 100
+        """,
+    )
+
+    parser.add_argument(
+        "path", nargs="?", help="SVG path data (reads from stdin if not provided)"
+    )
+    parser.add_argument(
+        "-x",
+        "--dx",
+        type=float,
+        default=0,
+        help="X-axis offset for transposition (default: 0)",
+    )
+    parser.add_argument(
+        "-y",
+        "--dy",
+        type=float,
+        default=0,
+        help="Y-axis offset for transposition (default: 0)",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show verbose output with before/after comparison",
+    )
+
+    args = parser.parse_args()
+
+    # Read path data
+    if args.path:
+        path_data = args.path
+    else:
+        path_data = stdin.read().strip()
+
+    if not path_data:
+        print("Error: No path data provided", file=stderr)
+        return 1
+
+    # Create translater and process the path
+    translater = SVGPathTranslater(args.dx, args.dy)
+
+    try:
+        result = translater.translate(path_data)
+
+        if args.verbose:
+            print(f"Original: {path_data}", file=stderr)
+            print(f"Offset:   dx={args.dx}, dy={args.dy}", file=stderr)
+            print(f"Result:   {result}", file=stderr)
+            print(file=stderr)
+
+        print(result)
+        return 0
+
+    except Exception as e:
+        print(f"Error: Failed to translate path: {e}", file=stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
