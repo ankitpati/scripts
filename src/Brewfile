@@ -412,6 +412,7 @@ elsif OS.mac? then
     cask "jetbrains-toolbox"
     cask "losslesscut"
     cask "maccy"
+    cask "macsvg"
     cask "microsoft-edge"
     cask "skim"
     cask "sqlcl"
