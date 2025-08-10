@@ -401,6 +401,7 @@ elsif OS.mac? then
     cask "1password-cli"
     cask "chromedriver"
     cask "cursor"
+    cask "cursor-cli"
     cask "docker-desktop"
     cask "font-code-new-roman-nerd-font"
     cask "ghostty"
