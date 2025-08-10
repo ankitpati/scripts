@@ -232,6 +232,7 @@ elsif OS.mac? then
     brew "maven-completion"
     brew "media-control"
     brew "mergiraf"
+    brew "mesheryctl"
     brew "mg"
     brew "minikube"
     brew "minio-mc"
