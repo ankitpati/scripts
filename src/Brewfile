@@ -448,6 +448,7 @@ brew "soft-serve"
 brew "svgo"
 brew "tilt"
 brew "usage"
+brew "wrk"
 brew "xq"
 
 vscode "aykutsarac.jsoncrack-vscode"
