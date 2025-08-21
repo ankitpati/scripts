@@ -373,6 +373,7 @@ elsif OS.mac? then
     brew "unzip"
     brew "util-linux"
     brew "valkey"
+    brew "vegeta"
     brew "vhs"
     brew "vim"
     brew "virtualenv"
