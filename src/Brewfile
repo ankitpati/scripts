@@ -411,6 +411,7 @@ elsif OS.mac? then
     cask "google-chrome"
     cask "google-cloud-sdk"
     cask "headlamp"
+    cask "inkscape"
     cask "iterm2"
     cask "jetbrains-toolbox"
     cask "losslesscut"
