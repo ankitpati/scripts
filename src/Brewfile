@@ -204,6 +204,7 @@ elsif OS.mac? then
     brew "kwok"
     brew "lemmeknow"
     brew "less"
+    brew "libiconv"
     brew "libplist"
     brew "libressl"
     brew "libtermkey"
