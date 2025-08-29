@@ -425,6 +425,7 @@ elsif OS.mac? then
     cask "visual-studio-code"
     cask "visualvm"
     cask "vivaldi"
+    cask "windsurf"
     cask "zoom"
 end
 
