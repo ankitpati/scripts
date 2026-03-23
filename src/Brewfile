@@ -384,6 +384,7 @@ elsif OS.mac? then
     brew "universal-ctags"
     brew "unzip"
     brew "util-linux"
+    brew "uv"
     brew "valkey"
     brew "vegeta"
     brew "vhs"
