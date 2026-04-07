@@ -154,6 +154,7 @@ elsif OS.mac? then
     brew "grpcurl"
     brew "gzip"
     brew "hashicorp/tap/packer"
+    brew "hashicorp/tap/vault"
     brew "hck"
     brew "helm"
     brew "hexyl"
