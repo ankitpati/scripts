@@ -378,6 +378,7 @@ elsif OS.mac? then
     brew "treefmt"
     brew "trivy"
     brew "trurl"
+    brew "ty"
     brew "ugrep"
     brew "uncrustify"
     brew "uni"
