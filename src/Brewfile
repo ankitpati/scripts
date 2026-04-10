@@ -292,6 +292,7 @@ elsif OS.mac? then
     brew "popeye"
     brew "postgresql@15"
     brew "potrace"
+    brew "pre-commit"
     brew "prettier"
     brew "proctools"
     brew "proguard"
