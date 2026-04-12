@@ -502,6 +502,7 @@ brew "weave"
 brew "worktrunk"
 brew "wrk"
 brew "xq"
+brew "zx"
 brew "zxc"
 
 vscode "aykutsarac.jsoncrack-vscode"
