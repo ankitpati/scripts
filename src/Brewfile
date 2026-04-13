@@ -17,6 +17,7 @@ elsif OS.mac? then
     brew "age"
     brew "aliyun-cli"
     brew "ant"
+    brew "apfel"
     brew "ares"
     brew "argo"
     brew "argocd"
