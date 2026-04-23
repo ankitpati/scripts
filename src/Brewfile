@@ -419,7 +419,7 @@ elsif OS.mac? then
     cask "1password"
     cask "1password-cli"
     cask "chromedriver"
-    cask "claude-code"
+    cask "claude-code@latest"
     cask "cursor"
     cask "cursor-cli"
     cask "docker-desktop"
