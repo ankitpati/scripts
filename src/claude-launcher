@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+declare -i current_process_count=0
+
+while read -r _
+do
+    ((++current_process_count))
+done <<<"${ ps -Ao pid; }"
+
+readonly current_process_count
+
+ulimit -u $((current_process_count + 500))
+
+ANTHROPIC_AUTH_TOKEN=${ op read op://Private/anthropic_auth_token/password; }
+declare -rx ANTHROPIC_AUTH_TOKEN
+
+exec claude "$@"
