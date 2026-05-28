@@ -60,8 +60,8 @@ steampipe plugin update --all
 
 tldr --update
 
-"$container_manager" image ls --format='{{.Repository}}:{{.Tag}}' |
-    grep --invert-match -- '^localhost/' |
+"$container_manager" image list --format='{{.Repository}}:{{.Tag}}' |
+    grep --extended-regexp --invert-match -- '^localhost/|:.*[0-9]' |
     sed -- 's/:<none>$//' |
     xargs --max-args=1 --no-run-if-empty -- "$container_manager" pull --
 
