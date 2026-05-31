@@ -427,6 +427,7 @@ elsif OS.mac? then
     cask "font-code-new-roman-nerd-font"
     cask "gcloud-cli"
     cask "ghostty"
+    cask "ghostvm"
     cask "git-credential-manager"
     cask "google-chrome"
     cask "google-gemini"
