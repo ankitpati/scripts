@@ -204,6 +204,7 @@ elsif OS.mac? then
     brew "kube-score"
     brew "kubecfg"
     brew "kubecm"
+    brew "kubectl-explore"
     brew "kubehound"
     brew "kubent"
     brew "kubergrunt"
